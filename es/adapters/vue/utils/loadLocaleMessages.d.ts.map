@@ -1,0 +1,1 @@
+{"version":3,"file":"loadLocaleMessages.d.ts","sourceRoot":"","sources":["../../../../src/adapters/vue/utils/loadLocaleMessages.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,gBAAgB,CAAC;AAErD,wBAAsB,kBAAkB,CACtC,MAAM,EAAE,MAAM,EACd,MAAM,EAAE,MAAM,OAAO,CAAC,cAAc,CAAC,GAAG,cAAc,GACrD,OAAO,CAAC,cAAc,CAAC,CAGzB"}

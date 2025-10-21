@@ -1,0 +1,212 @@
+
+.locale-switcher-wrapper[data-v-882370ce] {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 下拉选择器样式 */
+.locale-dropdown[data-v-882370ce] {
+  position: relative;
+  display: inline-block;
+}
+.locale-dropdown-trigger[data-v-882370ce] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #24292e;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 120px;
+}
+.locale-dropdown-trigger[data-v-882370ce]:hover {
+  background: #f6f8fa;
+  border-color: #d1d5da;
+}
+.locale-dropdown-trigger[data-v-882370ce]:focus {
+  outline: none;
+  border-color: #0366d6;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+.locale-icon[data-v-882370ce] {
+  font-size: 18px;
+  line-height: 1;
+}
+.locale-arrow[data-v-882370ce] {
+  transition: transform 0.2s ease;
+  color: #586069;
+  margin-left: auto;
+}
+.locale-arrow.rotate[data-v-882370ce] {
+  transform: rotate(180deg);
+}
+.locale-dropdown-menu[data-v-882370ce] {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+  z-index: 1000;
+  padding: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.locale-option[data-v-882370ce] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #24292e;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.locale-option[data-v-882370ce]:hover {
+  background: #f6f8fa;
+}
+.locale-option.active[data-v-882370ce] {
+  background: #e7f3ff;
+  color: #0366d6;
+  font-weight: 500;
+}
+.locale-option-flag[data-v-882370ce] {
+  font-size: 18px;
+  line-height: 1;
+}
+.locale-option-label[data-v-882370ce] {
+  flex: 1;
+}
+.locale-check[data-v-882370ce] {
+  color: #0366d6;
+  margin-left: auto;
+}
+
+/* 按钮组样式 */
+.locale-buttons[data-v-882370ce] {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f6f8fa;
+  border-radius: 8px;
+}
+.locale-button[data-v-882370ce] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #586069;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.locale-button[data-v-882370ce]:hover {
+  background: white;
+  color: #24292e;
+}
+.locale-button.active[data-v-882370ce] {
+  background: white;
+  color: #0366d6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.locale-button-flag[data-v-882370ce] {
+  font-size: 16px;
+  line-height: 1;
+}
+.locale-button-label[data-v-882370ce] {
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+/* 标签样式 */
+.locale-tabs[data-v-882370ce] {
+  display: inline-flex;
+  border-bottom: 2px solid #e1e4e8;
+}
+.locale-tab[data-v-882370ce] {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #586069;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.locale-tab[data-v-882370ce]:hover {
+  color: #24292e;
+}
+.locale-tab.active[data-v-882370ce] {
+  color: #0366d6;
+}
+.locale-tab.active[data-v-882370ce]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #0366d6;
+}
+
+/* 过渡动画 */
+.dropdown-enter-active[data-v-882370ce],
+.dropdown-leave-active[data-v-882370ce] {
+  transition: all 0.2s ease;
+}
+.dropdown-enter-from[data-v-882370ce],
+.dropdown-leave-to[data-v-882370ce] {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+.locale-dropdown-trigger[data-v-882370ce] {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+}
+.locale-dropdown-trigger[data-v-882370ce]:hover {
+    background: #374151;
+    border-color: #4b5563;
+}
+.locale-dropdown-menu[data-v-882370ce] {
+    background: #1f2937;
+    border-color: #374151;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.locale-option[data-v-882370ce] {
+    color: #f3f4f6;
+}
+.locale-option[data-v-882370ce]:hover {
+    background: #374151;
+}
+.locale-option.active[data-v-882370ce] {
+    background: #1e3a5f;
+    color: #60a5fa;
+}
+}
+
+/*# sourceMappingURL=plugin.css.map */
+/*# sourceMappingURL=plugin.css.map */
+/*# sourceMappingURL=plugin.css.map */
+/*# sourceMappingURL=plugin.css.map */
