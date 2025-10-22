@@ -5,17 +5,24 @@
 import type { I18nConfig, I18nInstance } from '../types';
 import { OptimizedI18n } from './i18n-optimized';
 
-// Commonly used features
-export * from './advanced-formatter';
-
-export * from './cache';
 // Main i18n class
 export * from './i18n-optimized';
+
 // Core engines
 export * from './interpolation';
-
-export * from './lazy-loader';
 export * from './pluralization';
+
+// Cache systems
+export * from './cache';
+export * from './adaptive-cache';
+
+// Advanced features
+export * from './advanced-formatter';
+export * from './lazy-loader';
+export * from './template-compiler';
+export * from './pipeline-formatter';
+export * from './weak-event-emitter';
+export * from './soa-storage';
 
 /**
  * Create a new optimized i18n instance

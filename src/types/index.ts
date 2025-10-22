@@ -129,7 +129,7 @@ export interface I18nConfig {
   locale?: Locale;
   fallbackLocale?: Locale | Locale[];
   messages?: Record<Locale, Messages>;
-  
+
   // Advanced settings
   namespaces?: string[];
   defaultNamespace?: string;
@@ -137,20 +137,20 @@ export interface I18nConfig {
   keySeparator?: string;
   pluralSeparator?: string;
   contextSeparator?: string;
-  
+
   // Features
   lazy?: boolean;
   cache?: boolean | CacheConfig;
   detection?: boolean | DetectionConfig;
   interpolation?: InterpolationConfig;
-  
+
   // Components
   loader?: MessageLoader;
   storage?: MessageStorage;
   detector?: LanguageDetector;
   formatters?: Record<string, Formatter>;
   plugins?: I18nPlugin[];
-  
+
   // Behavior
   missingKeyHandler?: MissingKeyHandler;
   errorHandler?: ErrorHandler;
@@ -203,7 +203,7 @@ export interface InterpolationConfig {
 /**
  * Event types
  */
-export type I18nEventType = 
+export type I18nEventType =
   | 'loaded'
   | 'loading'
   | 'loadError'
@@ -274,12 +274,12 @@ export interface I18nInstance {
   readonly config: Readonly<I18nConfig>;
   locale: Locale;
   fallbackLocale: Locale | Locale[];
-  
+
   // Core methods
   t: TranslationFunction;
   translate(key: MessageKey, options?: TranslateOptions): string;
   exists(key: MessageKey, options?: TranslateOptions): boolean;
-  
+
   // Locale management
   setLocale(locale: Locale): Promise<void>;
   getLocale(): Locale;
@@ -287,42 +287,42 @@ export interface I18nInstance {
   removeLocale(locale: Locale): void;
   hasLocale(locale: Locale): boolean;
   getAvailableLocales(): Locale[];
-  
+
   // Message management
   addMessages(locale: Locale, messages: Messages, namespace?: string): void;
   setMessages(locale: Locale, messages: Messages, namespace?: string): void;
   getMessages(locale?: Locale, namespace?: string): Messages | null;
   mergeMessages(locale: Locale, messages: Messages, namespace?: string): void;
-  
+
   // Namespace management
   loadNamespace(namespace: string, locale?: Locale): Promise<void>;
   hasNamespace(namespace: string, locale?: Locale): boolean;
-  
+
   // Formatting
   format(value: any, format: string, locale?: Locale, options?: any): string;
   number(value: number, options?: Intl.NumberFormatOptions): string;
   currency(value: number, currency: string, options?: Intl.NumberFormatOptions): string;
   date(value: Date | string | number, options?: Intl.DateTimeFormatOptions): string;
   relativeTime(value: Date | string | number, options?: Intl.RelativeTimeFormatOptions): string;
-  
+
   // Pluralization
   plural(key: MessageKey, count: number, options?: TranslateOptions): string;
-  
+
   // Event management
   on(event: I18nEventType, listener: I18nEventListener): () => void;
   off(event: I18nEventType, listener: I18nEventListener): void;
   once(event: I18nEventType, listener: I18nEventListener): void;
   emit(event: I18nEventType, data?: Omit<I18nEventData, 'type'>): void;
-  
+
   // Plugin management
   use(plugin: I18nPlugin): Promise<void>;
   unuse(plugin: I18nPlugin | string): Promise<void>;
-  
+
   // Lifecycle
   init(config?: Partial<I18nConfig>): Promise<void>;
   ready(): Promise<void>;
   destroy(): void;
-  
+
   // Utilities
   clone(config?: Partial<I18nConfig>): I18nInstance;
   createContext(namespace: string): I18nContext;
@@ -370,3 +370,6 @@ export type DeepPartial<T> = T extends object ? {
 export type ValueOf<T> = T[keyof T];
 
 export type PromiseOr<T> = T | Promise<T>;
+
+// Re-export type-safe translation utilities
+export * from './type-safe';

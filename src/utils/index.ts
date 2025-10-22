@@ -4,6 +4,27 @@
 
 export * from './bundle-optimization'
 
+// Export hash cache key utilities
+export * from './hash-cache-key'
+
+// Export locale metadata and RTL support
+export * from './locale-metadata'
+
+// Export smart fallback chain
+export * from './smart-fallback'
+
+// Export context-aware translations
+export * from './context-aware'
+
+// Export performance budget monitoring
+export * from './performance-budget'
+
+// Export coverage reporter
+export * from './coverage-reporter'
+
+// Export hot reload (development)
+export * from './hot-reload'
+
 // Export from error-handler
 export {
   assert,

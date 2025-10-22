@@ -21,32 +21,32 @@ export interface UseI18nReturn {
   fallbackLocale: Ref<Locale | Locale[]>;
   messages: ComputedRef<Record<string, any>>;
   availableLocales: ComputedRef<Locale[]>;
-  
+
   // Methods
   t: (key: MessageKey, params?: InterpolationParams | TranslateOptions) => string;
   te: (key: MessageKey, locale?: Locale) => boolean;
   tm: (key: MessageKey) => any;
   rt: (message: string, params?: InterpolationParams) => string;
-  
+
   // Plural
   tc: (key: MessageKey, count: number, params?: InterpolationParams) => string;
   tp: (key: MessageKey, count: number, params?: InterpolationParams) => string; // Alias for tc
-  
+
   // Date & Number formatting
   d: (value: Date | number | string, format?: string) => string;
   n: (value: number, format?: string) => string;
-  
+
   // Locale management
   setLocale: (locale: Locale) => Promise<void>;
   getLocale: () => Locale;
   setFallbackLocale: (locale: Locale | Locale[]) => void;
   getFallbackLocale: () => Locale | Locale[];
-  
+
   // Message management
   mergeLocaleMessage: (locale: Locale, messages: Record<string, any>) => void;
   getLocaleMessage: (locale: Locale) => Record<string, any>;
   setLocaleMessage: (locale: Locale, messages: Record<string, any>) => void;
-  
+
   // Instance
   i18n: I18nInstance;
 }
@@ -63,14 +63,14 @@ export function useI18n(options: UseI18nOptions = {}): UseI18nReturn {
 
   // Get global i18n instance
   const globalI18n = inject(I18N_SYMBOL);
-  
+
   if (!globalI18n) {
     throw new Error('[useI18n] No i18n instance found. Make sure to install the i18n plugin.');
   }
 
   // Create local scope if needed
   let i18n: I18nInstance;
-  
+
   if (useScope === 'local' && localMessages) {
     // Create a local i18n instance
     i18n = globalI18n.clone({
@@ -86,28 +86,43 @@ export function useI18n(options: UseI18nOptions = {}): UseI18nReturn {
   const locale = ref(i18n.locale || 'en_us');
   const fallbackLocale = ref(i18n.fallbackLocale || 'en_us');
 
+  // Track all cleanup functions
+  const cleanupFns: Array<() => void> = [];
+
   // Sync locale changes with cleanup
   const stopWatchLocale = watchEffect(() => {
     i18n.locale = locale.value;
   });
+  cleanupFns.push(stopWatchLocale);
 
   const stopWatchFallback = watchEffect(() => {
     i18n.fallbackLocale = fallbackLocale.value;
   });
+  cleanupFns.push(stopWatchFallback);
 
   // Listen to locale changes
   const unsubscribe = i18n.on('localeChanged', ({ locale: newLocale }) => {
-    locale.value = newLocale;
-  });
-  
-  // Cleanup on unmount
-  onUnmounted(() => {
-    stopWatchLocale();
-    stopWatchFallback();
-    if (unsubscribe && typeof unsubscribe === 'function') {
-      unsubscribe();
+    if (newLocale) {
+      locale.value = newLocale;
     }
-    
+  });
+
+  if (unsubscribe && typeof unsubscribe === 'function') {
+    cleanupFns.push(unsubscribe);
+  }
+
+  // Cleanup on unmount - execute all cleanup functions
+  onUnmounted(() => {
+    // Execute all cleanup functions in reverse order
+    for (let i = cleanupFns.length - 1; i >= 0; i--) {
+      try {
+        cleanupFns[i]();
+      } catch (error) {
+        console.error('[useI18n] Cleanup error:', error);
+      }
+    }
+    cleanupFns.length = 0;
+
     // Clean up local instance if created
     if (useScope === 'local' && i18n !== globalI18n && 'destroy' in i18n) {
       i18n.destroy();
@@ -135,10 +150,10 @@ export function useI18n(options: UseI18nOptions = {}): UseI18nReturn {
     const actualKey = namespace ? `${namespace}.${key}` : key;
     const messages = i18n.getMessages(locale.value);
     if (!messages) return undefined;
-    
+
     const keys = actualKey.split('.');
     let result: any = messages;
-    
+
     for (const k of keys) {
       if (result && typeof result === 'object' && k in result) {
         result = result[k];
@@ -146,13 +161,16 @@ export function useI18n(options: UseI18nOptions = {}): UseI18nReturn {
         return undefined;
       }
     }
-    
+
     return result;
   };
 
   // Interpolate raw translation
   const rt = (message: string, params?: InterpolationParams): string => {
-    return i18n.interpolation.interpolate(message, params || {}, locale.value);
+    if ('interpolation' in i18n && i18n.interpolation) {
+      return (i18n as any).interpolation.interpolate(message, params || {}, locale.value);
+    }
+    return message;
   };
 
   // Translation with count (pluralization)
@@ -210,7 +228,7 @@ export function useI18n(options: UseI18nOptions = {}): UseI18nReturn {
     fallbackLocale: fallbackLocale as Ref<Locale | Locale[]>,
     messages,
     availableLocales,
-    
+
     // Methods
     t,
     te,
@@ -220,18 +238,18 @@ export function useI18n(options: UseI18nOptions = {}): UseI18nReturn {
     tp: tc, // Alias for tc
     d,
     n,
-    
+
     // Locale management
     setLocale,
     getLocale,
     setFallbackLocale,
     getFallbackLocale,
-    
+
     // Message management
     mergeLocaleMessage,
     getLocaleMessage,
     setLocaleMessage,
-    
+
     // Instance
     i18n
   };
