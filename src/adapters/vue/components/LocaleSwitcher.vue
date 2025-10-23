@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+/**
+ * LocaleSwitcher - 基于无头逻辑层重构
+ * 使用 @ldesign/shared 的协议和逻辑层
+ */
+import { computed, ref } from 'vue'
+import type { SelectorConfig, SelectorOption } from '@ldesign/shared/protocols'
+import { useHeadlessSelector, useResponsivePopup } from '@ldesign/shared/composables'
+import { renderIcon } from '@ldesign/shared/icons'
 import { useI18n } from '../composables/useI18n';
 
 interface Props {
@@ -28,124 +35,120 @@ const emit = defineEmits<{
   change: [locale: string];
 }>();
 
-const { locale, availableLocales, setLocale } = useI18n();
-const isOpen = ref(false);
-const dropdownRef = ref<HTMLElement>();
+const { locale, availableLocales, setLocale } = useI18n()
 
 const getLocaleName = (loc: string): string => {
-  return props.displayNames[loc] || loc;
-};
+  return props.displayNames[loc] || loc
+}
 
 const getShortName = (loc: string): string => {
-  return loc.split('-')[0].toUpperCase();
-};
+  return loc.split('-')[0].toUpperCase()
+}
 
 const getFlag = (loc: string): string => {
-  if (!props.showFlags) return '';
-  return props.flags[loc] || '🌐';
-};
+  if (!props.showFlags) return ''
+  return props.flags[loc] || '🌐'
+}
 
-const getCurrentLabel = (): string => {
-  return getLocaleName(locale.value);
-};
+// 选择器配置（遵循协议）
+const config: SelectorConfig = {
+  icon: 'Languages',
+  popupMode: 'auto',
+  listStyle: props.mode === 'dropdown' ? 'simple' : 'card',
+  searchable: false,
+  breakpoint: 768
+}
 
-const getCurrentFlag = (): string => {
-  return getFlag(locale.value);
-};
+// 转换为 SelectorOption 格式
+const options = computed<SelectorOption[]>(() => {
+  return availableLocales.value.map(loc => ({
+    value: loc,
+    label: getLocaleName(loc),
+    icon: getFlag(loc),
+    metadata: {
+      flag: getFlag(loc)
+    }
+  }))
+})
 
-const isCurrentLocale = (loc: string): boolean => {
-  return locale.value === loc;
-};
+// 处理选择
+const handleSelect = async (value: string) => {
+  await setLocale(value)
+  emit('change', value)
+}
 
-const selectLocale = async (loc: string) => {
-  await setLocale(loc);
-  emit('change', loc);
-  isOpen.value = false;
-};
+// 当前选中的选项
+const currentOption = computed(() => {
+  return options.value.find(opt => opt.value === locale.value)
+})
 
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value;
-};
+// 使用无头选择器（仅 dropdown 模式）
+const { state, actions, triggerRef, panelRef, activeIndexRef } = useHeadlessSelector({
+  options,
+  modelValue: locale,
+  searchable: config.searchable,
+  onSelect: handleSelect
+})
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    isOpen.value = false;
-  }
-};
-
-onMounted(() => {
-  if (props.mode === 'dropdown') {
-    document.addEventListener('click', handleClickOutside);
-  }
-});
-
-onBeforeUnmount(() => {
-  if (props.mode === 'dropdown') {
-    document.removeEventListener('click', handleClickOutside);
-  }
-});
+// 使用响应式弹出（仅 dropdown 模式）
+const { currentMode, popupStyle } = useResponsivePopup({
+  mode: config.popupMode,
+  triggerRef,
+  panelRef,
+  placement: 'bottom-start',
+  breakpoint: config.breakpoint,
+  isOpen: computed(() => state.value.isOpen)
+})
 </script>
 
 <template>
   <div class="locale-switcher-wrapper">
     <!-- 下拉选择器样式 -->
-    <div v-if="mode === 'dropdown'" ref="dropdownRef" class="locale-dropdown">
-      <button 
-        class="locale-dropdown-trigger"
-        :aria-expanded="isOpen"
-        @click="toggleDropdown"
-      >
-        <span class="locale-icon">{{ getCurrentFlag() }}</span>
-        <span class="locale-label">{{ getCurrentLabel() }}</span>
-        <svg class="locale-arrow" :class="{ 'rotate': isOpen }" width="12" height="12" viewBox="0 0 12 12">
-          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <div v-if="mode === 'dropdown'" class="locale-dropdown">
+      <button ref="triggerRef" class="locale-dropdown-trigger" :aria-expanded="state.isOpen" @click="actions.toggle">
+        <span class="locale-icon">{{ currentOption?.icon }}</span>
+        <span class="locale-label">{{ currentOption?.label }}</span>
+        <svg class="locale-arrow" :class="{ 'rotate': state.isOpen }" width="12" height="12" viewBox="0 0 12 12">
+          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" fill="none" />
         </svg>
       </button>
-      
-      <transition name="dropdown">
-        <div v-if="isOpen" class="locale-dropdown-menu">
-          <button
-            v-for="loc in availableLocales"
-            :key="loc"
-            class="locale-option"
-            :class="{ 'active': isCurrentLocale(loc) }"
-            @click="selectLocale(loc)"
-          >
-            <span class="locale-option-flag">{{ getFlag(loc) }}</span>
-            <span class="locale-option-label">{{ getLocaleName(loc) }}</span>
-            <svg v-if="isCurrentLocale(loc)" class="locale-check" width="16" height="16" viewBox="0 0 16 16">
-              <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-            </svg>
-          </button>
-        </div>
-      </transition>
+
+      <Teleport to="body">
+        <transition name="selector-panel">
+          <div v-if="state.isOpen" ref="panelRef" class="locale-dropdown-menu"
+            :class="{ 'locale-dropdown-dialog': currentMode === 'dialog' }" :style="popupStyle" @click.stop>
+            <button v-for="(option, index) in state.filteredOptions" :key="option.value" class="locale-option" :class="{
+              'active': state.selectedValue === option.value,
+              'hover': state.activeIndex === index
+            }" @click="actions.select(option.value)" @mouseenter="activeIndexRef = index">
+              <span class="locale-option-flag">{{ option.icon }}</span>
+              <span class="locale-option-label">{{ option.label }}</span>
+              <svg v-if="state.selectedValue === option.value" class="locale-check" width="16" height="16"
+                viewBox="0 0 16 16">
+                <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" fill="none" />
+              </svg>
+            </button>
+          </div>
+        </transition>
+      </Teleport>
     </div>
 
     <!-- 按钮组样式 -->
     <div v-else-if="mode === 'buttons'" class="locale-buttons">
-      <button
-        v-for="loc in availableLocales"
-        :key="loc"
-        class="locale-button"
-        :class="{ 'active': isCurrentLocale(loc) }"
-        :title="getLocaleName(loc)"
-        @click="selectLocale(loc)"
-      >
-        <span class="locale-button-flag">{{ getFlag(loc) }}</span>
-        <span class="locale-button-label">{{ getShortName(loc) }}</span>
+      <button v-for="option in options" :key="option.value" class="locale-button"
+        :class="{ 'active': locale === option.value }" :title="option.label" @click="handleSelect(option.value)">
+        <span class="locale-button-flag">{{ option.icon }}</span>
+        <span class="locale-button-label">{{ getShortName(option.value) }}</span>
       </button>
     </div>
 
     <!-- 标签样式 -->
     <div v-else-if="mode === 'tabs'" class="locale-tabs">
-      <button
-        v-for="loc in availableLocales"
-        :key="loc"
-        class="locale-tab"
-        :class="{ 'active': isCurrentLocale(loc) }"
-        @click="selectLocale(loc)"
-      >
-        {{ getLocaleName(loc) }}
+      <button v-for="option in options" :key="option.value" class="locale-tab"
+        :class="{ 'active': locale === option.value }" @click="handleSelect(option.value)">
+        {{ option.label }}
       </button>
     </div>
   </div>
@@ -206,18 +209,19 @@ onBeforeUnmount(() => {
 }
 
 .locale-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
   min-width: 180px;
   background: white;
   border: 1px solid #e1e4e8;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
-  z-index: 1000;
   padding: 4px;
   max-height: 320px;
   overflow-y: auto;
+}
+
+.locale-dropdown-dialog {
+  max-width: 90vw;
+  max-height: 80vh;
 }
 
 .locale-option {
@@ -237,7 +241,8 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-.locale-option:hover {
+.locale-option:hover,
+.locale-option.hover {
   background: #f6f8fa;
 }
 
@@ -342,16 +347,23 @@ onBeforeUnmount(() => {
   background: #0366d6;
 }
 
-/* 过渡动画 */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
+/* 过渡动画 - 统一标准 */
+.selector-panel-enter-active {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.dropdown-enter-from,
-.dropdown-leave-to {
+.selector-panel-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.selector-panel-enter-from {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-8px) scale(0.96);
+}
+
+.selector-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 /* 深色模式支持 */
