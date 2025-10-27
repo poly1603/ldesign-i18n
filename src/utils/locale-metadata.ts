@@ -3,33 +3,33 @@
  * Provides locale-specific metadata including text direction, script, and number systems
  */
 
-import type { Locale } from '../types';
-import { parseLocale } from './helpers';
+import type { Locale } from '../types'
+import { parseLocale } from './helpers'
 
 /**
  * Text direction
  */
-export type TextDirection = 'ltr' | 'rtl';
+export type TextDirection = 'ltr' | 'rtl'
 
 /**
  * Writing script type
  */
-export type ScriptType = 'latin' | 'arabic' | 'hebrew' | 'cyrillic' | 'cjk' | 'devanagari' | 'other';
+export type ScriptType = 'latin' | 'arabic' | 'hebrew' | 'cyrillic' | 'cjk' | 'devanagari' | 'other'
 
 /**
  * Number system type
  */
-export type NumberSystem = 'western' | 'arabic-indic' | 'devanagari' | 'chinese' | 'other';
+export type NumberSystem = 'western' | 'arabic-indic' | 'devanagari' | 'chinese' | 'other'
 
 /**
  * Locale metadata
  */
 export interface LocaleMetadata {
-  locale: Locale;
-  direction: TextDirection;
-  script: ScriptType;
-  numberSystem: NumberSystem;
-  nativeName?: string;
+  locale: Locale
+  direction: TextDirection
+  script: ScriptType
+  numberSystem: NumberSystem
+  nativeName?: string
 }
 
 /**
@@ -47,7 +47,7 @@ const RTL_LANGUAGES = new Set([
   'dv', // Dhivehi/Maldivian
   'ckb', // Central Kurdish (Sorani)
   'ku', // Kurdish
-]);
+])
 
 /**
  * Script type mapping by language
@@ -84,7 +84,7 @@ const SCRIPT_MAP: Record<string, ScriptType> = {
   hi: 'devanagari',
   mr: 'devanagari',
   ne: 'devanagari',
-};
+}
 
 /**
  * Number system mapping by language
@@ -99,7 +99,7 @@ const NUMBER_SYSTEM_MAP: Record<string, NumberSystem> = {
   ne: 'devanagari',
   zh: 'chinese',
   ja: 'chinese',
-};
+}
 
 /**
  * Native names for common locales
@@ -122,14 +122,14 @@ const NATIVE_NAMES: Record<string, string> = {
   'hi': 'हिन्दी',
   'fa': 'فارسی',
   'ur': 'اردو',
-};
+}
 
 /**
  * Direction Manager
  * Handles text direction detection and management
  */
 export class DirectionManager {
-  private static cache = new Map<Locale, TextDirection>();
+  private static cache = new Map<Locale, TextDirection>()
 
   /**
    * Get text direction for a locale
@@ -137,37 +137,37 @@ export class DirectionManager {
   static getDirection(locale: Locale): TextDirection {
     // Check cache first
     if (this.cache.has(locale)) {
-      return this.cache.get(locale)!;
+      return this.cache.get(locale)!
     }
 
-    const { language } = parseLocale(locale);
-    const direction = RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr';
+    const { language } = parseLocale(locale)
+    const direction = RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr'
 
-    this.cache.set(locale, direction);
-    return direction;
+    this.cache.set(locale, direction)
+    return direction
   }
 
   /**
    * Check if locale is RTL
    */
   static isRTL(locale: Locale): boolean {
-    return this.getDirection(locale) === 'rtl';
+    return this.getDirection(locale) === 'rtl'
   }
 
   /**
    * Check if locale is LTR
    */
   static isLTR(locale: Locale): boolean {
-    return this.getDirection(locale) === 'ltr';
+    return this.getDirection(locale) === 'ltr'
   }
 
   /**
    * Apply direction to an HTML element
    */
   static applyToElement(element: HTMLElement, locale: Locale): void {
-    const direction = this.getDirection(locale);
-    element.dir = direction;
-    element.setAttribute('data-direction', direction);
+    const direction = this.getDirection(locale)
+    element.dir = direction
+    element.setAttribute('data-direction', direction)
   }
 
   /**
@@ -175,10 +175,10 @@ export class DirectionManager {
    */
   static applyToDocument(locale: Locale): void {
     if (typeof document !== 'undefined') {
-      const direction = this.getDirection(locale);
-      document.documentElement.dir = direction;
-      document.documentElement.setAttribute('lang', locale);
-      document.documentElement.setAttribute('data-direction', direction);
+      const direction = this.getDirection(locale)
+      document.documentElement.dir = direction
+      document.documentElement.setAttribute('lang', locale)
+      document.documentElement.setAttribute('data-direction', direction)
     }
   }
 
@@ -186,7 +186,7 @@ export class DirectionManager {
    * Clear cache
    */
   static clearCache(): void {
-    this.cache.clear();
+    this.cache.clear()
   }
 }
 
@@ -195,7 +195,7 @@ export class DirectionManager {
  * Provides comprehensive locale information
  */
 export class LocaleMetadataManager {
-  private static cache = new Map<Locale, LocaleMetadata>();
+  private static cache = new Map<Locale, LocaleMetadata>()
 
   /**
    * Get metadata for a locale
@@ -203,10 +203,10 @@ export class LocaleMetadataManager {
   static getMetadata(locale: Locale): LocaleMetadata {
     // Check cache first
     if (this.cache.has(locale)) {
-      return this.cache.get(locale)!;
+      return this.cache.get(locale)!
     }
 
-    const { language } = parseLocale(locale);
+    const { language } = parseLocale(locale)
 
     const metadata: LocaleMetadata = {
       locale,
@@ -214,46 +214,46 @@ export class LocaleMetadataManager {
       script: SCRIPT_MAP[language] || 'latin',
       numberSystem: NUMBER_SYSTEM_MAP[language] || 'western',
       nativeName: NATIVE_NAMES[locale] || NATIVE_NAMES[language],
-    };
+    }
 
-    this.cache.set(locale, metadata);
-    return metadata;
+    this.cache.set(locale, metadata)
+    return metadata
   }
 
   /**
    * Get script type for a locale
    */
   static getScript(locale: Locale): ScriptType {
-    return this.getMetadata(locale).script;
+    return this.getMetadata(locale).script
   }
 
   /**
    * Get number system for a locale
    */
   static getNumberSystem(locale: Locale): NumberSystem {
-    return this.getMetadata(locale).numberSystem;
+    return this.getMetadata(locale).numberSystem
   }
 
   /**
    * Get native name for a locale
    */
   static getNativeName(locale: Locale): string | undefined {
-    return this.getMetadata(locale).nativeName;
+    return this.getMetadata(locale).nativeName
   }
 
   /**
    * Register custom locale metadata
    */
   static registerMetadata(locale: Locale, metadata: Partial<LocaleMetadata>): void {
-    const existing = this.cache.get(locale) || this.getMetadata(locale);
-    this.cache.set(locale, { ...existing, ...metadata });
+    const existing = this.cache.get(locale) || this.getMetadata(locale)
+    this.cache.set(locale, { ...existing, ...metadata })
   }
 
   /**
    * Clear cache
    */
   static clearCache(): void {
-    this.cache.clear();
+    this.cache.clear()
   }
 }
 
@@ -265,8 +265,8 @@ export class RTLCSSHelper {
    * Generate direction-specific class name
    */
   static getDirectionClass(locale: Locale, baseClass: string): string {
-    const direction = DirectionManager.getDirection(locale);
-    return `${baseClass}--${direction}`;
+    const direction = DirectionManager.getDirection(locale)
+    return `${baseClass}--${direction}`
   }
 
   /**
@@ -277,18 +277,18 @@ export class RTLCSSHelper {
     locale: Locale,
     property: 'margin' | 'padding',
     side: 'start' | 'end' | 'top' | 'bottom',
-    value: string
+    value: string,
   ): string {
     if (side === 'top' || side === 'bottom') {
-      return `${property}-${side}-${value}`;
+      return `${property}-${side}-${value}`
     }
 
-    const direction = DirectionManager.getDirection(locale);
+    const direction = DirectionManager.getDirection(locale)
     const actualSide = direction === 'rtl'
       ? (side === 'start' ? 'right' : 'left')
-      : (side === 'start' ? 'left' : 'right');
+      : (side === 'start' ? 'left' : 'right')
 
-    return `${property}-${actualSide}-${value}`;
+    return `${property}-${actualSide}-${value}`
   }
 
   /**
@@ -296,11 +296,11 @@ export class RTLCSSHelper {
    */
   static getFlexDirectionClass(locale: Locale, direction: 'row' | 'column'): string {
     if (direction === 'column') {
-      return 'flex-column';
+      return 'flex-column'
     }
 
-    const textDirection = DirectionManager.getDirection(locale);
-    return textDirection === 'rtl' ? 'flex-row-reverse' : 'flex-row';
+    const textDirection = DirectionManager.getDirection(locale)
+    return textDirection === 'rtl' ? 'flex-row-reverse' : 'flex-row'
   }
 
   /**
@@ -308,24 +308,22 @@ export class RTLCSSHelper {
    */
   static getTextAlignClass(locale: Locale, align: 'start' | 'end' | 'center'): string {
     if (align === 'center') {
-      return 'text-center';
+      return 'text-center'
     }
 
-    const direction = DirectionManager.getDirection(locale);
+    const direction = DirectionManager.getDirection(locale)
     const actualAlign = direction === 'rtl'
       ? (align === 'start' ? 'right' : 'left')
-      : (align === 'start' ? 'left' : 'right');
+      : (align === 'start' ? 'left' : 'right')
 
-    return `text-${actualAlign}`;
+    return `text-${actualAlign}`
   }
 }
 
 /**
  * Export helper functions for convenience
  */
-export const isRTL = (locale: Locale) => DirectionManager.isRTL(locale);
-export const isLTR = (locale: Locale) => DirectionManager.isLTR(locale);
-export const getDirection = (locale: Locale) => DirectionManager.getDirection(locale);
-export const getLocaleMetadata = (locale: Locale) => LocaleMetadataManager.getMetadata(locale);
-
-
+export const isRTL = (locale: Locale) => DirectionManager.isRTL(locale)
+export const isLTR = (locale: Locale) => DirectionManager.isLTR(locale)
+export const getDirection = (locale: Locale) => DirectionManager.getDirection(locale)
+export const getLocaleMetadata = (locale: Locale) => LocaleMetadataManager.getMetadata(locale)

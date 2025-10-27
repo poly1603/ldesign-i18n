@@ -3,16 +3,16 @@
  * 详细的性能测试套件
  */
 
-import { createI18n, OptimizedI18n } from './es/index.js'
+import { createI18n } from './es/index.js'
 
 // 颜色输出
 const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  cyan: '\x1b[36m'
+  reset: '\x1B[0m',
+  bright: '\x1B[1m',
+  green: '\x1B[32m',
+  yellow: '\x1B[33m',
+  blue: '\x1B[34m',
+  cyan: '\x1B[36m',
 }
 
 function log(color, ...args) {
@@ -27,7 +27,7 @@ function generateMessages(count = 1000) {
     messages[`nested.key${i}`] = `Nested translation ${i}`
     messages[`plural.item${i}`] = {
       one: 'One item {{count}}',
-      other: '{{count}} items'
+      other: '{{count}} items',
     }
   }
   return messages
@@ -65,7 +65,7 @@ class Benchmark {
       duration,
       iterations,
       opsPerSec,
-      avgTime: duration / iterations
+      avgTime: duration / iterations,
     })
 
     return { duration, opsPerSec }
@@ -77,7 +77,7 @@ class Benchmark {
       colors.cyan,
       `  ${result.name}:`,
       `${result.opsPerSec.toFixed(0)} ops/sec`,
-      `(${result.avgTime.toFixed(3)}ms avg)`
+      `(${result.avgTime.toFixed(3)}ms avg)`,
     )
   }
 }
@@ -90,7 +90,7 @@ function getMemoryUsage() {
       heapUsed: (usage.heapUsed / 1024 / 1024).toFixed(2),
       heapTotal: (usage.heapTotal / 1024 / 1024).toFixed(2),
       external: (usage.external / 1024 / 1024).toFixed(2),
-      rss: (usage.rss / 1024 / 1024).toFixed(2)
+      rss: (usage.rss / 1024 / 1024).toFixed(2),
     }
   }
   return null
@@ -105,8 +105,8 @@ async function runBenchmarks() {
     fallbackLocale: 'en-US',
     messages: {
       'zh-CN': messages,
-      'en-US': messages
-    }
+      'en-US': messages,
+    },
   })
 
   await i18n.init()
@@ -195,25 +195,26 @@ async function runBenchmarks() {
   // 内存泄漏测试
   log(colors.green, '\n🔍 内存泄漏检测')
   const memoryBefore = getMemoryUsage()
-  
+
   for (let i = 0; i < 10000; i++) {
     i18n.t(`key${i % 1000}`, { name: `test${i}` })
   }
-  
+
   if (global.gc) {
     global.gc()
     await new Promise(resolve => setTimeout(resolve, 100))
   }
-  
+
   const memoryAfter = getMemoryUsage()
-  
+
   if (memoryBefore && memoryAfter) {
     const heapDiff = (memoryAfter.heapUsed - memoryBefore.heapUsed).toFixed(2)
     log(colors.reset, `  - 堆增长: ${heapDiff} MB (10000 次翻译后)`)
-    
+
     if (Math.abs(heapDiff) < 5) {
       log(colors.green, '  ✅ 无明显内存泄漏')
-    } else {
+    }
+    else {
       log(colors.yellow, '  ⚠️  堆增长较大，可能存在内存问题')
     }
   }
@@ -232,4 +233,3 @@ async function runBenchmarks() {
 
 // 运行测试
 runBenchmarks().catch(console.error)
-

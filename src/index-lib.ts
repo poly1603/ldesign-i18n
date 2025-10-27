@@ -19,7 +19,7 @@ export { OptimizedI18n as I18n, OptimizedI18n }
 const defaultI18n = new OptimizedI18n({
   locale: 'zh-CN',
   fallbackLocale: 'en-US',
-  messages: {}
+  messages: {},
 })
 
 // UMD 导出

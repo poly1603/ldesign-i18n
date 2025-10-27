@@ -8,15 +8,15 @@
 
 ### 核心性能改进
 
-| 指标 | v2.0 | v3.0 | 提升 |
-|------|------|------|------|
+| 指标         | v2.0    | v3.0        | 提升        |
+| ------------ | ------- | ----------- | ----------- |
 | 简单翻译速度 | 0.010ms | **0.006ms** | 🚀 **+40%** |
-| 带参数翻译 | 0.020ms | **0.010ms** | 🚀 **+50%** |
-| 缓存命中 | 0.005ms | **0.002ms** | 🚀 **+60%** |
-| 吞吐量 | 100K/秒 | **165K/秒** | 🚀 **+65%** |
-| 内存占用 | 3.5 MB | **2.5 MB** | 💚 **-35%** |
-| 缓存命中率 | 80% | **92%+** | 📈 **+15%** |
-| 内存泄漏 | 可能 | **零** | ✅ **修复** |
+| 带参数翻译   | 0.020ms | **0.010ms** | 🚀 **+50%** |
+| 缓存命中     | 0.005ms | **0.002ms** | 🚀 **+60%** |
+| 吞吐量       | 100K/秒 | **165K/秒** | 🚀 **+65%** |
+| 内存占用     | 3.5 MB  | **2.5 MB**  | 💚 **-35%** |
+| 缓存命中率   | 80%     | **92%+**    | 📈 **+15%** |
+| 内存泄漏     | 可能    | **零**      | ✅ **修复** |
 
 ---
 
@@ -26,44 +26,44 @@
 
 ```typescript
 // 生产环境自动使用整数哈希，速度提升70%
-import { createI18n } from '@ldesign/i18n';
+import { createI18n } from '@ldesign/i18n'
 
-const i18n = createI18n({ locale: 'en', messages });
+const i18n = createI18n({ locale: 'en', messages })
 // ✅ 哈希缓存自动启用（NODE_ENV=production）
 ```
 
 ### 2. RTL 语言完整支持
 
 ```typescript
-import { DirectionManager, isRTL } from '@ldesign/i18n';
+import { DirectionManager, isRTL } from '@ldesign/i18n'
 
 // 支持15种RTL语言：ar, he, fa, ur, ps, yi, dv, ckb, ku等
 if (isRTL(i18n.locale)) {
-  DirectionManager.applyToDocument(i18n.locale);
+  DirectionManager.applyToDocument(i18n.locale)
   // 自动设置 <html dir="rtl">
 }
 
 // 获取语言元数据
-const metadata = i18n.getLocaleMetadata();
+const metadata = i18n.getLocaleMetadata()
 // { direction: 'rtl', script: 'arabic', numberSystem: 'arabic-indic' }
 ```
 
 ### 3. TypeScript 类型安全键
 
 ```typescript
-import type { TypeSafeI18n } from '@ldesign/i18n';
-import { createTypeSafeWrapper } from '@ldesign/i18n';
+import type { TypeSafeI18n } from '@ldesign/i18n'
+import { createTypeSafeWrapper } from '@ldesign/i18n'
 
 interface Messages {
-  common: { save: string; cancel: string };
-  user: { name: string; email: string };
+  common: { save: string, cancel: string }
+  user: { name: string, email: string }
 }
 
-const typedI18n: TypeSafeI18n<Messages> = createTypeSafeWrapper(i18n);
+const typedI18n: TypeSafeI18n<Messages> = createTypeSafeWrapper(i18n)
 
 // 完整的IDE自动完成和类型检查
-typedI18n.t('common.save');     // ✅ 
-typedI18n.t('common.invalid');  // ❌ TypeScript错误
+typedI18n.t('common.save') // ✅
+typedI18n.t('common.invalid') // ❌ TypeScript错误
 ```
 
 ### 4. 管道格式化器（15+ 内置管道）
@@ -82,6 +82,7 @@ i18n.t('price', { amount: 99.99 });    // "价格：¥99.99"
 ```
 
 **内置管道**：
+
 - 字符串：uppercase, lowercase, capitalize, title, trim, truncate
 - 数字：number, currency, percent
 - 日期：date, time, relative
@@ -91,16 +92,16 @@ i18n.t('price', { amount: 99.99 });    // "价格：¥99.99"
 ### 5. 自适应缓存系统
 
 ```typescript
-import { createAdaptiveCache } from '@ldesign/i18n/core';
+import { createAdaptiveCache } from '@ldesign/i18n/core'
 
 const i18n = createI18n({
   locale: 'zh-CN',
   cache: createAdaptiveCache({
     maxSize: 1000,
-    hotSize: 30  // 自动调整：30-100
+    hotSize: 30 // 自动调整：30-100
   }),
   messages: { /* ... */ }
-});
+})
 
 // 缓存自动根据命中率调优，无需手动配置
 ```
@@ -108,38 +109,39 @@ const i18n = createI18n({
 ### 6. 模板预编译（40-60% 更快）
 
 ```typescript
-import { TemplateCompiler } from '@ldesign/i18n/core';
+import { TemplateCompiler } from '@ldesign/i18n/core'
 
 // 预编译常用模板
-const compiler = new TemplateCompiler();
-const compiled = compiler.compile('你好 {{name | capitalize}}！');
+const compiler = new TemplateCompiler()
+const compiled = compiler.compile('你好 {{name | capitalize}}！')
 
 // 渲染速度比正则快 40-60%
-const result = compiled.render({ name: 'john' });
+const result = compiled.render({ name: 'john' })
 ```
 
 ### 7. 翻译覆盖率报告
 
 ```typescript
-import { TranslationCoverageReporter } from '@ldesign/i18n';
+import { TranslationCoverageReporter } from '@ldesign/i18n'
 
-const reporter = new TranslationCoverageReporter();
+const reporter = new TranslationCoverageReporter()
 
 // 自动追踪缺失的翻译
 i18n.on('missingKey', ({ key, locale }) => {
-  reporter.trackMissing(key, locale);
-});
+  reporter.trackMissing(key, locale)
+})
 
 // 生成Markdown报告
-console.log(reporter.exportMarkdown(['zh-CN', 'en']));
+console.log(reporter.exportMarkdown(['zh-CN', 'en']))
 ```
 
 **输出示例**：
+
 ```markdown
 ## Coverage by Locale
 
 | Locale | Coverage | Translated | Missing | Total |
-|--------|----------|------------|---------|-------|
+| ------ | -------- | ---------- | ------- | ----- |
 | zh-CN  | 85.5%    | 855        | 145     | 1000  |
 | en     | 100.0%   | 1000       | 0       | 1000  |
 ```
@@ -147,47 +149,47 @@ console.log(reporter.exportMarkdown(['zh-CN', 'en']));
 ### 8. 智能回退链
 
 ```typescript
-import { getSmartFallbackChain } from '@ldesign/i18n';
+import { getSmartFallbackChain } from '@ldesign/i18n'
 
 // 自动生成最佳回退链
-const fallbacks = getSmartFallbackChain('zh-CN');
+const fallbacks = getSmartFallbackChain('zh-CN')
 // ['zh-CN', 'zh-TW', 'zh-HK', 'zh', 'ja', 'ko', 'en']
 
 const i18n = createI18n({
   locale: 'zh-CN',
   fallbackLocale: fallbacks
-});
+})
 ```
 
 ### 9. 上下文感知翻译
 
 ```typescript
-import { contextual } from '@ldesign/i18n';
+import { contextual } from '@ldesign/i18n'
 
 const messages = {
   welcome: contextual({
-    default: "欢迎！",
-    male: "欢迎，先生！",
-    female: "欢迎，女士！",
-    formal: "诚挚欢迎您的光临。",
-    child: "嗨，小朋友！"
+    default: '欢迎！',
+    male: '欢迎，先生！',
+    female: '欢迎，女士！',
+    formal: '诚挚欢迎您的光临。',
+    child: '嗨，小朋友！'
   })
-};
+}
 
-i18n.t('welcome', { context: { gender: 'male' } });
+i18n.t('welcome', { context: { gender: 'male' } })
 // "欢迎，先生！"
 ```
 
 ### 10. 性能预算监控
 
 ```typescript
-import { createPerformanceBudgetMonitor } from '@ldesign/i18n';
+import { createPerformanceBudgetMonitor } from '@ldesign/i18n'
 
 const monitor = createPerformanceBudgetMonitor({
-  translationTime: 5,    // 最大5ms
-  cacheHitRate: 0.85,    // 最低85%
-  memoryUsage: 10 * 1024 * 1024  // 最大10MB
-});
+  translationTime: 5, // 最大5ms
+  cacheHitRate: 0.85, // 最低85%
+  memoryUsage: 10 * 1024 * 1024 // 最大10MB
+})
 
 // 自动告警超出预算的指标
 ```
@@ -195,13 +197,13 @@ const monitor = createPerformanceBudgetMonitor({
 ### 11. 热重载（开发环境）
 
 ```typescript
-import { HotReloadManager } from '@ldesign/i18n';
+import { HotReloadManager } from '@ldesign/i18n'
 
 if (process.env.NODE_ENV === 'development') {
-  const hotReload = new HotReloadManager();
-  hotReload.attach(i18n);
-  hotReload.watchFiles('./locales');
-  
+  const hotReload = new HotReloadManager()
+  hotReload.attach(i18n)
+  hotReload.watchFiles('./locales')
+
   // 翻译文件修改后自动重载
 }
 ```
@@ -209,11 +211,11 @@ if (process.env.NODE_ENV === 'development') {
 ### 12. SOA 消息存储（大型应用）
 
 ```typescript
-import { createSOAMessageStore } from '@ldesign/i18n/core';
+import { createSOAMessageStore } from '@ldesign/i18n/core'
 
 // 适用于10,000+翻译键的大型应用
 // 内存减少20-30%，查找速度提升10%
-const store = createSOAMessageStore();
+const store = createSOAMessageStore()
 ```
 
 ---
@@ -229,7 +231,7 @@ npm install @ldesign/i18n
 ### 基础使用
 
 ```typescript
-import { createI18n } from '@ldesign/i18n';
+import { createI18n } from '@ldesign/i18n'
 
 const i18n = createI18n({
   locale: 'zh-CN',
@@ -244,11 +246,11 @@ const i18n = createI18n({
       welcome: 'Welcome to {{app}}'
     }
   }
-});
+})
 
-await i18n.init();
+await i18n.init()
 
-console.log(i18n.t('hello', { name: '世界' }));
+console.log(i18n.t('hello', { name: '世界' }))
 // "你好 世界！"
 
 // ✅ 所有优化自动启用，无需配置！
@@ -266,11 +268,11 @@ const { t, locale, setLocale } = useI18n();
 <template>
   <div>
     <h1>{{ t('hello') }}</h1>
-    
+
     <!-- 管道格式化 -->
     <p>{{ t('greeting', { name: 'john' }) }}</p>
     <!-- 如果messages中定义了管道：{{name | capitalize}} -->
-    
+
     <select @change="setLocale($event.target.value)">
       <option value="zh-CN">中文</option>
       <option value="en">English</option>
@@ -329,15 +331,15 @@ DirectionManager.applyToDocument(i18n.locale);
 
 ### 为什么选择 @ldesign/i18n？
 
-| 优势 | @ldesign/i18n v3.0 | vue-i18n | react-i18next |
-|------|-------------------|----------|---------------|
-| **性能** | ⭐⭐⭐⭐⭐ 最快 | ⭐⭐⭐ | ⭐⭐ |
-| **内存效率** | ⭐⭐⭐⭐⭐ 最优 | ⭐⭐⭐ | ⭐⭐ |
-| **类型安全** | ⭐⭐⭐⭐⭐ 完整 | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **RTL支持** | ⭐⭐⭐⭐⭐ 15语言 | ⭐⭐ | ⭐⭐ |
-| **开发工具** | ⭐⭐⭐⭐⭐ 完整 | ⭐⭐⭐ | ⭐⭐ |
-| **内存安全** | ⭐⭐⭐⭐⭐ 零泄漏 | ⭐⭐⭐ | ⭐⭐⭐ |
-| **Bundle大小** | **32 KB** ⭐ | 45 KB | 50 KB |
+| 优势           | @ldesign/i18n v3.0 | vue-i18n | react-i18next |
+| -------------- | ------------------ | -------- | ------------- |
+| **性能**       | ⭐⭐⭐⭐⭐ 最快    | ⭐⭐⭐   | ⭐⭐          |
+| **内存效率**   | ⭐⭐⭐⭐⭐ 最优    | ⭐⭐⭐   | ⭐⭐          |
+| **类型安全**   | ⭐⭐⭐⭐⭐ 完整    | ⭐⭐⭐⭐ | ⭐⭐⭐        |
+| **RTL支持**    | ⭐⭐⭐⭐⭐ 15语言  | ⭐⭐     | ⭐⭐          |
+| **开发工具**   | ⭐⭐⭐⭐⭐ 完整    | ⭐⭐⭐   | ⭐⭐          |
+| **内存安全**   | ⭐⭐⭐⭐⭐ 零泄漏  | ⭐⭐⭐   | ⭐⭐⭐        |
+| **Bundle大小** | **32 KB** ⭐       | 45 KB    | 50 KB         |
 
 ---
 
@@ -346,14 +348,14 @@ DirectionManager.applyToDocument(i18n.locale);
 ### 1. 生产环境配置
 
 ```typescript
-import { createI18n, createAdaptiveCache } from '@ldesign/i18n';
+import { createAdaptiveCache, createI18n } from '@ldesign/i18n'
 
 const i18n = createI18n({
   locale: 'zh-CN',
   fallbackLocale: ['zh-TW', 'zh', 'en'],
   cache: createAdaptiveCache({ maxSize: 1000 }),
   messages: { /* ... */ }
-});
+})
 
 // ✅ 哈希缓存自动启用
 // ✅ 自适应缓存自动调优
@@ -363,40 +365,40 @@ const i18n = createI18n({
 ### 2. 开发环境配置
 
 ```typescript
-import { 
+import {
   createI18n,
-  TranslationCoverageReporter,
-  HotReloadManager
-} from '@ldesign/i18n';
+  HotReloadManager,
+  TranslationCoverageReporter
+} from '@ldesign/i18n'
 
-const i18n = createI18n({ /* ... */ });
+const i18n = createI18n({ /* ... */ })
 
 // 覆盖率追踪
-const reporter = new TranslationCoverageReporter();
+const reporter = new TranslationCoverageReporter()
 i18n.on('missingKey', ({ key, locale }) => {
-  reporter.trackMissing(key, locale);
-});
+  reporter.trackMissing(key, locale)
+})
 
 // 热重载
-const hotReload = new HotReloadManager();
-hotReload.attach(i18n);
-hotReload.watchFiles('./locales');
+const hotReload = new HotReloadManager()
+hotReload.attach(i18n)
+hotReload.watchFiles('./locales')
 ```
 
 ### 3. RTL 应用配置
 
 ```typescript
-import { DirectionManager } from '@ldesign/i18n';
+import { DirectionManager } from '@ldesign/i18n'
 
 const i18n = createI18n({
   locale: 'ar',
   messages: { ar: { /* ... */ } }
-});
+})
 
 // 自动应用文本方向
 i18n.on('localeChanged', ({ locale }) => {
-  DirectionManager.applyToDocument(locale);
-});
+  DirectionManager.applyToDocument(locale)
+})
 ```
 
 ### 4. 类型安全配置
@@ -405,24 +407,24 @@ i18n.on('localeChanged', ({ locale }) => {
 // 1. 定义消息类型
 interface AppMessages {
   common: {
-    save: string;
-    cancel: string;
-  };
+    save: string
+    cancel: string
+  }
   user: {
     profile: {
-      name: string;
-      email: string;
-    };
-  };
+      name: string
+      email: string
+    }
+  }
 }
 
 // 2. 创建类型安全实例
-const typedI18n: TypeSafeI18n<AppMessages> = 
-  createTypeSafeWrapper(i18n);
+const typedI18n: TypeSafeI18n<AppMessages>
+  = createTypeSafeWrapper(i18n)
 
 // 3. 享受完整的类型检查和自动完成
-typedI18n.t('common.save');           // ✅
-typedI18n.t('user.profile.name');     // ✅
+typedI18n.t('common.save') // ✅
+typedI18n.t('user.profile.name') // ✅
 ```
 
 ---
@@ -564,19 +566,19 @@ npm run test:coverage
 ## 🚀 立即开始使用
 
 ```typescript
-import { createI18n } from '@ldesign/i18n';
+import { createI18n } from '@ldesign/i18n'
 
 const i18n = createI18n({
   locale: 'zh-CN',
   messages: {
-    'zh-CN': { 
+    'zh-CN': {
       greeting: '你好 {{name | capitalize}}！'
     }
   }
-});
+})
 
-await i18n.init();
-console.log(i18n.t('greeting', { name: 'john' }));
+await i18n.init()
+console.log(i18n.t('greeting', { name: 'john' }))
 // "你好 John！"
 
 // 🎉 享受 50% 的性能提升和所有新功能！
@@ -586,7 +588,6 @@ console.log(i18n.t('greeting', { name: 'john' }));
 
 **@ldesign/i18n v3.0** - 企业级国际化解决方案 🌍
 
-*性能最佳 · 内存最优 · 功能完整 · 类型安全 · 生产就绪*
+_性能最佳 · 内存最优 · 功能完整 · 类型安全 · 生产就绪_
 
 ⭐⭐⭐⭐⭐ **强烈推荐！**
-

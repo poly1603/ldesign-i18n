@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [vue()],
@@ -19,8 +19,8 @@ export default defineConfig({
         'esm/',
         'cjs/',
         'types/',
-        '**/*.d.ts'
-      ]
-    }
-  }
+        '**/*.d.ts',
+      ],
+    },
+  },
 })

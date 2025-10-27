@@ -3,65 +3,65 @@
  * 智能懒加载系统，支持按需加载和代码分割
  */
 
-import type { Locale, Messages } from '../types';
+import type { Locale, Messages } from '../types'
 
 /**
  * 懒加载配置
  */
 export interface LazyLoadConfig {
   // 基础URL或加载函数
-  baseUrl?: string;
-  loader?: (locale: Locale, namespace?: string) => Promise<Messages>;
-  
+  baseUrl?: string
+  loader?: (locale: Locale, namespace?: string) => Promise<Messages>
+
   // 预加载策略
-  preloadStrategy?: 'none' | 'idle' | 'prefetch' | 'viewport';
-  preloadDelay?: number;
-  
+  preloadStrategy?: 'none' | 'idle' | 'prefetch' | 'viewport'
+  preloadDelay?: number
+
   // 缓存策略
-  cacheStrategy?: 'memory' | 'localStorage' | 'sessionStorage' | 'indexedDB';
-  cacheExpiry?: number;
-  
+  cacheStrategy?: 'memory' | 'localStorage' | 'sessionStorage' | 'indexedDB'
+  cacheExpiry?: number
+
   // 分块策略
-  chunkStrategy?: 'namespace' | 'route' | 'component' | 'feature';
-  chunkSize?: number;
-  
+  chunkStrategy?: 'namespace' | 'route' | 'component' | 'feature'
+  chunkSize?: number
+
   // 性能优化
-  concurrent?: number;
-  timeout?: number;
-  retry?: number;
-  
+  concurrent?: number
+  timeout?: number
+  retry?: number
+
   // 压缩选项
-  compression?: boolean;
-  compressionAlgorithm?: 'gzip' | 'brotli' | 'lz-string';
+  compression?: boolean
+  compressionAlgorithm?: 'gzip' | 'brotli' | 'lz-string'
 }
 
 /**
  * 加载状态
  */
 interface LoadState {
-  locale: Locale;
-  namespace?: string;
-  status: 'idle' | 'loading' | 'loaded' | 'error';
-  promise?: Promise<Messages>;
-  error?: Error;
-  timestamp?: number;
-  size?: number;
+  locale: Locale
+  namespace?: string
+  status: 'idle' | 'loading' | 'loaded' | 'error'
+  promise?: Promise<Messages>
+  error?: Error
+  timestamp?: number
+  size?: number
 }
 
 /**
  * 懒加载管理器
  */
 export class LazyLoader {
-  private readonly config: LazyLoadConfig;
-  private readonly loadStates = new Map<string, LoadState>();
-  private readonly cache = new Map<string, Messages>();
-  private readonly preloadQueue = new Set<string>();
-  private readonly loadingPool = new Map<string, Promise<Messages>>();
-  private observer?: IntersectionObserver;
-  private idleCallback?: number;
-  private eventListeners: Array<{ element: Window; event: string; handler: EventListener }> = [];
-  private readonly MAX_CACHE_SIZE = 50; // 限制缓存大小
-  private readonly MAX_LOAD_STATES = 100; // 限制状态记录
+  private readonly config: LazyLoadConfig
+  private readonly loadStates = new Map<string, LoadState>()
+  private readonly cache = new Map<string, Messages>()
+  private readonly preloadQueue = new Set<string>()
+  private readonly loadingPool = new Map<string, Promise<Messages>>()
+  private observer?: IntersectionObserver
+  private idleCallback?: number
+  private eventListeners: Array<{ element: Window, event: string, handler: EventListener }> = []
+  private readonly MAX_CACHE_SIZE = 50 // 限制缓存大小
+  private readonly MAX_LOAD_STATES = 100 // 限制状态记录
 
   constructor(config: LazyLoadConfig = {}) {
     this.config = {
@@ -74,51 +74,53 @@ export class LazyLoader {
       retry: 3,
       compression: true,
       compressionAlgorithm: 'lz-string',
-      ...config
-    };
+      ...config,
+    }
 
-    this.initializePreloadStrategy();
+    this.initializePreloadStrategy()
   }
 
   /**
    * 加载语言包
    */
   async load(locale: Locale, namespace?: string): Promise<Messages> {
-    const key = this.getCacheKey(locale, namespace);
-    
+    const key = this.getCacheKey(locale, namespace)
+
     // 检查缓存
     if (this.cache.has(key)) {
-      return this.cache.get(key)!;
+      return this.cache.get(key)!
     }
 
     // 检查是否正在加载
     if (this.loadingPool.has(key)) {
-      return this.loadingPool.get(key)!;
+      return this.loadingPool.get(key)!
     }
 
     // 开始加载
-    const loadPromise = this.performLoad(locale, namespace);
-    this.loadingPool.set(key, loadPromise);
+    const loadPromise = this.performLoad(locale, namespace)
+    this.loadingPool.set(key, loadPromise)
 
     try {
-      const messages = await loadPromise;
-      
+      const messages = await loadPromise
+
       // 限制缓存大小
       if (this.cache.size >= this.MAX_CACHE_SIZE) {
-        const firstKey = this.cache.keys().next().value;
+        const firstKey = this.cache.keys().next().value
         if (firstKey !== undefined) {
-          this.cache.delete(firstKey);
+          this.cache.delete(firstKey)
         }
       }
-      this.cache.set(key, messages);
-      
-      this.updateLoadState(key, 'loaded', undefined, messages);
-      return messages;
-    } catch (error) {
-      this.updateLoadState(key, 'error', error as Error);
-      throw error;
-    } finally {
-      this.loadingPool.delete(key);
+      this.cache.set(key, messages)
+
+      this.updateLoadState(key, 'loaded', undefined, messages)
+      return messages
+    }
+    catch (error) {
+      this.updateLoadState(key, 'error', error as Error)
+      throw error
+    }
+    finally {
+      this.loadingPool.delete(key)
     }
   }
 
@@ -126,42 +128,44 @@ export class LazyLoader {
    * 预加载语言包
    */
   async preload(locales: Locale[], namespaces?: string[]): Promise<void> {
-    const tasks: Array<Promise<Messages>> = [];
+    const tasks: Array<Promise<Messages>> = []
 
     for (const locale of locales) {
       if (namespaces) {
         for (const namespace of namespaces) {
-          tasks.push(this.load(locale, namespace));
+          tasks.push(this.load(locale, namespace))
         }
-      } else {
-        tasks.push(this.load(locale));
+      }
+      else {
+        tasks.push(this.load(locale))
       }
     }
 
     // 限制并发数
-    await this.executeWithConcurrency(tasks, Number(this.config?.concurrent ?? 3));
+    await this.executeWithConcurrency(tasks, Number(this.config?.concurrent ?? 3))
   }
 
   /**
    * 智能预加载
    */
   smartPreload(patterns: string[]): void {
-    if (this.config?.preloadStrategy === 'none') return;
+    if (this.config?.preloadStrategy === 'none')
+      return
 
-    patterns.forEach(pattern => {
-      this.preloadQueue.add(pattern);
-    });
+    patterns.forEach((pattern) => {
+      this.preloadQueue.add(pattern)
+    })
 
     switch (this.config?.preloadStrategy) {
       case 'idle':
-        this.preloadOnIdle();
-        break;
+        this.preloadOnIdle()
+        break
       case 'prefetch':
-        this.preloadWithPrefetch();
-        break;
+        this.preloadWithPrefetch()
+        break
       case 'viewport':
-        this.preloadOnViewport();
-        break;
+        this.preloadOnViewport()
+        break
     }
   }
 
@@ -169,16 +173,16 @@ export class LazyLoader {
    * 加载路由级语言包
    */
   async loadForRoute(route: string, locale: Locale): Promise<Messages> {
-    const namespace = this.getNamespaceForRoute(route);
-    return this.load(locale, namespace);
+    const namespace = this.getNamespaceForRoute(route)
+    return this.load(locale, namespace)
   }
 
   /**
    * 加载组件级语言包
    */
   async loadForComponent(component: string, locale: Locale): Promise<Messages> {
-    const namespace = `components.${component}`;
-    return this.load(locale, namespace);
+    const namespace = `components.${component}`
+    return this.load(locale, namespace)
   }
 
   /**
@@ -186,12 +190,13 @@ export class LazyLoader {
    */
   clearCache(locale?: Locale, namespace?: string): void {
     if (locale) {
-      const key = this.getCacheKey(locale, namespace);
-      this.cache.delete(key);
-      this.loadStates.delete(key);
-    } else {
-      this.cache.clear();
-      this.loadStates.clear();
+      const key = this.getCacheKey(locale, namespace)
+      this.cache.delete(key)
+      this.loadStates.delete(key)
+    }
+    else {
+      this.cache.clear()
+      this.loadStates.clear()
     }
   }
 
@@ -199,94 +204,96 @@ export class LazyLoader {
    * 获取加载统计
    */
   getStats(): {
-    loaded: number;
-    cached: number;
-    totalSize: number;
-    states: Map<string, LoadState>;
+    loaded: number
+    cached: number
+    totalSize: number
+    states: Map<string, LoadState>
   } {
-    let totalSize = 0;
-    let loaded = 0;
+    let totalSize = 0
+    let loaded = 0
 
-    this.loadStates.forEach(state => {
+    this.loadStates.forEach((state) => {
       if (state.status === 'loaded') {
-        loaded++;
-        totalSize += state.size || 0;
+        loaded++
+        totalSize += state.size || 0
       }
-    });
+    })
 
     return {
       loaded,
       cached: this.cache.size,
       totalSize,
-      states: this.loadStates
-    };
+      states: this.loadStates,
+    }
   }
 
   /**
    * 执行实际加载
    */
   private async performLoad(locale: Locale, namespace?: string): Promise<Messages> {
-    const startTime = Date.now();
-    this.updateLoadState(this.getCacheKey(locale, namespace), 'loading');
+    const startTime = Date.now()
+    this.updateLoadState(this.getCacheKey(locale, namespace), 'loading')
 
-    let messages: Messages;
+    let messages: Messages
 
     if (this.config?.loader) {
       messages = await this.withRetry(
         () => this.config?.loader!(locale, namespace),
-        Number(this.config?.retry ?? 3)
-      );
-    } else if (this.config?.baseUrl) {
-      messages = await this.loadFromUrl(locale, namespace);
-    } else {
-      throw new Error('No loader configured');
+        Number(this.config?.retry ?? 3),
+      )
+    }
+    else if (this.config?.baseUrl) {
+      messages = await this.loadFromUrl(locale, namespace)
+    }
+    else {
+      throw new Error('No loader configured')
     }
 
     // 解压缩
     if (this.config?.compression) {
-      messages = await this.decompress(messages);
+      messages = await this.decompress(messages)
     }
 
     // 记录大小（如需统计可在外部状态中使用）
-    const _size = this.estimateSize(messages);
-    const _loadTime = Date.now() - startTime;
+    const _size = this.estimateSize(messages)
+    const _loadTime = Date.now() - startTime
 
-    this.updateLoadState(this.getCacheKey(locale, namespace), 'loaded', undefined);
+    this.updateLoadState(this.getCacheKey(locale, namespace), 'loaded', undefined)
 
-    return messages;
+    return messages
   }
 
   /**
    * 从URL加载
    */
   private async loadFromUrl(locale: Locale, namespace?: string): Promise<Messages> {
-    const url = this.buildUrl(locale, namespace);
-    
+    const url = this.buildUrl(locale, namespace)
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Accept-Encoding': 'gzip, deflate, br'
+        'Accept-Encoding': 'gzip, deflate, br',
       },
-      signal: AbortSignal.timeout(this.config?.timeout ?? 30000)
-    });
+      signal: AbortSignal.timeout(this.config?.timeout ?? 30000),
+    })
 
     if (!response.ok) {
-      throw new Error(`Failed to load: ${response.statusText}`);
+      throw new Error(`Failed to load: ${response.statusText}`)
     }
 
-    return response.json();
+    return response.json()
   }
 
   /**
    * 构建URL
    */
   private buildUrl(locale: Locale, namespace?: string): string {
-    const base = this.config?.baseUrl!.replace(/\/$/, '');
+    const base = this.config?.baseUrl!.replace(/\/$/, '')
     if (namespace) {
-      return `${base}/${locale}/${namespace}.json`;
+      return `${base}/${locale}/${namespace}.json`
     }
-    return `${base}/${locale}.json`;
+    return `${base}/${locale}.json`
   }
 
   /**
@@ -294,22 +301,23 @@ export class LazyLoader {
    */
   private async withRetry<T>(
     fn: () => Promise<T>,
-    retries: number
+    retries: number,
   ): Promise<T> {
-    let lastError: Error | undefined;
+    let lastError: Error | undefined
 
     for (let i = 0; i <= retries; i++) {
       try {
-        return await fn();
-      } catch (error) {
-        lastError = error as Error;
+        return await fn()
+      }
+      catch (error) {
+        lastError = error as Error
         if (i < retries) {
-          await this.delay(2**i * 1000); // 指数退避
+          await this.delay(2 ** i * 1000) // 指数退避
         }
       }
     }
 
-    throw lastError;
+    throw lastError
   }
 
   /**
@@ -317,26 +325,26 @@ export class LazyLoader {
    */
   private async executeWithConcurrency<T>(
     tasks: Array<Promise<T>>,
-    concurrent: number
+    concurrent: number,
   ): Promise<T[]> {
-    const results: T[] = [];
-    const executing: Array<Promise<void>> = [];
+    const results: T[] = []
+    const executing: Array<Promise<void>> = []
 
     for (const task of tasks) {
-      const promise = task.then(result => {
-        results.push(result);
-      });
+      const promise = task.then((result) => {
+        results.push(result)
+      })
 
-      executing.push(promise);
+      executing.push(promise)
 
       if (executing.length >= concurrent) {
-        await Promise.race(executing);
-        executing.splice(executing.findIndex(p => p === promise), 1);
+        await Promise.race(executing)
+        executing.splice(executing.findIndex(p => p === promise), 1)
       }
     }
 
-    await Promise.all(executing);
-    return results;
+    await Promise.all(executing)
+    return results
   }
 
   /**
@@ -346,10 +354,11 @@ export class LazyLoader {
     if ('requestIdleCallback' in window) {
       this.idleCallback = window.requestIdleCallback(
         () => this.processPreloadQueue(),
-        { timeout: this.config?.preloadDelay }
-      );
-    } else {
-      setTimeout(() => this.processPreloadQueue(), this.config?.preloadDelay);
+        { timeout: this.config?.preloadDelay },
+      )
+    }
+    else {
+      setTimeout(() => this.processPreloadQueue(), this.config?.preloadDelay)
     }
   }
 
@@ -357,17 +366,17 @@ export class LazyLoader {
    * 使用Prefetch预加载
    */
   private preloadWithPrefetch(): void {
-    this.preloadQueue.forEach(pattern => {
-      const [locale, namespace] = pattern.split(':');
-      const url = this.buildUrl(locale, namespace);
-      
+    this.preloadQueue.forEach((pattern) => {
+      const [locale, namespace] = pattern.split(':')
+      const url = this.buildUrl(locale, namespace)
+
       // 创建link标签进行prefetch
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = url;
-      link.as = 'fetch';
-      document.head.appendChild(link);
-    });
+      const link = document.createElement('link')
+      link.rel = 'prefetch'
+      link.href = url
+      link.as = 'fetch'
+      document.head.appendChild(link)
+    })
   }
 
   /**
@@ -376,42 +385,42 @@ export class LazyLoader {
   private preloadOnViewport(): void {
     if (!this.observer) {
       this.observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
+        (entries) => {
+          entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              const element = entry.target as HTMLElement;
-              const locale = element.dataset.i18nLocale;
-              const namespace = element.dataset.i18nNamespace;
-              
+              const element = entry.target as HTMLElement
+              const locale = element.dataset.i18nLocale
+              const namespace = element.dataset.i18nNamespace
+
               if (locale) {
-                this.load(locale, namespace).catch(console.error);
+                this.load(locale, namespace).catch(console.error)
               }
             }
-          });
+          })
         },
-        { rootMargin: '50px' }
-      );
+        { rootMargin: '50px' },
+      )
     }
 
     // 监听带有data-i18n-preload属性的元素
-    document.querySelectorAll('[data-i18n-preload]').forEach(element => {
+    document.querySelectorAll('[data-i18n-preload]').forEach((element) => {
       if (this.observer) {
-        this.observer.observe(element as Element);
+        this.observer.observe(element as Element)
       }
-    });
+    })
   }
 
   /**
    * 处理预加载队列
    */
   private async processPreloadQueue(): Promise<void> {
-    const tasks = Array.from(this.preloadQueue).map(pattern => {
-      const [locale, namespace] = pattern.split(':');
-      return this.load(locale, namespace);
-    });
+    const tasks = Array.from(this.preloadQueue).map((pattern) => {
+      const [locale, namespace] = pattern.split(':')
+      return this.load(locale, namespace)
+    })
 
-    await this.executeWithConcurrency(tasks, Number(this.config?.concurrent ?? 3));
-    this.preloadQueue.clear();
+    await this.executeWithConcurrency(tasks, Number(this.config?.concurrent ?? 3))
+    this.preloadQueue.clear()
   }
 
   /**
@@ -420,9 +429,9 @@ export class LazyLoader {
   private async decompress(data: any): Promise<Messages> {
     if (this.config?.compressionAlgorithm === 'lz-string' && typeof data === 'string') {
       // 使用LZ-string解压
-      return JSON.parse(this.lzDecompress(data));
+      return JSON.parse(this.lzDecompress(data))
     }
-    return data;
+    return data
   }
 
   /**
@@ -431,7 +440,7 @@ export class LazyLoader {
   private lzDecompress(compressed: string): string {
     // 简化的LZ解压实现
     // 实际应用中应使用lz-string库
-    return compressed; // Placeholder
+    return compressed // Placeholder
   }
 
   /**
@@ -441,48 +450,48 @@ export class LazyLoader {
     key: string,
     status: LoadState['status'],
     error?: Error,
-    messages?: Messages
+    messages?: Messages,
   ): void {
     // 限制状态记录大小
     if (this.loadStates.size >= this.MAX_LOAD_STATES) {
-      const firstKey = this.loadStates.keys().next().value;
+      const firstKey = this.loadStates.keys().next().value
       if (firstKey !== undefined) {
-        this.loadStates.delete(firstKey);
+        this.loadStates.delete(firstKey)
       }
     }
-    
-    const [locale, namespace] = key.split(':');
+
+    const [locale, namespace] = key.split(':')
     this.loadStates.set(key, {
       locale,
       namespace,
       status,
       error,
       timestamp: Date.now(),
-      size: messages ? this.estimateSize(messages) : undefined
-    });
+      size: messages ? this.estimateSize(messages) : undefined,
+    })
   }
 
   /**
    * 估算大小
    */
   private estimateSize(obj: any): number {
-    return JSON.stringify(obj).length;
+    return JSON.stringify(obj).length
   }
 
   /**
    * 格式化大小
    */
   private formatSize(bytes: number): string {
-    const units = ['B', 'KB', 'MB'];
-    let size = bytes;
-    let unitIndex = 0;
+    const units = ['B', 'KB', 'MB']
+    let size = bytes
+    let unitIndex = 0
 
     while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
+      size /= 1024
+      unitIndex++
     }
 
-    return `${size.toFixed(2)} ${units[unitIndex]}`;
+    return `${size.toFixed(2)} ${units[unitIndex]}`
   }
 
   /**
@@ -490,21 +499,21 @@ export class LazyLoader {
    */
   private getNamespaceForRoute(route: string): string {
     // 将路由转换为命名空间
-    return `routes.${route.replace(/\//g, '.').replace(/^\./, '')}`;
+    return `routes.${route.replace(/\//g, '.').replace(/^\./, '')}`
   }
 
   /**
    * 获取缓存键
    */
   private getCacheKey(locale: Locale, namespace?: string): string {
-    return namespace ? `${locale}:${namespace}` : locale;
+    return namespace ? `${locale}:${namespace}` : locale
   }
 
   /**
    * 延迟
    */
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
   /**
@@ -514,14 +523,14 @@ export class LazyLoader {
     // 监听路由变化
     if (typeof window !== 'undefined') {
       const handler = () => {
-        const locale = this.getCurrentLocale();
-        const route = window.location.pathname;
-        this.loadForRoute(route, locale).catch(console.error);
-      };
-      
-      window.addEventListener('popstate', handler);
+        const locale = this.getCurrentLocale()
+        const route = window.location.pathname
+        this.loadForRoute(route, locale).catch(console.error)
+      }
+
+      window.addEventListener('popstate', handler)
       // 记录事件监听器以便清理
-      this.eventListeners.push({ element: window, event: 'popstate', handler });
+      this.eventListeners.push({ element: window, event: 'popstate', handler })
     }
   }
 
@@ -529,7 +538,7 @@ export class LazyLoader {
    * 获取当前语言
    */
   private getCurrentLocale(): Locale {
-    return document.documentElement.lang || 'en';
+    return document.documentElement.lang || 'en'
   }
 
   /**
@@ -538,27 +547,27 @@ export class LazyLoader {
   destroy(): void {
     // 清理观察器
     if (this.observer) {
-      this.observer.disconnect();
-      this.observer = undefined;
+      this.observer.disconnect()
+      this.observer = undefined
     }
-    
+
     // 清理空闲回调
     if (this.idleCallback) {
-      window.cancelIdleCallback(this.idleCallback);
-      this.idleCallback = undefined;
+      window.cancelIdleCallback(this.idleCallback)
+      this.idleCallback = undefined
     }
-    
+
     // 清理事件监听器
     this.eventListeners.forEach(({ element, event, handler }) => {
-      element.removeEventListener(event, handler);
-    });
-    this.eventListeners = [];
-    
+      element.removeEventListener(event, handler)
+    })
+    this.eventListeners = []
+
     // 清理所有缓存和状态
-    this.cache.clear();
-    this.loadStates.clear();
-    this.loadingPool.clear();
-    this.preloadQueue.clear();
+    this.cache.clear()
+    this.loadStates.clear()
+    this.loadingPool.clear()
+    this.preloadQueue.clear()
   }
 }
 
@@ -566,5 +575,5 @@ export class LazyLoader {
  * 创建懒加载器
  */
 export function createLazyLoader(config?: LazyLoadConfig): LazyLoader {
-  return new LazyLoader(config);
+  return new LazyLoader(config)
 }

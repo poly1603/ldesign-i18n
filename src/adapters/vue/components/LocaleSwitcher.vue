@@ -107,11 +107,6 @@ const { currentMode, popupStyle } = useResponsivePopup({
     <div v-if="mode === 'dropdown'" class="locale-dropdown">
       <button ref="triggerRef" class="locale-dropdown-trigger" :aria-expanded="state.isOpen" @click="actions.toggle">
         <span class="locale-icon">{{ currentOption?.icon }}</span>
-        <span class="locale-label">{{ currentOption?.label }}</span>
-        <svg class="locale-arrow" :class="{ 'rotate': state.isOpen }" width="12" height="12" viewBox="0 0 12 12">
-          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round" fill="none" />
-        </svg>
       </button>
 
       <Teleport to="body">
@@ -133,23 +128,6 @@ const { currentMode, popupStyle } = useResponsivePopup({
           </div>
         </transition>
       </Teleport>
-    </div>
-
-    <!-- 按钮组样式 -->
-    <div v-else-if="mode === 'buttons'" class="locale-buttons">
-      <button v-for="option in options" :key="option.value" class="locale-button"
-        :class="{ 'active': locale === option.value }" :title="option.label" @click="handleSelect(option.value)">
-        <span class="locale-button-flag">{{ option.icon }}</span>
-        <span class="locale-button-label">{{ getShortName(option.value) }}</span>
-      </button>
-    </div>
-
-    <!-- 标签样式 -->
-    <div v-else-if="mode === 'tabs'" class="locale-tabs">
-      <button v-for="option in options" :key="option.value" class="locale-tab"
-        :class="{ 'active': locale === option.value }" @click="handleSelect(option.value)">
-        {{ option.label }}
-      </button>
     </div>
   </div>
 </template>

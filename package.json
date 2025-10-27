@@ -1,7 +1,10 @@
 {
   "name": "@ldesign/i18n",
-  "version": "3.0.0",
-  "description": "高性能、现代化的国际化解决方案，支持任意前端框架，内置 Vue 3 集成。包含统一缓存系统、性能监控、智能预加载等高级功能",
+  "type": "module",
+  "version": "3.0.1",
+  "description": "高性能、现代化的国际化解决方案，支持任意前端框架，内置 Vue 3 集成。包含统一缓存系统、性能监控、智能预加载、翻译键验证器、性能分析器等企业级功能",
+  "author": "ldesign",
+  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -16,9 +19,6 @@
     "reactive",
     "composition-api"
   ],
-  "author": "ldesign",
-  "license": "MIT",
-  "type": "module",
   "sideEffects": [
     "*.css",
     "*.vue"
@@ -79,21 +79,21 @@
       "import": "./es/utils/*.js",
       "require": "./lib/utils/*.cjs"
     },
-    "./es/adapters/vue/plugin.css": "./es/adapters/vue/plugin.css",
+    "./es/adapters/vue/index.css": "./es/adapters/vue/index.css",
     "./lib/adapters/vue/plugin.css": "./lib/adapters/vue/plugin.css"
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
-  "types": "./es/index.d.ts",
   "unpkg": "./dist/index.min.js",
   "jsdelivr": "./dist/index.min.js",
+  "types": "./es/index.d.ts",
   "files": [
-    "README.md",
     "LICENSE",
-    "package.json",
+    "README.md",
+    "dist",
     "es",
     "lib",
-    "dist"
+    "package.json"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -111,28 +111,8 @@
     "benchmark:advanced": "node --expose-gc benchmark-advanced.js",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "dependencies": {
-    "@ldesign/shared": "workspace:*",
-    "tslib": "^2.6.2"
-  },
   "peerDependencies": {
     "vue": "^3.3.0"
-  },
-  "devDependencies": {
-    "@ldesign/builder": "workspace:*",
-    "@types/node": "^22.0.0",
-    "@vitejs/plugin-vue": "^5.0.3",
-    "@vitest/ui": "^3.2.4",
-    "@vue/runtime-core": "^3.5.18",
-    "@vue/test-utils": "^2.4.4",
-    "eslint": "^9.18.0",
-    "jsdom": "^24.0.0",
-    "typescript": "^5.7.3",
-    "vite": "^5.0.12",
-    "vitest": "^3.2.4",
-    "vue": "^3.4.15",
-    "vue-tsc": "^3.0.5",
-    "@antfu/eslint-config": "^6.0.0"
   },
   "size-limit": [
     {
@@ -148,5 +128,25 @@
     "vue": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "@ldesign/shared": "workspace:*",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^6.0.0",
+    "@ldesign/builder": "workspace:*",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitest/ui": "^3.2.4",
+    "@vue/runtime-core": "^3.5.18",
+    "@vue/test-utils": "^2.4.4",
+    "eslint": "^9.18.0",
+    "jsdom": "^24.0.0",
+    "typescript": "^5.7.3",
+    "vite": "^5.0.12",
+    "vitest": "^3.2.4",
+    "vue": "^3.4.15",
+    "vue-tsc": "^3.0.5"
   }
 }

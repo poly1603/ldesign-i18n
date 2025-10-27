@@ -1,29 +1,16 @@
 /**
- * Utils module exports
+ * 工具模块导出
+ *
+ * 提供各类工具函数和辅助类
  */
 
 export * from './bundle-optimization'
 
-// Export hash cache key utilities
-export * from './hash-cache-key'
-
-// Export locale metadata and RTL support
-export * from './locale-metadata'
-
-// Export smart fallback chain
-export * from './smart-fallback'
-
 // Export context-aware translations
 export * from './context-aware'
 
-// Export performance budget monitoring
-export * from './performance-budget'
-
 // Export coverage reporter
 export * from './coverage-reporter'
-
-// Export hot reload (development)
-export * from './hot-reload'
 
 // Export from error-handler
 export {
@@ -37,8 +24,11 @@ export {
   I18nError,
   I18nErrorType,
   info,
-  safeTranslate
+  safeTranslate,
 } from './error-handler'
+
+// 导出哈希缓存键工具
+export * from './hash-cache-key'
 
 // Export from helpers
 export {
@@ -62,12 +52,27 @@ export {
   throttle,
   unflattenObject,
   // Export warn and error from helpers
-  warn
+  warn,
 } from './helpers'
+
+// Export hot reload (development)
+export * from './hot-reload'
+
+// 导出翻译键验证器
+export * from './key-validator'
+
+// 导出语言元数据和 RTL 支持
+export * from './locale-metadata'
 
 // Export from performance (optimized versions)
 export {
   memoize,
   PerformanceMark,
-  RAFScheduler
+  RAFScheduler,
 } from './performance'
+
+// Export performance budget monitoring
+export * from './performance-budget'
+
+// Export smart fallback chain
+export * from './smart-fallback'

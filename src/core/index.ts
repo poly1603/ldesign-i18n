@@ -2,27 +2,27 @@
  * Core module exports
  */
 
-import type { I18nConfig, I18nInstance } from '../types';
-import { OptimizedI18n } from './i18n-optimized';
+import type { I18nConfig, I18nInstance } from '../types'
+import { OptimizedI18n } from './i18n-optimized'
 
-// Main i18n class
-export * from './i18n-optimized';
-
-// Core engines
-export * from './interpolation';
-export * from './pluralization';
-
-// Cache systems
-export * from './cache';
-export * from './adaptive-cache';
+export * from './adaptive-cache'
 
 // Advanced features
-export * from './advanced-formatter';
-export * from './lazy-loader';
-export * from './template-compiler';
-export * from './pipeline-formatter';
-export * from './weak-event-emitter';
-export * from './soa-storage';
+export * from './advanced-formatter'
+// Cache systems
+export * from './cache'
+
+// Main i18n class
+export * from './i18n-optimized'
+// Core engines
+export * from './interpolation'
+
+export * from './lazy-loader'
+export * from './pipeline-formatter'
+export * from './pluralization'
+export * from './soa-storage'
+export * from './template-compiler'
+export * from './weak-event-emitter'
 
 /**
  * Create a new optimized i18n instance
@@ -30,16 +30,16 @@ export * from './soa-storage';
  * @returns Configured i18n instance
  */
 export function createI18n(config?: I18nConfig): I18nInstance {
-  const instance = new OptimizedI18n(config || {});
+  const instance = new OptimizedI18n(config || {})
 
   // Auto-initialize if messages are provided
   if (config?.messages) {
     instance.init().catch((err: Error) => {
-      console.error('Failed to initialize i18n:', err);
-    });
+      console.error('Failed to initialize i18n:', err)
+    })
   }
 
-  return instance;
+  return instance
 }
 
 // Advanced features - Import separately when needed:

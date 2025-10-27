@@ -3,25 +3,25 @@
  * Development feature for live translation updates
  */
 
-import type { I18nInstance, Locale, Messages } from '../types';
+import type { I18nInstance, Locale, Messages } from '../types'
 
 /**
  * File watcher interface
  */
 export interface FileWatcher {
-  watch(pattern: string, callback: (file: string) => void): void;
-  unwatch(): void;
+  watch: (pattern: string, callback: (file: string) => void) => void
+  unwatch: () => void
 }
 
 /**
  * Hot reload configuration
  */
 export interface HotReloadConfig {
-  enabled?: boolean;
-  patterns?: string[];
-  debounceTime?: number;
-  onReload?: (locale: Locale, messages: Messages) => void;
-  onError?: (error: Error) => void;
+  enabled?: boolean
+  patterns?: string[]
+  debounceTime?: number
+  onReload?: (locale: Locale, messages: Messages) => void
+  onError?: (error: Error) => void
 }
 
 /**
@@ -29,11 +29,11 @@ export interface HotReloadConfig {
  * Watches translation files and reloads them on change
  */
 export class HotReloadManager {
-  private readonly config: Required<HotReloadConfig>;
-  private i18n?: I18nInstance;
-  private watchers: FileWatcher[] = [];
-  private reloadTimers = new Map<string, NodeJS.Timeout>();
-  private isDestroyed = false;
+  private readonly config: Required<HotReloadConfig>
+  private i18n?: I18nInstance
+  private watchers: FileWatcher[] = []
+  private reloadTimers = new Map<string, NodeJS.Timeout>()
+  private isDestroyed = false
 
   constructor(config: HotReloadConfig = {}) {
     this.config = {
@@ -43,17 +43,18 @@ export class HotReloadManager {
       patterns: config.patterns || [],
       debounceTime: config.debounceTime || 300,
       onReload: config.onReload || (() => { }),
-      onError: config.onError || ((error) => console.error('[HotReload] Error:', error))
-    };
+      onError: config.onError || (error => console.error('[HotReload] Error:', error)),
+    }
   }
 
   /**
    * Attach to i18n instance
    */
   attach(i18n: I18nInstance): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled)
+      return
 
-    this.i18n = i18n;
+    this.i18n = i18n
   }
 
   /**
@@ -61,35 +62,38 @@ export class HotReloadManager {
    */
   watchFiles(baseDir: string): void {
     if (!this.config.enabled || typeof require === 'undefined') {
-      return;
+      return
     }
 
     try {
       // Only available in Node.js
-      const fs = require('fs');
-      const path = require('path');
+      const fs = require('node:fs')
+      const path = require('node:path')
 
       // Watch directory for changes
       const watcher = fs.watch(baseDir, { recursive: true }, (eventType: string, filename: string) => {
-        if (this.isDestroyed || !filename) return;
+        if (this.isDestroyed || !filename)
+          return
 
         // Only process JSON files
-        if (!filename.endsWith('.json')) return;
+        if (!filename.endsWith('.json'))
+          return
 
         // Debounce reload
         this.debounceReload(filename, () => {
-          this.reloadFile(path.join(baseDir, filename));
-        });
-      });
+          this.reloadFile(path.join(baseDir, filename))
+        })
+      })
 
       this.watchers.push({
         watch: () => { },
-        unwatch: () => watcher.close()
-      });
+        unwatch: () => watcher.close(),
+      })
 
-      console.log(`[HotReload] Watching ${baseDir} for translation changes`);
-    } catch (error) {
-      this.config.onError(error as Error);
+      console.log(`[HotReload] Watching ${baseDir} for translation changes`)
+    }
+    catch (error) {
+      this.config.onError(error as Error)
     }
   }
 
@@ -97,61 +101,65 @@ export class HotReloadManager {
    * Watch using custom watcher
    */
   watchWith(watcher: FileWatcher, pattern: string): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled)
+      return
 
     watcher.watch(pattern, (file) => {
-      if (this.isDestroyed) return;
+      if (this.isDestroyed)
+        return
 
       this.debounceReload(file, () => {
-        this.reloadFile(file);
-      });
-    });
+        this.reloadFile(file)
+      })
+    })
 
-    this.watchers.push(watcher);
+    this.watchers.push(watcher)
   }
 
   /**
    * Reload a translation file
    */
   private async reloadFile(filepath: string): Promise<void> {
-    if (!this.i18n || this.isDestroyed) return;
+    if (!this.i18n || this.isDestroyed)
+      return
 
     try {
-      const fs = require('fs');
-      const path = require('path');
+      const fs = require('node:fs')
+      const path = require('node:path')
 
       // Extract locale from filename
-      const filename = path.basename(filepath, '.json');
-      const locale = this.extractLocale(filename);
+      const filename = path.basename(filepath, '.json')
+      const locale = this.extractLocale(filename)
 
       if (!locale) {
-        console.warn(`[HotReload] Could not extract locale from ${filepath}`);
-        return;
+        console.warn(`[HotReload] Could not extract locale from ${filepath}`)
+        return
       }
 
       // Read and parse file
-      const content = await fs.promises.readFile(filepath, 'utf-8');
-      const messages = JSON.parse(content);
+      const content = await fs.promises.readFile(filepath, 'utf-8')
+      const messages = JSON.parse(content)
 
       // Update i18n
-      this.i18n.setMessages(locale, messages);
+      this.i18n.setMessages(locale, messages)
 
       // Clear cache to force reload
       if ('clearPerformanceCaches' in this.i18n) {
-        (this.i18n as any).clearPerformanceCaches();
+        (this.i18n as any).clearPerformanceCaches()
       }
 
-      console.log(`[HotReload] ✅ Reloaded translations for locale: ${locale}`);
+      console.log(`[HotReload] ✅ Reloaded translations for locale: ${locale}`)
 
       // Call reload callback
-      this.config.onReload(locale, messages);
+      this.config.onReload(locale, messages)
 
       // Emit event if supported
       if ('emit' in this.i18n) {
-        (this.i18n as any).emit('hotReload', { locale, filepath });
+        (this.i18n as any).emit('hotReload', { locale, filepath })
       }
-    } catch (error) {
-      this.config.onError(error as Error);
+    }
+    catch (error) {
+      this.config.onError(error as Error)
     }
   }
 
@@ -161,22 +169,22 @@ export class HotReloadManager {
    */
   private extractLocale(filename: string): Locale | null {
     // Pattern: en.json or en-US.json
-    const localePattern = /^([a-z]{2}(-[A-Z]{2})?)$/;
-    const match = filename.match(localePattern);
+    const localePattern = /^([a-z]{2}(-[A-Z]{2})?)$/
+    const match = filename.match(localePattern)
     if (match) {
-      return match[1];
+      return match[1]
     }
 
     // Pattern: translations.en.json or messages.en-US.json
-    const parts = filename.split('.');
+    const parts = filename.split('.')
     for (const part of parts) {
-      const m = part.match(/^([a-z]{2}(-[A-Z]{2})?)$/);
+      const m = part.match(/^([a-z]{2}(-[A-Z]{2})?)$/)
       if (m) {
-        return m[1];
+        return m[1]
       }
     }
 
-    return null;
+    return null
   }
 
   /**
@@ -184,18 +192,18 @@ export class HotReloadManager {
    */
   private debounceReload(key: string, callback: () => void): void {
     // Clear existing timer
-    const existing = this.reloadTimers.get(key);
+    const existing = this.reloadTimers.get(key)
     if (existing) {
-      clearTimeout(existing);
+      clearTimeout(existing)
     }
 
     // Set new timer
     const timer = setTimeout(() => {
-      callback();
-      this.reloadTimers.delete(key);
-    }, this.config.debounceTime);
+      callback()
+      this.reloadTimers.delete(key)
+    }, this.config.debounceTime)
 
-    this.reloadTimers.set(key, timer);
+    this.reloadTimers.set(key, timer)
   }
 
   /**
@@ -204,28 +212,29 @@ export class HotReloadManager {
   stop(): void {
     // Clear all timers
     for (const timer of this.reloadTimers.values()) {
-      clearTimeout(timer);
+      clearTimeout(timer)
     }
-    this.reloadTimers.clear();
+    this.reloadTimers.clear()
 
     // Close all watchers
     for (const watcher of this.watchers) {
       try {
-        watcher.unwatch();
-      } catch (error) {
-        console.error('[HotReload] Error closing watcher:', error);
+        watcher.unwatch()
+      }
+      catch (error) {
+        console.error('[HotReload] Error closing watcher:', error)
       }
     }
-    this.watchers = [];
+    this.watchers = []
   }
 
   /**
    * Destroy hot reload manager
    */
   destroy(): void {
-    this.isDestroyed = true;
-    this.stop();
-    this.i18n = undefined;
+    this.isDestroyed = true
+    this.stop()
+    this.i18n = undefined
   }
 }
 
@@ -233,7 +242,7 @@ export class HotReloadManager {
  * Create hot reload manager
  */
 export function createHotReloadManager(config?: HotReloadConfig): HotReloadManager {
-  return new HotReloadManager(config);
+  return new HotReloadManager(config)
 }
 
 /**
@@ -245,15 +254,15 @@ export function viteHotReload(i18n: I18nInstance, acceptHMR: (deps: string[], ca
       for (const mod of modules) {
         if (mod.default) {
           // Extract locale from module path
-          const match = mod.path?.match(/\/locales\/([a-z]{2}(-[A-Z]{2})?)\.json$/);
+          const match = mod.path?.match(/\/locales\/([a-z]{2}(-[A-Z]{2})?)\.json$/)
           if (match) {
-            const locale = match[1];
-            i18n.setMessages(locale, mod.default);
-            console.log(`[HMR] Reloaded locale: ${locale}`);
+            const locale = match[1]
+            i18n.setMessages(locale, mod.default)
+            console.log(`[HMR] Reloaded locale: ${locale}`)
           }
         }
       }
-    });
+    })
   }
 }
 
@@ -262,27 +271,25 @@ export function viteHotReload(i18n: I18nInstance, acceptHMR: (deps: string[], ca
  */
 export function webpackHotReload(i18n: I18nInstance, moduleHot: any): void {
   if (moduleHot && typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-    moduleHot.accept();
+    moduleHot.accept()
 
     // Watch for changes in locale files
-    const localeContext = (require as any).context('../locales', true, /\.json$/);
+    const localeContext = (require as any).context('../locales', true, /\.json$/)
 
     if (localeContext.hot) {
       localeContext.hot.accept(localeContext.id, () => {
-        const newContext = (require as any).context('../locales', true, /\.json$/);
+        const newContext = (require as any).context('../locales', true, /\.json$/)
 
         newContext.keys().forEach((key: string) => {
-          const match = key.match(/\/([a-z]{2}(-[A-Z]{2})?)\.json$/);
+          const match = key.match(/\/([a-z]{2}(-[A-Z]{2})?)\.json$/)
           if (match) {
-            const locale = match[1];
-            const messages = newContext(key);
-            i18n.setMessages(locale, messages);
-            console.log(`[HMR] Reloaded locale: ${locale}`);
+            const locale = match[1]
+            const messages = newContext(key)
+            i18n.setMessages(locale, messages)
+            console.log(`[HMR] Reloaded locale: ${locale}`)
           }
-        });
-      });
+        })
+      })
     }
   }
 }
-
-

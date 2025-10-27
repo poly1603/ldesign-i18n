@@ -10,8 +10,8 @@
 export async function lazyLoadPlugin(pluginName: string): Promise<any> {
   // Plugins will be implemented in the future
   // For now, return a placeholder
-  console.warn(`Plugin ${pluginName} is not yet implemented`);
-  return Promise.resolve(null);
+  console.warn(`Plugin ${pluginName} is not yet implemented`)
+  return Promise.resolve(null)
 }
 
 /**
@@ -23,7 +23,7 @@ export const FEATURES = {
   CORE: true,
   INTERPOLATION: true,
   PLURALIZATION: true,
-  
+
   // Optional features (enabled by default in browser)
   CACHE: true,
   LAZY_LOADING: true,
@@ -32,7 +32,7 @@ export const FEATURES = {
   DETECTION: true,
   NAMESPACES: true,
   EVENTS: true,
-  
+
   // Advanced features (can be enabled if needed)
   AB_TESTING: false,
   QUALITY_SCORING: false,
@@ -42,7 +42,7 @@ export const FEATURES = {
   CONTEXT_AWARE: false,
   INTELLIGENT_PREHEATER: false,
   MEMORY_OPTIMIZER: false,
-} as const;
+} as const
 
 /**
  * Conditional import helper
@@ -50,12 +50,12 @@ export const FEATURES = {
  */
 export async function conditionalImport<T>(
   feature: keyof typeof FEATURES,
-  importFn: () => Promise<T>
+  importFn: () => Promise<T>,
 ): Promise<T | null> {
   if (FEATURES[feature]) {
-    return importFn();
+    return importFn()
   }
-  return null;
+  return null
 }
 
 /**
@@ -69,29 +69,29 @@ export function createMinimalI18n(config: any) {
     debug: false,
     warnOnMissing: false,
     devtools: false,
-  };
-  
+  }
+
   // Only include essential plugins
   if (productionConfig.plugins) {
     productionConfig.plugins = productionConfig.plugins.filter(
-      (plugin: any) => !plugin.isDevelopmentOnly
-    );
+      (plugin: any) => !plugin.isDevelopmentOnly,
+    )
   }
-  
-  return productionConfig;
+
+  return productionConfig
 }
 
 // Export cache features
-export * from '../core/cache';
+export * from '../core/cache'
 /**
  * Tree-shakeable exports
  * Each module can be imported separately to reduce bundle size
  */
-export * from '../core/interpolation';
+export * from '../core/interpolation'
 
-export * from '../core/pluralization';
+export * from '../core/pluralization'
 
-// Export formatter features  
+// Export formatter features
 // export * from '../core/formatter'; // TODO: Add when formatter module is created
 
 /**
@@ -104,23 +104,23 @@ export const CHUNK_NAMES = {
   VUE_INTEGRATION: /* webpackChunkName: "i18n-vue" */ 'vue',
   LOCALES: /* webpackChunkName: "i18n-locales" */ 'locales',
   ADVANCED: /* webpackChunkName: "i18n-advanced" */ 'advanced',
-} as const;
+} as const
 
 /**
  * Preload hints for critical resources
  */
 export function generatePreloadHints(locales: string[]): string[] {
-  const hints: string[] = [];
-  
+  const hints: string[] = []
+
   // Add critical locale files
-  locales.forEach(locale => {
-    hints.push(`/locales/${locale}.json`);
-  });
-  
+  locales.forEach((locale) => {
+    hints.push(`/locales/${locale}.json`)
+  })
+
   // Add core bundles
-  hints.push('/i18n-core.js');
-  
-  return hints;
+  hints.push('/i18n-core.js')
+
+  return hints
 }
 
 /**
@@ -136,7 +136,7 @@ export const MODULE_FEDERATION_CONFIG = {
   shared: {
     vue: { singleton: true, requiredVersion: '^3.0.0' },
   },
-};
+}
 
 /**
  * ESM-only exports for modern bundlers
@@ -145,27 +145,27 @@ export const MODULE_FEDERATION_CONFIG = {
 export const ESM_ONLY = {
   // Use native dynamic imports
   dynamicImport: (path: string) => import(/* @vite-ignore */ path),
-  
+
   // Use native async/await
   asyncLoader: async (locale: string) => {
     // Dynamic import path - this is for documentation purposes
     // In actual usage, provide the full path from the consuming application
     // const module = await import(/* @vite-ignore */ `../locales/${locale}.js`);
     // return module.default;
-    throw new Error('asyncLoader should be implemented by the consuming application with proper paths');
+    throw new Error('asyncLoader should be implemented by the consuming application with proper paths')
   },
-  
+
   // Use native Proxy for reactive bindings
   createReactive: <T extends object>(target: T): T => {
     return new Proxy(target, {
       set(obj, prop, value) {
-        Reflect.set(obj, prop, value);
+        Reflect.set(obj, prop, value)
         // Trigger updates
-        return true;
+        return true
       },
-    });
+    })
   },
-};
+}
 
 /**
  * Build-time constants for dead code elimination
@@ -176,22 +176,22 @@ export const BUILD_FLAGS = {
   IS_TEST: false,
   VERSION: '2.0.0',
   BUILD_DATE: new Date().toISOString(),
-} as const;
+} as const
 
 /**
  * SideEffects-free pure functions
  * Mark these as pure for better tree-shaking
  */
-/*#__PURE__*/ export function pureFormatNumber(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale).format(value);
+/* #__PURE__ */ export function pureFormatNumber(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale).format(value)
 }
 
-/*#__PURE__*/ export function pureFormatDate(value: Date, locale: string): string {
-  return new Intl.DateTimeFormat(locale).format(value);
+/* #__PURE__ */ export function pureFormatDate(value: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale).format(value)
 }
 
-/*#__PURE__*/ export function pureCapitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+/* #__PURE__ */ export function pureCapitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 /**
@@ -206,14 +206,14 @@ export const ROLLUP_OPTIMIZATION = {
     '@vue/reactivity',
     '@vue/runtime-core',
   ],
-  
+
   // Modules to mark as side-effect free
   sideEffectsFreeModules: [
     './utils/helpers',
     './core/interpolation',
     './core/pluralization',
   ],
-  
+
   // Output configuration for different formats
   output: {
     esm: {
@@ -233,7 +233,7 @@ export const ROLLUP_OPTIMIZATION = {
       },
     },
   },
-};
+}
 
 /**
  * Vite plugin configuration for optimal HMR and bundling
@@ -244,7 +244,7 @@ export const VITE_OPTIMIZATION = {
     include: ['@ldesign/shared'],
     exclude: ['@ldesign/i18n/plugins/*'],
   },
-  
+
   // Build configuration
   build: {
     rollupOptions: {
@@ -257,7 +257,7 @@ export const VITE_OPTIMIZATION = {
         },
       },
     },
-    
+
     // Library mode configuration
     lib: {
       entry: './src/index.ts',
@@ -265,48 +265,48 @@ export const VITE_OPTIMIZATION = {
       fileName: (format: any) => `i18n.${format}.js`,
     },
   },
-};
+}
 
 /**
  * Export size analyzer
  * Helps identify large exports for optimization
  */
 export function analyzeExportSizes(): Map<string, number> {
-  const sizes = new Map<string, number>();
-  
+  const sizes = new Map<string, number>()
+
   // This would be populated by build tools
   // Example structure:
-  sizes.set('I18n', 15000); // 15KB
-  sizes.set('InterpolationEngine', 3000); // 3KB
-  sizes.set('PluralizationEngine', 2000); // 2KB
-  sizes.set('Cache', 4000); // 4KB
-  sizes.set('Plugins', 50000); // 50KB total
-  
-  return sizes;
+  sizes.set('I18n', 15000) // 15KB
+  sizes.set('InterpolationEngine', 3000) // 3KB
+  sizes.set('PluralizationEngine', 2000) // 2KB
+  sizes.set('Cache', 4000) // 4KB
+  sizes.set('Plugins', 50000) // 50KB total
+
+  return sizes
 }
 
 /**
  * Recommendations for bundle size reduction
  */
 export function getBundleSizeRecommendations(currentSize: number): string[] {
-  const recommendations: string[] = [];
-  
+  const recommendations: string[] = []
+
   if (currentSize > 100000) { // > 100KB
-    recommendations.push('Consider lazy loading plugins');
-    recommendations.push('Use dynamic imports for locales');
-    recommendations.push('Enable tree-shaking in your bundler');
+    recommendations.push('Consider lazy loading plugins')
+    recommendations.push('Use dynamic imports for locales')
+    recommendations.push('Enable tree-shaking in your bundler')
   }
-  
+
   if (currentSize > 50000) { // > 50KB
-    recommendations.push('Remove unused features via feature flags');
-    recommendations.push('Use production builds in production');
-    recommendations.push('Consider code splitting for Vue components');
+    recommendations.push('Remove unused features via feature flags')
+    recommendations.push('Use production builds in production')
+    recommendations.push('Consider code splitting for Vue components')
   }
-  
+
   if (currentSize > 25000) { // > 25KB
-    recommendations.push('Minimize the number of locales bundled');
-    recommendations.push('Use CDN for locale data');
+    recommendations.push('Minimize the number of locales bundled')
+    recommendations.push('Use CDN for locale data')
   }
-  
-  return recommendations;
+
+  return recommendations
 }

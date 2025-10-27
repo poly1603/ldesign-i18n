@@ -4,11 +4,11 @@
  * 测试语言选择配置、过滤器和注册表功能
  */
 
+import type { LanguageConfig, LanguageFilterConfig } from '../src/core/language-config'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createLanguageRegistry,
-  type LanguageConfig,
-  type LanguageFilterConfig,
+
   LanguageRegistry,
 } from '../src/core/language-config'
 

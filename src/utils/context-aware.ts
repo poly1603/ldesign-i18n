@@ -3,39 +3,37 @@
  * Support for gender, formality, audience-specific translations
  */
 
-import type { Locale, MessageKey, Messages } from '../types';
-
 /**
  * Translation context
  */
 export interface TranslationContext {
-  gender?: 'male' | 'female' | 'neutral' | 'other';
-  formality?: 'formal' | 'informal' | 'casual';
-  audience?: 'child' | 'teen' | 'adult' | 'senior';
-  tone?: 'professional' | 'friendly' | 'humorous' | 'serious';
+  gender?: 'male' | 'female' | 'neutral' | 'other'
+  formality?: 'formal' | 'informal' | 'casual'
+  audience?: 'child' | 'teen' | 'adult' | 'senior'
+  tone?: 'professional' | 'friendly' | 'humorous' | 'serious'
 }
 
 /**
  * Context-aware message structure
  */
-export type ContextualMessages = {
-  [key: string]: string | ContextualVariants | ContextualMessages;
-};
+export interface ContextualMessages {
+  [key: string]: string | ContextualVariants | ContextualMessages
+}
 
 /**
  * Contextual variants for a single message
  */
 export interface ContextualVariants {
-  default: string;
-  male?: string;
-  female?: string;
-  neutral?: string;
-  formal?: string;
-  informal?: string;
-  child?: string;
-  teen?: string;
-  adult?: string;
-  [key: string]: string | undefined;
+  default: string
+  male?: string
+  female?: string
+  neutral?: string
+  formal?: string
+  informal?: string
+  child?: string
+  teen?: string
+  adult?: string
+  [key: string]: string | undefined
 }
 
 /**
@@ -47,33 +45,33 @@ export class ContextResolver {
    */
   resolve(
     message: string | ContextualVariants | any,
-    context?: TranslationContext
+    context?: TranslationContext,
   ): string {
     // Simple string - return as is
     if (typeof message === 'string') {
-      return message;
+      return message
     }
 
     // Not an object - convert to string
     if (!message || typeof message !== 'object') {
-      return String(message);
+      return String(message)
     }
 
     // Check if it's a contextual variants object
     if (!this.isContextualVariants(message)) {
-      return String(message);
+      return String(message)
     }
 
-    const variants = message as ContextualVariants;
+    const variants = message as ContextualVariants
 
     // No context provided - return default
     if (!context) {
-      return variants.default || '';
+      return variants.default || ''
     }
 
     // Try to find best matching variant
-    const variant = this.findBestVariant(variants, context);
-    return variant || variants.default || '';
+    const variant = this.findBestVariant(variants, context)
+    return variant || variants.default || ''
   }
 
   /**
@@ -81,10 +79,10 @@ export class ContextResolver {
    */
   private isContextualVariants(obj: any): boolean {
     return (
-      typeof obj === 'object' &&
-      'default' in obj &&
-      typeof obj.default === 'string'
-    );
+      typeof obj === 'object'
+      && 'default' in obj
+      && typeof obj.default === 'string'
+    )
   }
 
   /**
@@ -92,45 +90,45 @@ export class ContextResolver {
    */
   private findBestVariant(
     variants: ContextualVariants,
-    context: TranslationContext
+    context: TranslationContext,
   ): string | undefined {
     // Priority order: gender > formality > audience > tone
 
     // 1. Try gender-specific variant
     if (context.gender && variants[context.gender]) {
-      return variants[context.gender];
+      return variants[context.gender]
     }
 
     // 2. Try formality-specific variant
     if (context.formality && variants[context.formality]) {
-      return variants[context.formality];
+      return variants[context.formality]
     }
 
     // 3. Try audience-specific variant
     if (context.audience && variants[context.audience]) {
-      return variants[context.audience];
+      return variants[context.audience]
     }
 
     // 4. Try tone-specific variant
     if (context.tone && variants[context.tone]) {
-      return variants[context.tone];
+      return variants[context.tone]
     }
 
     // 5. Fall back to default
-    return undefined;
+    return undefined
   }
 
   /**
    * Create contextual message structure
    */
   static createContextualMessage(variants: {
-    default: string;
-    [context: string]: string;
+    default: string
+    [context: string]: string
   }): ContextualVariants {
     if (!variants.default) {
-      throw new Error('Contextual message must have a default variant');
+      throw new Error('Contextual message must have a default variant')
     }
-    return variants as ContextualVariants;
+    return variants as ContextualVariants
   }
 
   /**
@@ -139,23 +137,23 @@ export class ContextResolver {
   static validateContextualMessages(messages: ContextualMessages): boolean {
     const validate = (obj: any): boolean => {
       if (typeof obj === 'string') {
-        return true;
+        return true
       }
 
       if (typeof obj !== 'object' || !obj) {
-        return false;
+        return false
       }
 
       // Check if it's a variants object
       if ('default' in obj && typeof obj.default === 'string') {
-        return true;
+        return true
       }
 
       // Recursively validate nested messages
-      return Object.values(obj).every(val => validate(val));
-    };
+      return Object.values(obj).every(val => validate(val))
+    }
 
-    return validate(messages);
+    return validate(messages)
   }
 }
 
@@ -163,11 +161,11 @@ export class ContextResolver {
  * Context-aware translation helper
  */
 export class ContextAwareTranslator {
-  private readonly resolver = new ContextResolver();
-  private defaultContext?: TranslationContext;
+  private readonly resolver = new ContextResolver()
+  private defaultContext?: TranslationContext
 
   constructor(defaultContext?: TranslationContext) {
-    this.defaultContext = defaultContext;
+    this.defaultContext = defaultContext
   }
 
   /**
@@ -175,35 +173,35 @@ export class ContextAwareTranslator {
    */
   translate(
     message: string | ContextualVariants | any,
-    context?: TranslationContext
+    context?: TranslationContext,
   ): string {
     const effectiveContext = {
       ...this.defaultContext,
-      ...context
-    };
+      ...context,
+    }
 
-    return this.resolver.resolve(message, effectiveContext);
+    return this.resolver.resolve(message, effectiveContext)
   }
 
   /**
    * Set default context
    */
   setDefaultContext(context: TranslationContext): void {
-    this.defaultContext = context;
+    this.defaultContext = context
   }
 
   /**
    * Get default context
    */
   getDefaultContext(): TranslationContext | undefined {
-    return this.defaultContext;
+    return this.defaultContext
   }
 
   /**
    * Clear default context
    */
   clearDefaultContext(): void {
-    this.defaultContext = undefined;
+    this.defaultContext = undefined
   }
 }
 
@@ -211,30 +209,30 @@ export class ContextAwareTranslator {
  * Create context-aware translator
  */
 export function createContextAwareTranslator(
-  defaultContext?: TranslationContext
+  defaultContext?: TranslationContext,
 ): ContextAwareTranslator {
-  return new ContextAwareTranslator(defaultContext);
+  return new ContextAwareTranslator(defaultContext)
 }
 
 /**
  * Helper to create contextual messages
  */
 export function contextual(variants: {
-  default: string;
-  [context: string]: string;
+  default: string
+  [context: string]: string
 }): ContextualVariants {
-  return ContextResolver.createContextualMessage(variants);
+  return ContextResolver.createContextualMessage(variants)
 }
 
 /**
  * Example usage types for documentation
  */
 export interface ExampleContextualMessages {
-  welcome: ContextualVariants;
+  welcome: ContextualVariants
   greeting: {
-    morning: ContextualVariants;
-    evening: string;
-  };
+    morning: ContextualVariants
+    evening: string
+  }
 }
 
 // Example:
@@ -256,5 +254,3 @@ export interface ExampleContextualMessages {
 //     evening: "Good evening!"
 //   }
 // };
-
-

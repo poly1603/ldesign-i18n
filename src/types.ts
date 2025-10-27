@@ -3,4 +3,4 @@
  * This file ensures types are accessible from package root
  */
 
-export * from './types/index';
+export * from './types/index'
