@@ -98,6 +98,7 @@
   "scripts": {
     "build": "ldesign-builder build",
     "build:watch": "ldesign-builder build --watch",
+    "build:all": "pnpm exec tsx scripts/build-all-packages.ts",
     "dev": "ldesign-builder build --watch",
     "test": "vitest",
     "test:run": "vitest run",
@@ -107,6 +108,8 @@
     "type-check:watch": "tsc --noEmit --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:all": "pnpm exec tsx scripts/lint-all-packages.ts",
+    "lint:all:fix": "pnpm exec tsx scripts/lint-all-packages.ts --fix",
     "benchmark": "node benchmark.js",
     "benchmark:advanced": "node --expose-gc benchmark-advanced.js",
     "prepublishOnly": "pnpm run clean && pnpm run build"

@@ -29,7 +29,6 @@
     "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
     "skipLibCheck": true,
-    "preserveConstEnums": false,
     "removeComments": false,
     "importHelpers": true,
     "importsNotUsedAsValues": "remove"

@@ -62,6 +62,8 @@
     "clean": "rimraf es lib dist coverage .tsbuildinfo",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
   "peerDependencies": {
@@ -78,12 +80,14 @@
     "tslib": "^2.6.2"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^6.0.0",
     "@ldesign/builder": "workspace:*",
     "@types/node": "^22.0.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "@vitest/ui": "^3.2.4",
     "@vue/runtime-core": "^3.5.18",
     "@vue/test-utils": "^2.4.4",
+    "eslint": "^9.18.0",
     "rimraf": "^5.0.5",
     "typescript": "^5.7.3",
     "vite": "^5.0.12",
