@@ -5,12 +5,17 @@
 import type { I18nConfig, I18nInstance } from '../types'
 import { OptimizedI18n } from './i18n-optimized'
 
-export * from './adaptive-cache'
+// 统一缓存系统（优先导出）
+export * from './cache'
+
+// 优化的事件系统
+export * from './events'
+
+// 路径编译缓存
+export * from './path-cache'
 
 // Advanced features
 export * from './advanced-formatter'
-// Cache systems
-export * from './cache'
 
 // Main i18n class
 export * from './i18n-optimized'

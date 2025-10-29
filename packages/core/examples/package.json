@@ -1,0 +1,19 @@
+{
+  "name": "@ldesign/i18n-core-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "launcher dev",
+    "build": "launcher build",
+    "preview": "launcher preview"
+  },
+  "dependencies": {
+    "@ldesign/i18n-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@ldesign/launcher": "workspace:*",
+    "typescript": "^5.7.3"
+  }
+}
+

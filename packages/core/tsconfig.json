@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./es",
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "es", "lib", "**/*.test.ts", "**/*.spec.ts"]
+}
+

@@ -1,0 +1,91 @@
+{
+  "name": "@ldesign/i18n-svelte",
+  "type": "module",
+  "version": "4.0.0",
+  "description": "Svelte integration for @ldesign/i18n - Powerful i18n solution with stores, components, and actions",
+  "author": "ldesign",
+  "license": "MIT",
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "localization",
+    "svelte",
+    "typescript",
+    "stores",
+    "reactive"
+  ],
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.cjs"
+    },
+    "./stores": {
+      "types": "./es/stores/index.d.ts",
+      "import": "./es/stores/index.js",
+      "require": "./lib/stores/index.cjs"
+    },
+    "./components": {
+      "types": "./es/components/index.d.ts",
+      "import": "./es/components/index.js",
+      "require": "./lib/components/index.cjs"
+    },
+    "./actions": {
+      "types": "./es/actions/index.d.ts",
+      "import": "./es/actions/index.js",
+      "require": "./lib/actions/index.cjs"
+    }
+  },
+  "main": "./lib/index.cjs",
+  "module": "./es/index.js",
+  "types": "./es/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist",
+    "es",
+    "lib",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs",
+    "build:watch": "ldesign-builder build --watch",
+    "dev": "ldesign-builder build --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rimraf es lib dist coverage .tsbuildinfo",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "prepublishOnly": "pnpm run clean && pnpm run build"
+  },
+  "peerDependencies": {
+    "svelte": "^3.0.0 || ^4.0.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": false
+    }
+  },
+  "dependencies": {
+    "@ldesign/i18n-core": "workspace:*",
+    "@ldesign/shared": "workspace:*",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "@testing-library/svelte": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@vitest/ui": "^3.2.4",
+    "rimraf": "^5.0.5",
+    "svelte": "^4.0.0",
+    "typescript": "^5.7.3",
+    "vite": "^5.0.12",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
+

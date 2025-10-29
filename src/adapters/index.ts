@@ -1,6 +1,8 @@
 /**
- * Adapters module exports
+ * 框架适配器导出
+ * 
+ * @packageDocumentation
  */
 
+export * from './base'
 export * from './vue'
-// export * from './react' // React adapter can be exported when needed

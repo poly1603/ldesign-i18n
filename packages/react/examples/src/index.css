@@ -1,0 +1,116 @@
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #61dafb 0%, #282c34 100%);
+  padding: 2rem;
+}
+
+.header {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  margin: 0 0 1rem 0;
+  color: #61dafb;
+}
+
+.locale-switcher {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.locale-switcher button {
+  padding: 0.5rem 1rem;
+  background: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.locale-switcher button:hover {
+  background: #21a1c4;
+}
+
+.current-locale {
+  margin-left: 1rem;
+  font-weight: 600;
+  color: #61dafb;
+}
+
+.content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.demo-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.demo-section h2 {
+  margin: 0 0 1rem 0;
+  color: #282c34;
+  border-bottom: 2px solid #61dafb;
+  padding-bottom: 0.5rem;
+}
+
+.demo-item {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.demo-item p {
+  margin: 0.5rem 0;
+}
+
+input {
+  padding: 0.5rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 200px;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.controls button {
+  padding: 0.5rem 1rem;
+  background: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.count {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #61dafb;
+  min-width: 3rem;
+  text-align: center;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin: 0.5rem 0;
+}

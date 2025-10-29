@@ -1,0 +1,79 @@
+<div class="app">
+  <header class="header">
+    <h1>@ldesign/i18n-angular 功能演示</h1>
+    <div class="locale-switcher">
+      <button (click)="i18n.setLocale('zh-CN')">中文</button>
+      <button (click)="i18n.setLocale('en')">English</button>
+      <button (click)="i18n.setLocale('ja')">日本語</button>
+      <span class="current-locale">当前: {{ i18n.locale }}</span>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="demo-section">
+      <h2>1. 基础翻译 (Service)</h2>
+      <div class="demo-item">
+        <p><strong>i18n.t('hello'):</strong> {{ i18n.t('hello') }}</p>
+        <p><strong>i18n.t('about'):</strong> {{ i18n.t('about') }}</p>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>2. 翻译管道 (Pipe)</h2>
+      <div class="demo-item">
+        <p><strong>'hello' | translate:</strong> {{ 'hello' | translate }}</p>
+        <p><strong>'welcome' | translate:</strong> {{ 'welcome' | translate: { name: userName } }}</p>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>3. 翻译指令 (Directive)</h2>
+      <div class="demo-item">
+        <div i18nTranslate="hello"></div>
+        <div [i18nTranslate]="'welcome'" [i18nTranslateParams]="{ name: userName }"></div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>4. 复数化</h2>
+      <div class="demo-item">
+        <div class="controls">
+          <button (click)="decrementCount()">-</button>
+          <span class="count">{{ itemCount }}</span>
+          <button (click)="incrementCount()">+</button>
+        </div>
+        <p>{{ itemCount }} {{ 'items' | plural: itemCount }}</p>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>5. 格式化</h2>
+      <div class="demo-item">
+        <p>日期: {{ today | i18nDate: 'long' }}</p>
+        <p>数字: {{ price | i18nNumber }}</p>
+        <p>货币: {{ 99.99 | i18nNumber: 'currency' }}</p>
+        <p>百分比: {{ 0.85 | i18nNumber: 'percent' }}</p>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>6. RxJS Observable</h2>
+      <div class="demo-item">
+        <p>当前语言 (Observable): {{ i18n.locale$ | async }}</p>
+        <p>翻译 (Observable): {{ i18n.t$('hello') | async }}</p>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>7. 功能特性</h2>
+      <div class="demo-item">
+        <ul>
+          <li>{{ i18n.t('features.services') }}</li>
+          <li>{{ i18n.t('features.pipes') }}</li>
+          <li>{{ i18n.t('features.directives') }}</li>
+          <li>{{ i18n.t('features.rxjs') }}</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>

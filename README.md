@@ -4,19 +4,25 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-green.svg)](https://vuejs.org/)
+[![React](https://img.shields.io/badge/React-16%2F17%2F18-blue.svg)](https://reactjs.org/)
+[![Angular](https://img.shields.io/badge/Angular-16%2F17%2F18-red.svg)](https://angular.io/)
+[![Svelte](https://img.shields.io/badge/Svelte-3%2F4%2F5-orange.svg)](https://svelte.dev/)
+[![Solid](https://img.shields.io/badge/Solid-1.x-blue.svg)](https://www.solidjs.com/)
 [![Performance](https://img.shields.io/badge/Performance-⚡%20Blazing%20Fast-brightgreen.svg)](./OPTIMIZATION_COMPLETE.md)
 
-企业级国际化解决方案 - 功能强大、类型安全、高性能的多语言库，支持 Vue 3 深度集成。
+企业级国际化解决方案 - 功能强大、类型安全、高性能的多语言库，支持 Vue、React、Angular、Svelte、Solid 等主流前端框架。
 
 > 🎉 **v3.0 重大更新**：性能提升 50%，内存减少 35%，新增 16 项企业级功能！
 > 📖 **新功能文档**：[README_OPTIMIZATIONS.md](./README_OPTIMIZATIONS.md) | [性能优化详解](./OPTIMIZATION_COMPLETE.md)
 
 ## ✨ 特性
 
-### 🚀 v3.0 核心优化
+### 🚀 v3.0 核心优化（2025-01 最新）
 
-- ⚡ **极致性能** - 哈希缓存键（+70%速度）、模板预编译（+40-60%插值速度）、自适应缓存（92%+命中率）
-- 💚 **内存优化** - 35%内存减少、60%更少GC压力、零内存泄漏保证
+- ⚡ **统一缓存系统** - 双向链表 LRU（O(1)）、对象池复用、支持 LRU/LFU/FIFO 策略
+- 🎯 **优先级事件系统** - 优先级桶机制（O(k)）、监听器限制、自动清理
+- 🚀 **路径编译缓存** - O(1) 缓存命中、避免重复解析、80%+ 性能提升
+- 💚 **内存优化** - 30%+ 内存减少、60% 更少 GC 压力、完整资源管理
 - 🌍 **完整RTL** - 15种RTL语言支持（Arabic, Hebrew等）、自动方向检测、RTL CSS工具
 - 🔒 **类型安全** - 编译时键名验证、完整IDE自动完成、零运行时成本
 - 🎨 **管道格式化** - 15+内置管道、链式转换语法（`{{name | capitalize}}`）
@@ -33,12 +39,12 @@
 
 ### 📦 原有特性
 
-- 🎯 **框架无关** - 核心库独立于任何框架，同时提供 Vue 3 深度集成
+- 🎯 **框架无关** - 核心库独立于任何框架，提供多框架深度集成
 - 🔄 **异步加载** - 支持动态加载语言包，减少初始包体积
 - 🧠 **智能缓存** - 多层缓存策略，内存管理，TTL 支持
 - 🌐 **语言检测** - 自动检测用户语言偏好
 - 📦 **多种格式** - 支持 ESM、CJS、UMD 多种模块格式
-- ⚡ **Vue 集成** - 类似 vue-i18n 的 API，组合式 API、组件、指令全面支持
+- ⚡ **多框架支持** - Vue、React、Angular、Svelte、Solid 全面集成，API 一致
 
 ### 🆕 增强功能 (参考 vue-i18n)
 
@@ -81,14 +87,14 @@ pnpm add @ldesign/i18n
 
 ## 🚀 快速开始
 
-### 基础用法
+### 核心库（框架无关）
 
 ```typescript
-import { I18n } from '@ldesign/i18n'
+import { I18n } from '@ldesign/i18n-core'
 
 // 创建 I18n 实例
 const i18n = new I18n({
-  defaultLocale: 'zh-CN',
+  locale: 'zh-CN',
   fallbackLocale: 'en',
   messages: {
     'zh-CN': {
@@ -110,7 +116,7 @@ console.log(i18n.t('hello')) // "你好"
 console.log(i18n.t('welcome', { name: '张三' })) // "欢迎 张三！"
 
 // 切换语言
-await i18n.changeLanguage('en')
+await i18n.setLocale('en')
 console.log(i18n.t('hello')) // "Hello"
 ```
 
@@ -161,6 +167,190 @@ import { useI18n } from '@ldesign/i18n/vue'
 
 const { t, locale, setLocale } = useI18n()
 </script>
+```
+
+### React 集成
+
+```tsx
+// index.tsx
+import { createI18n, I18nProvider } from '@ldesign/i18n-react'
+
+const i18n = createI18n({
+  locale: 'zh-CN',
+  fallbackLocale: 'en',
+  messages: {
+    'zh-CN': { hello: '你好', welcome: '欢迎 {name}！' },
+    'en': { hello: 'Hello', welcome: 'Welcome {name}!' }
+  }
+})
+
+function App() {
+  return (
+    <I18nProvider i18n={i18n}>
+      <MyComponent />
+    </I18nProvider>
+  )
+}
+```
+
+```tsx
+// MyComponent.tsx
+import { useI18n, Trans } from '@ldesign/i18n-react'
+
+function MyComponent() {
+  const { t, locale, setLocale } = useI18n()
+
+  return (
+    <div>
+      {/* 使用 hook */}
+      <h1>{t('hello')}</h1>
+
+      {/* 使用组件 */}
+      <Trans keypath="welcome" params={{ name: 'React' }} />
+
+      {/* 语言切换 */}
+      <select value={locale} onChange={(e) => setLocale(e.target.value)}>
+        <option value="zh-CN">中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  )
+}
+```
+
+### Svelte 集成
+
+```svelte
+<!-- App.svelte -->
+<script lang="ts">
+  import { createI18n, I18nProvider, Trans } from '@ldesign/i18n-svelte'
+
+  const i18n = createI18n({
+    locale: 'zh-CN',
+    fallbackLocale: 'en',
+    messages: {
+      'zh-CN': { hello: '你好', welcome: '欢迎 {name}！' },
+      'en': { hello: 'Hello', welcome: 'Welcome {name}!' }
+    }
+  })
+
+  // 响应式语言
+  $: currentLocale = $i18n.locale
+</script>
+
+<I18nProvider {i18n}>
+  <div>
+    <!-- 使用 store -->
+    <h1>{i18n.t('hello')}</h1>
+
+    <!-- 使用组件 -->
+    <Trans keypath="welcome" params={{ name: 'Svelte' }} />
+
+    <!-- 语言切换 -->
+    <select value={currentLocale} on:change={(e) => i18n.setLocale(e.target.value)}>
+      <option value="zh-CN">中文</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+</I18nProvider>
+```
+
+### Solid.js 集成
+
+```tsx
+// index.tsx
+import { OptimizedI18n } from '@ldesign/i18n-core'
+import { I18nProvider, useI18n, Trans } from '@ldesign/i18n-solid'
+
+const i18n = new OptimizedI18n({
+  locale: 'zh-CN',
+  fallbackLocale: 'en',
+  messages: {
+    'zh-CN': { hello: '你好', welcome: '欢迎 {name}！' },
+    'en': { hello: 'Hello', welcome: 'Welcome {name}!' }
+  }
+})
+
+function App() {
+  const { t, locale, setLocale } = useI18n()
+
+  return (
+    <div>
+      {/* 使用 primitive */}
+      <h1>{t('hello')}</h1>
+
+      {/* 使用组件 */}
+      <Trans keypath="welcome" params={{ name: 'Solid' }} />
+
+      {/* 语言切换 */}
+      <select value={locale()} onChange={(e) => setLocale(e.target.value)}>
+        <option value="zh-CN">中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  )
+}
+
+function Root() {
+  return (
+    <I18nProvider i18n={i18n}>
+      <App />
+    </I18nProvider>
+  )
+}
+```
+
+### Angular 集成
+
+```typescript
+// app.module.ts
+import { NgModule } from '@angular/core'
+import { I18nModule } from '@ldesign/i18n-angular'
+
+@NgModule({
+  imports: [
+    I18nModule.forRoot({
+      locale: 'zh-CN',
+      fallbackLocale: 'en',
+      messages: {
+        'zh-CN': { hello: '你好', welcome: '欢迎 {name}！' },
+        'en': { hello: 'Hello', welcome: 'Welcome {name}!' }
+      }
+    })
+  ]
+})
+export class AppModule {}
+```
+
+```typescript
+// app.component.ts
+import { Component } from '@angular/core'
+import { I18nService } from '@ldesign/i18n-angular'
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <div>
+      <!-- 使用 Service -->
+      <h1>{{ i18n.t('hello') }}</h1>
+
+      <!-- 使用 Pipe -->
+      <p>{{ 'welcome' | translate: { name: 'Angular' } }}</p>
+
+      <!-- 使用 Directive -->
+      <div i18nTranslate="hello"></div>
+
+      <!-- 语言切换 -->
+      <select [value]="i18n.locale" (change)="i18n.setLocale($event.target.value)">
+        <option value="zh-CN">中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  `
+})
+export class AppComponent {
+  constructor(public i18n: I18nService) {}
+}
 ```
 
 #### 🔍 增强功能示例
@@ -431,15 +621,19 @@ const i18n = new I18n({
 
 ## 🆚 对比其他方案
 
-| 特性            | @ldesign/i18n | vue-i18n    | react-i18next | i18next   |
-| --------------- | ------------- | ----------- | ------------- | --------- |
-| TypeScript 支持 | ✅ 完整       | ✅ 良好     | ✅ 良好       | ✅ 基础   |
-| 框架无关        | ✅ 是         | ❌ Vue 专用 | ❌ React 专用 | ✅ 是     |
-| Vue 3 集成      | ✅ 深度集成   | ✅ 原生     | ❌ 无         | ⚠️ 需配置 |
-| 异步加载        | ✅ 内置       | ✅ 支持     | ✅ 支持       | ✅ 支持   |
-| 智能缓存        | ✅ 多层缓存   | ⚠️ 基础     | ⚠️ 基础       | ⚠️ 基础   |
-| 性能监控        | ✅ 内置       | ❌ 无       | ❌ 无         | ❌ 无     |
-| 包体积          | 🎯 优化       | 📦 中等     | 📦 较大       | 📦 较大   |
+| 特性            | @ldesign/i18n | vue-i18n    | react-i18next | @angular/localize | i18next   |
+| --------------- | ------------- | ----------- | ------------- | ----------------- | --------- |
+| TypeScript 支持 | ✅ 完整       | ✅ 良好     | ✅ 良好       | ✅ 完整           | ✅ 基础   |
+| 框架无关        | ✅ 是         | ❌ Vue 专用 | ❌ React 专用 | ❌ Angular 专用   | ✅ 是     |
+| Vue 3 集成      | ✅ 深度集成   | ✅ 原生     | ❌ 无         | ❌ 无             | ⚠️ 需配置 |
+| React 集成      | ✅ 深度集成   | ❌ 无       | ✅ 原生       | ❌ 无             | ⚠️ 需配置 |
+| Angular 集成    | ✅ 深度集成   | ❌ 无       | ❌ 无         | ✅ 原生           | ⚠️ 需配置 |
+| Svelte 集成     | ✅ 深度集成   | ❌ 无       | ❌ 无         | ❌ 无             | ⚠️ 需配置 |
+| Solid 集成      | ✅ 深度集成   | ❌ 无       | ❌ 无         | ❌ 无             | ⚠️ 需配置 |
+| 异步加载        | ✅ 内置       | ✅ 支持     | ✅ 支持       | ⚠️ 基础           | ✅ 支持   |
+| 智能缓存        | ✅ 多层缓存   | ⚠️ 基础     | ⚠️ 基础       | ❌ 无             | ⚠️ 基础   |
+| 性能监控        | ✅ 内置       | ❌ 无       | ❌ 无         | ❌ 无             | ❌ 无     |
+| 包体积          | 🎯 优化       | 📦 中等     | 📦 较大       | 📦 中等           | 📦 较大   |
 
 ## 🚀 性能优化指南
 
@@ -606,9 +800,16 @@ pnpm test
 - [🚀 性能优化指南](./PERFORMANCE_GUIDE.md) - 详细的性能优化指南
 - [🔄 迁移指南](./MIGRATION_GUIDE.md) - v1.x 到 v2.0 迁移指南
 
+### 🎯 框架集成指南
+
+- [⚡ Vue 3 集成](./packages/vue/README.md) - Vue 3 深度集成指南
+- [⚛️ React 集成](./packages/react/README.md) - React 集成指南
+- [🅰️ Angular 集成](./packages/angular/README.md) - Angular 集成指南
+- [🧡 Svelte 集成](./packages/svelte/README.md) - Svelte 集成指南
+- [🔷 Solid 集成](./packages/solid/README.md) - Solid.js 集成指南
+
 ### 🎯 专题指南
 
-- [⚡ Vue 3 集成](./VUE_INTEGRATION.md) - Vue 3 深度集成指南
 - [🔧 配置指南](./CONFIGURATION.md) - 详细配置选项
 - [🧪 测试指南](./TESTING.md) - 单元测试和集成测试
 - [🛠️ 故障排除](./TROUBLESHOOTING.md) - 常见问题解决方案

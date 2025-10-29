@@ -8,7 +8,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['__tests__/setup.ts'],
     include: ['__tests__/**/*.{test,spec}.{js,ts}'],
-    exclude: ['node_modules', 'dist', 'esm', 'cjs', 'types'],
+    exclude: ['node_modules', 'dist', 'es', 'lib', 'types'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -16,11 +16,20 @@ export default defineConfig({
         'node_modules/',
         '__tests__/',
         'dist/',
-        'esm/',
-        'cjs/',
+        'es/',
+        'lib/',
         'types/',
         '**/*.d.ts',
+        '**/*.config.*',
+        '**/index.ts', // 仅导出文件
       ],
+      // LDesign 标准：覆盖率阈值 >80%
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
 })

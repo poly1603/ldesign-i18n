@@ -423,31 +423,11 @@ export function throttle<T extends (...args: any[]) => any>(
 }
 
 /**
- * 简单的事件发射器
- *
- * 提供事件订阅/发布功能,内置内存泄漏保护
- *
- * ## 特性
- * - 监听器数量限制(防止内存泄漏)
- * - 自动清理空事件
- * - 错误隔离(单个监听器错误不影响其他)
- * - 返回取消订阅函数
- *
- * @example
- * ```typescript
- * const emitter = new EventEmitter();
- *
- * // 订阅事件
- * const unsubscribe = emitter.on('update', (data) => {
- *   console.log('Updated:', data);
- * });
- *
- * // 发布事件
- * emitter.emit('update', { value: 123 });
- *
- * // 取消订阅
- * unsubscribe();
- * ```
+ * 简单的事件发射器（向后兼容）
+ * 
+ * 推荐使用 core/events/emitter.ts 中的优化版本
+ * 
+ * @deprecated 使用 core/events/EventEmitter 替代
  */
 export class EventEmitter {
   /** 事件到监听器集合的映射 */

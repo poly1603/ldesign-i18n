@@ -1,0 +1,97 @@
+{
+  "name": "@ldesign/i18n-core",
+  "type": "module",
+  "version": "4.0.0",
+  "description": "Framework-agnostic i18n core library with advanced features",
+  "author": "ldesign",
+  "license": "MIT",
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "localization",
+    "typescript",
+    "framework-agnostic",
+    "multilingual",
+    "translation",
+    "locale"
+  ],
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.cjs"
+    },
+    "./core/*": {
+      "types": "./es/core/*.d.ts",
+      "import": "./es/core/*.js",
+      "require": "./lib/core/*.cjs"
+    },
+    "./types": {
+      "types": "./es/types/index.d.ts",
+      "import": "./es/types/index.js",
+      "require": "./lib/types/index.cjs"
+    },
+    "./utils": {
+      "types": "./es/utils/index.d.ts",
+      "import": "./es/utils/index.js",
+      "require": "./lib/utils/index.cjs"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs"
+    },
+    "./debug": {
+      "types": "./es/debug/index.d.ts",
+      "import": "./es/debug/index.js",
+      "require": "./lib/debug/index.cjs"
+    },
+    "./plugins": {
+      "types": "./es/plugins/index.d.ts",
+      "import": "./es/plugins/index.js",
+      "require": "./lib/plugins/index.cjs"
+    }
+  },
+  "main": "./lib/index.cjs",
+  "module": "./es/index.js",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
+  "types": "./es/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist",
+    "es",
+    "lib",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs,umd",
+    "build:watch": "ldesign-builder build --watch",
+    "dev": "ldesign-builder build --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rimraf es lib dist coverage .tsbuildinfo",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "prepublishOnly": "pnpm run clean && pnpm run build"
+  },
+  "dependencies": {
+    "@ldesign/shared": "workspace:*",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "@types/node": "^22.0.0",
+    "@vitest/ui": "^3.2.4",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.7.3",
+    "vite": "^5.0.12",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
+

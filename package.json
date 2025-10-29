@@ -96,7 +96,7 @@
     "package.json"
   ],
   "scripts": {
-    "build": "ldesign-builder build -f esm,cjs",
+    "build": "ldesign-builder build",
     "build:watch": "ldesign-builder build --watch",
     "dev": "ldesign-builder build --watch",
     "test": "vitest",
@@ -105,8 +105,8 @@
     "clean": "rimraf es lib dist coverage",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
-    "lint": "eslint . --ext .ts,.tsx,.vue",
-    "lint:fix": "eslint . --ext .ts,.tsx,.vue --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "benchmark": "node benchmark.js",
     "benchmark:advanced": "node --expose-gc benchmark-advanced.js",
     "prepublishOnly": "pnpm run clean && pnpm run build"

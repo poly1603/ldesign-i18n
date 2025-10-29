@@ -1,0 +1,98 @@
+{
+  "name": "@ldesign/i18n-vue",
+  "type": "module",
+  "version": "4.0.0",
+  "description": "Vue 3 integration for @ldesign/i18n - Powerful i18n solution with composition API, components, and directives",
+  "author": "ldesign",
+  "license": "MIT",
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "localization",
+    "vue",
+    "vue3",
+    "typescript",
+    "composition-api",
+    "reactive"
+  ],
+  "sideEffects": [
+    "*.css",
+    "*.vue"
+  ],
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.cjs"
+    },
+    "./components": {
+      "types": "./es/components/index.d.ts",
+      "import": "./es/components/index.js",
+      "require": "./lib/components/index.cjs"
+    },
+    "./composables": {
+      "types": "./es/composables/index.d.ts",
+      "import": "./es/composables/index.js",
+      "require": "./lib/composables/index.cjs"
+    },
+    "./directives": {
+      "types": "./es/directives/index.d.ts",
+      "import": "./es/directives/index.js",
+      "require": "./lib/directives/index.cjs"
+    }
+  },
+  "main": "./lib/index.cjs",
+  "module": "./es/index.js",
+  "types": "./es/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist",
+    "es",
+    "lib",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs",
+    "build:watch": "ldesign-builder build --watch",
+    "dev": "ldesign-builder build --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rimraf es lib dist coverage .tsbuildinfo",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "prepublishOnly": "pnpm run clean && pnpm run build"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": false
+    }
+  },
+  "dependencies": {
+    "@ldesign/i18n-core": "workspace:*",
+    "@ldesign/shared": "workspace:*",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitest/ui": "^3.2.4",
+    "@vue/runtime-core": "^3.5.18",
+    "@vue/test-utils": "^2.4.4",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.7.3",
+    "vite": "^5.0.12",
+    "vitest": "^3.2.4",
+    "vue": "^3.4.15",
+    "vue-tsc": "^3.0.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
+

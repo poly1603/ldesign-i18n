@@ -27,13 +27,31 @@ export {
   useTranslation,
   vI18n,
 } from './adapters/vue'
+// 导出统一的缓存系统
 export {
   createCache,
   LRUCache,
-  MultiTierCache,
   StorageCache,
   WeakCache,
+  type CacheStats,
+  type EvictionStrategy,
+  type LRUCacheConfig,
 } from './core/cache'
+
+// 导出优化的事件系统
+export {
+  EventEmitter,
+  type EventListener,
+} from './core/events'
+
+// 导出路径编译缓存
+export {
+  PathCache,
+  getPathCache,
+  resetPathCache,
+  getNestedValueCached,
+  type PathSegments,
+} from './core/path-cache'
 export { OptimizedI18n as I18n, OptimizedI18n } from './core/i18n-optimized'
 // 性能工具
 export { FastCacheKeyBuilder, ObjectFactory } from './core/i18n-optimized'
