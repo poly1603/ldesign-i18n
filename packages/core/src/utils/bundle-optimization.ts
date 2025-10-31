@@ -109,6 +109,7 @@ export const CHUNK_NAMES = {
 /**
  * Preload hints for critical resources
  */
+// eslint-disable-next-line unused-imports/no-unused-vars
 export function generatePreloadHints(locales: string[]): string[] {
   const hints: string[] = []
 
@@ -147,6 +148,7 @@ export const ESM_ONLY = {
   dynamicImport: (path: string) => import(/* @vite-ignore */ path),
 
   // Use native async/await
+  // @ts-ignore - locale 参数保留
   asyncLoader: async (locale: string) => {
     // Dynamic import path - this is for documentation purposes
     // In actual usage, provide the full path from the consuming application

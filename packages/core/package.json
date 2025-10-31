@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-core",
-  "type": "module",
   "version": "4.0.0",
   "description": "Framework-agnostic i18n core library with advanced features",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -15,21 +12,54 @@
     "translation",
     "locale"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
+    "./core": {
+      "types": "./es/core/index.d.ts",
+      "import": "./es/core/index.js",
+      "require": "./lib/core/index.cjs"
+    },
     "./core/*": {
       "types": "./es/core/*.d.ts",
       "import": "./es/core/*.js",
       "require": "./lib/core/*.cjs"
     },
+    "./debug": {
+      "types": "./es/debug/index.d.ts",
+      "import": "./es/debug/index.js",
+      "require": "./lib/debug/index.cjs"
+    },
+    "./debug/*": {
+      "types": "./es/debug/*.d.ts",
+      "import": "./es/debug/*.js",
+      "require": "./lib/debug/*.cjs"
+    },
+    "./plugins": {
+      "types": "./es/plugins/index.d.ts",
+      "import": "./es/plugins/index.js",
+      "require": "./lib/plugins/index.cjs"
+    },
+    "./plugins/*": {
+      "types": "./es/plugins/*.d.ts",
+      "import": "./es/plugins/*.js",
+      "require": "./lib/plugins/*.cjs"
+    },
     "./types": {
       "types": "./es/types/index.d.ts",
       "import": "./es/types/index.js",
       "require": "./lib/types/index.cjs"
+    },
+    "./types/*": {
+      "types": "./es/types/*.d.ts",
+      "import": "./es/types/*.js",
+      "require": "./lib/types/*.cjs"
     },
     "./utils": {
       "types": "./es/utils/index.d.ts",
@@ -41,29 +71,23 @@
       "import": "./es/utils/*.js",
       "require": "./lib/utils/*.cjs"
     },
-    "./debug": {
-      "types": "./es/debug/index.d.ts",
-      "import": "./es/debug/index.js",
-      "require": "./lib/debug/index.cjs"
-    },
-    "./plugins": {
-      "types": "./es/plugins/index.d.ts",
-      "import": "./es/plugins/index.js",
-      "require": "./lib/plugins/index.cjs"
+    "./__tests__/*": {
+      "types": "./es/__tests__/*.d.ts",
+      "import": "./es/__tests__/*.js",
+      "require": "./lib/__tests__/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
+  "types": "./es/index.d.ts",
   "unpkg": "./dist/index.min.js",
   "jsdelivr": "./dist/index.min.js",
-  "types": "./es/index.d.ts",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -98,4 +122,3 @@
     "access": "public"
   }
 }
-

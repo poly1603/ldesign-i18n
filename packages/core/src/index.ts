@@ -23,12 +23,10 @@ export {
   MultiTierCache,
   StorageCache,
   WeakCache,
-  type Cache,
-  type CacheConfig,
 } from './core/cache'
 
 export { AdaptiveCache } from './core/adaptive-cache'
-export { OptimizedCache } from './core/optimized-cache'
+export { OptimizedLRUCache } from './core/optimized-cache'
 
 // ==================== 核心引擎 ====================
 
@@ -47,9 +45,7 @@ export { MemoryOptimizer } from './core/memory-optimizer'
 // ==================== 高级功能 ====================
 
 export { LazyLoader } from './core/lazy-loader'
-export { OfflineFirstPlugin } from './core/offline-first'
 export { ContextAwareTranslator } from './core/context-aware'
-export { SOAStorage } from './core/soa-storage'
 export { WeakEventEmitter } from './core/weak-event-emitter'
 
 // ==================== 类型定义 ====================
@@ -101,26 +97,17 @@ export type {
 
 // ==================== 工具函数 ====================
 
-export * from './utils/helpers'
 export * from './utils/hash-cache-key'
 export * from './utils/error-handler'
-export * from './utils/performance'
 export * from './utils/locale-metadata'
 
-// 高级工具（按需导入）
-export { KeyValidator } from './utils/key-validator'
-export { CoverageReporter } from './utils/coverage-reporter'
-export { HotReload } from './utils/hot-reload'
-export { PerformanceBudget } from './utils/performance-budget'
-export { SmartFallback } from './utils/smart-fallback'
-export { BundleOptimization } from './utils/bundle-optimization'
-export { ContextAware } from './utils/context-aware'
+// 高级工具(按需导入)
+export type { PerformanceBudget } from './utils/performance-budget'
 
 // ==================== 调试工具 ====================
 
 export type {
   I18nProfiler,
-  PerformanceMetrics,
   ProfilingReport,
   TranslationInspector,
   TranslationUsage,

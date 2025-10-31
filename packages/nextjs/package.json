@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-nextjs",
-  "type": "module",
   "version": "1.0.0",
   "description": "Next.js integration for @ldesign/i18n with App Router and Pages Router support",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -12,43 +9,77 @@
     "nextjs",
     "typescript"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
+    "./components": {
+      "types": "./es/components/index.d.ts",
+      "import": "./es/components/index.js",
+      "require": "./lib/components/index.cjs"
+    },
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
+    },
     "./hooks": {
       "types": "./es/hooks/index.d.ts",
       "import": "./es/hooks/index.js",
       "require": "./lib/hooks/index.cjs"
     },
-    "./components": {
-      "types": "./es/components/index.d.ts",
-      "import": "./es/components/index.js",
-      "require": "./lib/components/index.cjs"
+    "./hooks/*": {
+      "types": "./es/hooks/*.d.ts",
+      "import": "./es/hooks/*.js",
+      "require": "./lib/hooks/*.cjs"
+    },
+    "./middleware": {
+      "types": "./es/middleware/index.d.ts",
+      "import": "./es/middleware/index.js",
+      "require": "./lib/middleware/index.cjs"
+    },
+    "./middleware/*": {
+      "types": "./es/middleware/*.d.ts",
+      "import": "./es/middleware/*.js",
+      "require": "./lib/middleware/*.cjs"
     },
     "./server": {
       "types": "./es/server/index.d.ts",
       "import": "./es/server/index.js",
       "require": "./lib/server/index.cjs"
     },
-    "./middleware": {
-      "types": "./es/middleware/index.d.ts",
-      "import": "./es/middleware/index.js",
-      "require": "./lib/middleware/index.cjs"
+    "./server/*": {
+      "types": "./es/server/*.d.ts",
+      "import": "./es/server/*.js",
+      "require": "./lib/server/*.cjs"
+    },
+    "./utils": {
+      "types": "./es/utils/index.d.ts",
+      "import": "./es/utils/index.js",
+      "require": "./lib/utils/index.cjs"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -64,22 +95,14 @@
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "next": "^13.0.0 || ^14.0.0 || ^15.0.0",
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "next": {
-      "optional": false
-    },
-    "react": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "next": "^13.0.0 || ^14.0.0 || ^15.0.0",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
@@ -94,5 +117,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": false
+    },
+    "react": {
+      "optional": false
+    }
   }
 }

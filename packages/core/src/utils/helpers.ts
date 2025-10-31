@@ -184,12 +184,12 @@ export function deepMerge<T extends Record<string, any>>(
 
         if (isPlainObject(sourceValue)) {
           if (!target[key]) {
-            target[key] = {} as any
+            Object.assign(target, { [key]: {} })
           }
           deepMerge(target[key] as any, sourceValue as any)
         }
         else {
-          target[key] = sourceValue as any
+          Object.assign(target, { [key]: sourceValue })
         }
       }
     }

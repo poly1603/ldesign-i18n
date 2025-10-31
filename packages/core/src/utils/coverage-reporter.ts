@@ -56,6 +56,7 @@ export class TranslationCoverageReporter {
   /**
    * Track a missing translation
    */
+  // @ts-ignore - stack 参数保留供将来使用
   trackMissing(key: MessageKey, locale: Locale, stack?: string): void {
     if (!this.enabled)
       return

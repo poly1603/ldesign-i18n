@@ -406,6 +406,7 @@ export class ErrorHandler {
   /**
    * Find similar keys (for suggestions)
    */
+  // @ts-ignore - key 参数保留供将来实现
   private findSimilarKeys(key: string): string[] {
     // This would need access to available keys
     // For now, return empty array
@@ -416,6 +417,7 @@ export class ErrorHandler {
   /**
    * Find missing interpolation parameters
    */
+  // eslint-disable-next-line unused-imports/no-unused-vars
   private findMissingParams(template: string, params: Record<string, any>): string[] {
     const placeholders = template.match(/\{\{?\s*(\w+)\s*\}?\}/g) || []
     const missing: string[] = []

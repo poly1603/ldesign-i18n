@@ -255,10 +255,12 @@ export class LazyLoader {
     }
 
     // 记录大小（如需统计可在外部状态中使用）
-    const _size = this.estimateSize(messages)
-    const _loadTime = Date.now() - startTime
+    // @ts-ignore - 保留供将来使用
+    const size = this.estimateSize(messages)
+    // @ts-ignore - 保留供将来使用
+    const loadTime = Date.now() - startTime
 
-    this.updateLoadState(this.getCacheKey(locale, namespace), 'loaded', undefined)
+    this.updateLoadState(this.getCacheKey(locale, namespace), 'loaded', undefined, messages)
 
     return messages
   }
@@ -481,6 +483,7 @@ export class LazyLoader {
   /**
    * 格式化大小
    */
+  // @ts-ignore - 保留供将来使用
   private formatSize(bytes: number): string {
     const units = ['B', 'KB', 'MB']
     let size = bytes

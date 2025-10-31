@@ -1,0 +1,26 @@
+{
+  "welcome": "Welcome to @ldesign/i18n",
+  "description": "A powerful and modern internationalization solution",
+  "features": {
+    "title": "Features",
+    "performance": "High Performance",
+    "typescript": "Full TypeScript Support",
+    "frameworks": "15+ Framework Adapters",
+    "cache": "Smart Caching System"
+  },
+  "counter": {
+    "title": "Counter Example",
+    "count": "Count: {{count}}",
+    "increment": "Increment",
+    "decrement": "Decrement",
+    "reset": "Reset"
+  },
+  "language": {
+    "title": "Language Selector",
+    "current": "Current Language: {{lang}}",
+    "switch": "Switch Language"
+  },
+  "plural": {
+    "items": "{{count}} item_{{count}} items"
+  }
+}

@@ -1,0 +1,77 @@
+---
+import { createI18n } from '@ldesign/i18n-astro'
+import en from '../locales/en.json'
+import zh from '../locales/zh.json'
+
+const i18n = createI18n({
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages: {
+    en,
+    zh,
+  },
+})
+
+const { locale } = Astro.url.searchParams.get('locale') ? { locale: Astro.url.searchParams.get('locale') } : { locale: 'en' }
+if (locale) {
+  i18n.setLocale(locale)
+}
+---
+
+<!DOCTYPE html>
+<html lang={i18n.locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Astro i18n Example</title>
+    <style>
+      body {
+        padding: 2rem;
+        font-family: system-ui, sans-serif;
+      }
+      .section {
+        margin-top: 2rem;
+      }
+      button {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>{i18n.t('welcome')}</h1>
+    <p>{i18n.t('description')}</p>
+    
+    <div class="section">
+      <a href="?locale=en">
+        <button>English</button>
+      </a>
+      <a href="?locale=zh">
+        <button>中文</button>
+      </a>
+      <span>Current: {i18n.locale}</span>
+    </div>
+
+    <div class="section">
+      <h2>{i18n.t('counter')}: <span id="count">0</span></h2>
+      <button id="increment">{i18n.t('increment')}</button>
+      <button id="decrement">{i18n.t('decrement')}</button>
+    </div>
+
+    <script>
+      let count = 0
+      const countEl = document.getElementById('count')!
+      
+      document.getElementById('increment')!.addEventListener('click', () => {
+        count++
+        countEl.textContent = count.toString()
+      })
+      
+      document.getElementById('decrement')!.addEventListener('click', () => {
+        count--
+        countEl.textContent = count.toString()
+      })
+    </script>
+  </body>
+</html>

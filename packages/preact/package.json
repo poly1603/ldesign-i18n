@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-preact",
-  "type": "module",
   "version": "1.0.0",
   "description": "Preact integration for @ldesign/i18n with hooks support",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -12,33 +9,47 @@
     "preact",
     "typescript"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
+    "./components": {
+      "types": "./es/components/index.d.ts",
+      "import": "./es/components/index.js",
+      "require": "./lib/components/index.cjs"
+    },
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
+    },
     "./hooks": {
       "types": "./es/hooks/index.d.ts",
       "import": "./es/hooks/index.js",
       "require": "./lib/hooks/index.cjs"
     },
-    "./components": {
-      "types": "./es/components/index.d.ts",
-      "import": "./es/components/index.js",
-      "require": "./lib/components/index.cjs"
+    "./hooks/*": {
+      "types": "./es/hooks/*.d.ts",
+      "import": "./es/hooks/*.js",
+      "require": "./lib/hooks/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -54,18 +65,13 @@
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "preact": "^10.0.0"
-  },
-  "peerDependenciesMeta": {
-    "preact": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "preact": "^10.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
@@ -80,5 +86,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "preact": {
+      "optional": false
+    }
   }
 }

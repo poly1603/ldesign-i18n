@@ -3,7 +3,7 @@
  * 自动内存优化和管理系统
  */
 
-import type { Cache, I18nInstance, Messages } from '../types'
+import type { I18nInstance } from '../types'
 
 /**
  * 内存使用信息
@@ -160,9 +160,9 @@ export class MemoryOptimizer {
 
         // 清理主缓存中的过期项
         if ('cache' in optimizer.i18n && optimizer.i18n.cache) {
-          const cache = optimizer.i18n.cache as Cache<string, string>
+          const cache = optimizer.i18n.cache as any
           if ('cleanupExpired' in cache) {
-            (cache as any).cleanupExpired()
+            cache.cleanupExpired()
           }
         }
       },
@@ -178,9 +178,9 @@ export class MemoryOptimizer {
           return
 
         // 压缩超过10KB的消息
-        const messages = (optimizer.i18n as any).messages as Map<string, Messages>
-        if (messages) {
-          for (const [locale, msgs] of messages) {
+        const messagesMap = (optimizer.i18n as any).messages as Map<string, any>
+        if (messagesMap) {
+          for (const [, msgs] of messagesMap) {
             const size = JSON.stringify(msgs).length
             if (size > 10240) { // 10KB
               const compressed = await optimizer.compressObject(msgs)
@@ -224,7 +224,7 @@ export class MemoryOptimizer {
           return
 
         if ('cache' in optimizer.i18n && optimizer.i18n.cache) {
-          const cache = optimizer.i18n.cache as Cache<string, string>
+          const cache = optimizer.i18n.cache as any
 
           // 清理50%的缓存
           if ('size' in cache && 'clear' in cache) {
@@ -233,7 +233,7 @@ export class MemoryOptimizer {
 
             // 如果缓存支持部分清理
             if ('evict' in cache) {
-              (cache as any).evict(currentSize - targetSize)
+              cache.evict(currentSize - targetSize)
             }
             else {
               // 否则清空整个缓存

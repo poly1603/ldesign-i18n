@@ -1,0 +1,26 @@
+{
+  "welcome": "欢迎使用 @ldesign/i18n",
+  "description": "强大且现代化的国际化解决方案",
+  "features": {
+    "title": "特性",
+    "performance": "高性能",
+    "typescript": "完整的 TypeScript 支持",
+    "frameworks": "15+ 框架适配器",
+    "cache": "智能缓存系统"
+  },
+  "counter": {
+    "title": "计数器示例",
+    "count": "计数: {{count}}",
+    "increment": "增加",
+    "decrement": "减少",
+    "reset": "重置"
+  },
+  "language": {
+    "title": "语言选择器",
+    "current": "当前语言: {{lang}}",
+    "switch": "切换语言"
+  },
+  "plural": {
+    "items": "{{count}} 个项目"
+  }
+}

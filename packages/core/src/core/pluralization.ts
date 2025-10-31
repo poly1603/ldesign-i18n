@@ -198,6 +198,7 @@ export class PluralizationEngine {
   /** 默认规则(总是返回 'other') */
   private readonly defaultRule: PluralRule = () => 'other'
   /** 复数形式分隔符 */
+  // @ts-ignore - 保留供将来使用
   private readonly separator: string
 
   /** 复数类别缓存(性能优化) */
@@ -211,6 +212,7 @@ export class PluralizationEngine {
    * @param separator - 复数形式分隔符,默认 '_'
    */
   constructor(separator = '_') {
+    // @ts-ignore - separator 保留供将来使用
     this.separator = separator
     this.loadBuiltInRules()
   }
@@ -493,6 +495,7 @@ export class PluralizationEngine {
    */
   validatePluralForms(
     message: string | Record<string, string>,
+    // @ts-ignore - locale 参数保留供将来扩展
     locale: Locale,
   ): boolean {
     const messages = typeof message === 'string'

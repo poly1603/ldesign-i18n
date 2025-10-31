@@ -555,7 +555,8 @@ export class RealtimeSync extends EventEmitter {
     this.emit('apply:transform', transform)
   }
 
-  private gatherLocalTranslations(keys: string[], locale: string, since?: number): any {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private gatherLocalTranslations(_keys: string[], _locale: string, _since?: number): any {
     // This would need to integrate with the i18n system
     // to get current translations
 
@@ -565,7 +566,8 @@ export class RealtimeSync extends EventEmitter {
     }
   }
 
-  private getLocalTranslation(locale: string, key: string): string | undefined {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private getLocalTranslation(_locale: string, _key: string): string | undefined {
     // This would need to integrate with the i18n system
     // Placeholder implementation
     return undefined

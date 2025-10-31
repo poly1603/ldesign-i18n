@@ -170,6 +170,7 @@ class LRUCache<T> {
     }
   }
 
+  // @ts-ignore - 保留供将来使用
   private calculateEvictionScore(entry: CacheEntry<T>): number {
     const age = Date.now() - entry.timestamp
     const recency = Date.now() - entry.lastAccess
@@ -319,6 +320,7 @@ export class SmartCache extends EventEmitter {
     }
   }
 
+  // @ts-ignore - 保留供将来使用
   private async demote<T>(key: string, value: T, fromLayer: string, toLayer: string): Promise<void> {
     const source = this.layers.get(fromLayer)
     const target = this.layers.get(toLayer)
@@ -424,7 +426,7 @@ export class SmartCache extends EventEmitter {
     }
 
     // Demote cold items
-    for (const [layerName, cache] of this.layers) {
+    for (const [layerName] of this.layers) {
       if (layerName === 'hot') {
         // Demote items that haven't been accessed recently
         // Implementation would go here
@@ -434,9 +436,10 @@ export class SmartCache extends EventEmitter {
 
   private getMatchingKeys(pattern: string | RegExp): string[] {
     const keys: string[] = []
+    // @ts-ignore - regex 保留供将来使用
     const regex = pattern instanceof RegExp ? pattern : new RegExp(pattern)
 
-    for (const [, cache] of this.layers) {
+    for (const [,] of this.layers) {
       // This would need access to cache keys
       // Placeholder implementation
     }
@@ -546,10 +549,12 @@ export class SmartCache extends EventEmitter {
   // Memory pressure handling
   handleMemoryPressure(level: 'low' | 'medium' | 'high'): void {
     switch (level) {
-      case 'high':
+      case 'high': {
         // Clear cold cache
         this.clear('cold')
-        // Fall through
+        this.clear('warm')
+        break
+      }
       case 'medium':
         // Clear warm cache
         this.clear('warm')

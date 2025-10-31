@@ -1,0 +1,8 @@
+{
+  "welcome": "欢迎使用 @ldesign/i18n",
+  "description": "强大的国际化解决方案",
+  "switchLanguage": "切换到英文",
+  "counter": "计数: {{count}}",
+  "increment": "增加",
+  "decrement": "减少"
+}

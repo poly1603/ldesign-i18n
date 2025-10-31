@@ -6,7 +6,142 @@
 import crypto from 'node:crypto'
 import { EventEmitter } from 'node:events'
 
+interface ChangeRecord {
+  type: 'add' | 'modify' | 'delete'
+  locale: string
+  key: string
+  oldValue?: string
+  newValue?: string
+  diff?: DiffResult
+}
+
+interface DiffResult {
+  added: string[]
+  removed: string[]
+  context: string[]
+}
+
+interface Commit {
+  hash: string
+  parent: string | null
+  author: string
+  email: string
+  timestamp: number
+  message: string
+  changes: ChangeRecord[]
+  tree: string
+}
+
+interface Branch {
+  name: string
+  head: string
+  created: number
+  author: string
+  description?: string
+  upstream?: string
+}
+
+interface Tag {
+  name: string
+  commit: string
+  author: string
+  timestamp: number
+  message?: string
+  signed?: boolean
+}
+
+interface Stash {
+  id: string
+  message: string
+  timestamp: number
+  author: string
+  changes: ChangeRecord[]
+  branch: string
+}
+
+interface Remote {
+  name: string
+  url: string
+  branches: Map<string, string>
+  lastFetch: number
+}
+
+interface MergeConflict {
+  locale: string
+  key: string
+  ours: string
+  theirs: string
+  base?: string
+  resolved?: boolean
+  resolution?: string
+}
+
+interface VCConfig {
+  author: string
+  email: string
+  autoStash: boolean
+  autoMerge: boolean
+}
+
+interface CommitOptions {
+  amend?: boolean
+  author?: string
+  email?: string
+}
+
+interface BranchOptions {
+  from?: string
+  checkout?: boolean
+}
+
+interface CheckoutOptions {
+  force?: boolean
+  createNew?: boolean
+}
+
+interface MergeOptions {
+  strategy?: 'recursive' | 'ours' | 'theirs'
+  noCommit?: boolean
+}
+
+interface LogOptions {
+  branch?: string
+  limit?: number
+  since?: number
+  author?: string
+}
+
+interface TagOptions {
+  commit?: string
+  message?: string
+  signed?: boolean
+}
+
+interface RebaseOptions {
+  interactive?: boolean
+}
+
+interface BlameInfo {
+  commit: Commit
+  line: string
+}
+
 class TranslationVersionControl extends EventEmitter {
+  private commits: Map<string, Commit>
+  private branches: Map<string, Branch>
+  private tags: Map<string, Tag>
+  private currentBranch: string
+  private head: string | null
+  private workingTree: Map<string, Map<string, string>>
+  private stagingArea: ChangeRecord[]
+  private stashes: Stash[]
+  private remotes: Map<string, Remote>
+  private mergeConflicts: MergeConflict[]
+  private maxCommits: number
+  private maxStashes: number
+  private maxStagingSize: number
+  private cleanupTimer: NodeJS.Timeout | undefined
+  private config: VCConfig
   constructor() {
     super()
     this.setMaxListeners(50)
@@ -76,18 +211,18 @@ class TranslationVersionControl extends EventEmitter {
 
   // Configuration
 
-  setConfig(config) {
+  setConfig(config: Partial<VCConfig>): void {
     this.config = { ...this.config, ...config }
     this.emit('config:update', this.config)
   }
 
   // Working tree operations
 
-  getTranslation(locale, key) {
+  getTranslation(locale: string, key: string): string | undefined {
     return this.workingTree.get(locale)?.get(key)
   }
 
-  setTranslation(locale, key, value) {
+  setTranslation(locale: string, key: string, value: string): void {
     if (!this.workingTree.has(locale)) {
       this.workingTree.set(locale, new Map())
     }
@@ -96,7 +231,7 @@ class TranslationVersionControl extends EventEmitter {
     this.workingTree.get(locale)!.set(key, value)
 
     // Track change
-    const change = {
+    const change: ChangeRecord = {
       type: oldValue === undefined ? 'add' : 'modify',
       locale,
       key,
@@ -111,12 +246,12 @@ class TranslationVersionControl extends EventEmitter {
     this.emit('translation:change', change)
   }
 
-  deleteTranslation(locale, key) {
+  deleteTranslation(locale: string, key: string): void {
     const oldValue = this.workingTree.get(locale)?.get(key)
     if (oldValue !== undefined) {
       this.workingTree.get(locale)!.delete(key)
 
-      const change = {
+      const change: ChangeRecord = {
         type: 'delete',
         locale,
         key,
@@ -131,14 +266,14 @@ class TranslationVersionControl extends EventEmitter {
 
   // Staging operations
 
-  add(pattern) {
+  add(pattern?: string | RegExp): void {
     // Add changes to staging area
     // Pattern can be used to selectively stage changes
 
     this.emit('stage:add', { pattern, count: this.stagingArea.length })
   }
 
-  reset(pattern) {
+  reset(pattern?: string | RegExp): void {
     // Remove from staging area
     if (pattern) {
       const regex = pattern instanceof RegExp ? pattern : new RegExp(pattern)
@@ -155,21 +290,21 @@ class TranslationVersionControl extends EventEmitter {
 
   // Commit operations
 
-  commit(message, options) {
+  commit(message: string, options?: CommitOptions): string {
     if (this.stagingArea.length === 0 && !options?.amend) {
       throw new Error('Nothing to commit')
     }
 
-    const parent = options?.amend ? this.getCommit(this.head!)?.parent : this.head
+    const parent = options?.amend ? this.getCommit(this.head!)?.parent || null : this.head
     const changes = options?.amend
       ? [...(this.getCommit(this.head!)?.changes || []), ...this.stagingArea]
       : this.stagingArea
 
-    const commit = {
+    const commit: Commit = {
       hash: this.generateHash(message + Date.now()),
       parent,
-      author: options?.author || this.config?.author,
-      email: options?.email || this.config?.email,
+      author: options?.author || this.config.author,
+      email: options?.email || this.config.email,
       timestamp: Date.now(),
       message,
       changes,
@@ -199,7 +334,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // Branch operations
 
-  branch(name, options) {
+  branch(name: string, options?: BranchOptions): void {
     if (this.branches.has(name)) {
       throw new Error(`Branch '${name}' already exists`)
     }
@@ -222,7 +357,7 @@ class TranslationVersionControl extends EventEmitter {
     this.emit('branch:create', branch)
   }
 
-  checkout(target, options) {
+  checkout(target: string, options?: CheckoutOptions): void {
     // Check for uncommitted changes
     if (this.stagingArea.length > 0 && !options?.force) {
       if (this.config?.autoStash) {
@@ -260,7 +395,7 @@ class TranslationVersionControl extends EventEmitter {
     this.emit('checkout', { target, branch: this.currentBranch, head: this.head })
   }
 
-  merge(branch, options) {
+  merge(branch: string, options?: MergeOptions): void {
     const sourceBranch = this.branches.get(branch)
     if (!sourceBranch) {
       throw new Error(`Branch '${branch}' not found`)
@@ -309,7 +444,7 @@ class TranslationVersionControl extends EventEmitter {
     this.emit('merge:complete', { from: branch, to: this.currentBranch, conflicts: conflicts.length })
   }
 
-  resolveConflict(locale, key, resolution) {
+  resolveConflict(locale: string, key: string, resolution: string): void {
     const conflict = this.mergeConflicts.find(c => c.locale === locale && c.key === key)
     if (conflict) {
       conflict.resolved = true
@@ -332,7 +467,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // History operations
 
-  log(options) {
+  log(options?: LogOptions): Commit[] {
     const commits = []
     let current = options?.branch
       ? this.branches.get(options.branch)?.head
@@ -358,7 +493,7 @@ class TranslationVersionControl extends EventEmitter {
     return commits
   }
 
-  diff(from, to) {
+  diff(from?: string, to?: string): ChangeRecord[] {
     const fromCommit = from ? this.commits.get(from) : null
     const toCommit = to ? this.commits.get(to) : this.commits.get(this.head!)
 
@@ -371,7 +506,7 @@ class TranslationVersionControl extends EventEmitter {
     return this.calculateTreeDiff(fromTree, toTree)
   }
 
-  blame(locale, key) {
+  blame(locale: string, key: string): BlameInfo[] {
     // Track changes to a specific translation through history
     const blameInfo = []
 
@@ -397,7 +532,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // Stash operations
 
-  stash(message) {
+  stash(message?: string): string {
     if (this.stagingArea.length === 0) {
       throw new Error('No changes to stash')
     }
@@ -418,7 +553,7 @@ class TranslationVersionControl extends EventEmitter {
     return stash.id
   }
 
-  stashPop(index = 0) {
+  stashPop(index = 0): void {
     if (index >= this.stashes.length) {
       throw new Error('Invalid stash index')
     }
@@ -440,13 +575,13 @@ class TranslationVersionControl extends EventEmitter {
     this.emit('stash:pop', stash)
   }
 
-  stashList() {
+  stashList(): Stash[] {
     return [...this.stashes]
   }
 
   // Tag operations
 
-  tag(name, options) {
+  tag(name: string, options?: TagOptions): void {
     if (this.tags.has(name)) {
       throw new Error(`Tag '${name}' already exists`)
     }
@@ -466,7 +601,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // Remote operations
 
-  addRemote(name, url) {
+  addRemote(name: string, url: string): void {
     if (this.remotes.has(name)) {
       throw new Error(`Remote '${name}' already exists`)
     }
@@ -482,7 +617,7 @@ class TranslationVersionControl extends EventEmitter {
     this.emit('remote:add', remote)
   }
 
-  fetch(remoteName = 'origin') {
+  fetch(remoteName = 'origin'): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const remote = this.remotes.get(remoteName)
       if (!remote) {
@@ -500,7 +635,7 @@ class TranslationVersionControl extends EventEmitter {
     })
   }
 
-  push(remoteName = 'origin', branch) {
+  push(remoteName = 'origin', branch?: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const remote = this.remotes.get(remoteName)
       if (!remote) {
@@ -524,7 +659,7 @@ class TranslationVersionControl extends EventEmitter {
     })
   }
 
-  pull(remoteName = 'origin', branch) {
+  pull(remoteName = 'origin', branch?: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       (async () => {
         try {
@@ -551,7 +686,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // Cherry-pick
 
-  cherryPick(commitHash) {
+  cherryPick(commitHash: string): void {
     const commit = this.commits.get(commitHash)
     if (!commit) {
       throw new Error(`Commit '${commitHash}' not found`)
@@ -578,7 +713,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // Rebase
 
-  rebase(onto, options) {
+  rebase(onto: string, _options?: RebaseOptions): void {
     // Simplified rebase implementation
     const targetBranch = this.branches.get(onto)
     if (!targetBranch) {
@@ -591,10 +726,10 @@ class TranslationVersionControl extends EventEmitter {
 
     // Filter commits after common ancestor
     const commitsToRebase = commits.filter((c) => {
-      let current = c.hash
+      let current: string | null = c.hash
       while (current && current !== commonAncestor) {
         const commit = this.commits.get(current)
-        current = commit?.parent || null
+        current = commit?.parent ?? null
       }
       return current !== commonAncestor
     })
@@ -624,7 +759,7 @@ class TranslationVersionControl extends EventEmitter {
 
   // Helper methods
 
-  trackChange(change) {
+  private trackChange(change: ChangeRecord): void {
     // Remove any existing change for the same key
     this.stagingArea = this.stagingArea.filter(
       c => !(c.locale === change.locale && c.key === change.key),
@@ -638,24 +773,24 @@ class TranslationVersionControl extends EventEmitter {
     this.stagingArea.push(change)
   }
 
-  generateHash(input) {
+  private generateHash(input: string): string {
     return crypto.createHash('sha256').update(input).digest('hex').substring(0, 7)
   }
 
-  generateTreeHash() {
+  private generateTreeHash(): string {
     const treeContent = JSON.stringify(Array.from(this.workingTree.entries()))
     return this.generateHash(treeContent)
   }
 
-  getCommit(hash) {
+  private getCommit(hash: string): Commit | undefined {
     return this.commits.get(hash)
   }
 
-  loadTreeFromCommit(commitHash) {
+  private loadTreeFromCommit(commitHash: string): void {
     // Reconstruct working tree from commit history
     this.workingTree.clear()
 
-    let current = commitHash
+    let current: string | null = commitHash
     const changes = []
 
     while (current) {
@@ -663,7 +798,7 @@ class TranslationVersionControl extends EventEmitter {
       if (!commit)
         break
       changes.unshift(...commit.changes)
-      current = commit.parent
+      current = commit.parent ?? null
     }
 
     // Apply all changes in order
@@ -681,10 +816,10 @@ class TranslationVersionControl extends EventEmitter {
     }
   }
 
-  getTreeFromCommit(commitHash) {
+  private getTreeFromCommit(commitHash: string): Map<string, Map<string, string>> {
     const tree = new Map()
 
-    let current = commitHash
+    let current: string | null = commitHash
     const changes = []
 
     while (current) {
@@ -692,7 +827,7 @@ class TranslationVersionControl extends EventEmitter {
       if (!commit)
         break
       changes.unshift(...commit.changes)
-      current = commit.parent
+      current = commit.parent ?? null
     }
 
     for (const change of changes) {
@@ -711,7 +846,7 @@ class TranslationVersionControl extends EventEmitter {
     return tree
   }
 
-  calculateTreeDiff(fromTree, toTree) {
+  private calculateTreeDiff(fromTree: Map<string, Map<string, string>>, toTree: Map<string, Map<string, string>>): ChangeRecord[] {
     const changes = []
 
     // Check for additions and modifications
@@ -723,7 +858,7 @@ class TranslationVersionControl extends EventEmitter {
 
         if (fromValue === undefined) {
           changes.push({
-            type: 'add',
+            type: 'add' as const,
             locale,
             key,
             newValue: toValue,
@@ -731,7 +866,7 @@ class TranslationVersionControl extends EventEmitter {
         }
         else if (fromValue !== toValue) {
           changes.push({
-            type: 'modify',
+            type: 'modify' as const,
             locale,
             key,
             oldValue: fromValue,
@@ -749,7 +884,7 @@ class TranslationVersionControl extends EventEmitter {
       for (const [key, fromValue] of fromKeys) {
         if (!toKeys?.has(key)) {
           changes.push({
-            type: 'delete',
+            type: 'delete' as const,
             locale,
             key,
             oldValue: fromValue,
@@ -761,10 +896,10 @@ class TranslationVersionControl extends EventEmitter {
     return changes
   }
 
-  calculateDiff(oldValue, newValue) {
+  private calculateDiff(oldValue: string | undefined, newValue: string | undefined): DiffResult {
     // Simplified diff calculation
     // In real implementation, would use proper diff algorithm
-    const diff = {
+    const diff: DiffResult = {
       added: [],
       removed: [],
       context: [],
@@ -791,14 +926,14 @@ class TranslationVersionControl extends EventEmitter {
     return diff
   }
 
-  findCommonAncestor(hash1, hash2) {
+  private findCommonAncestor(hash1: string, hash2: string): string | null {
     const ancestors1 = new Set()
-    let current = hash1
+    let current: string | null = hash1
 
     while (current) {
       ancestors1.add(current)
       const commit = this.commits.get(current)
-      current = commit?.parent || null
+      current = commit?.parent ?? null
     }
 
     current = hash2
@@ -807,13 +942,13 @@ class TranslationVersionControl extends EventEmitter {
         return current
       }
       const commit = this.commits.get(current)
-      current = commit?.parent || null
+      current = commit?.parent ?? null
     }
 
     return null
   }
 
-  performThreeWayMerge(base, ours, theirs, strategy) {
+  private performThreeWayMerge(base: string | null, ours: string, theirs: string, strategy: 'recursive' | 'ours' | 'theirs'): MergeConflict[] {
     const conflicts = []
 
     const baseTree = base ? this.getTreeFromCommit(base) : new Map()
@@ -829,7 +964,7 @@ class TranslationVersionControl extends EventEmitter {
     }
 
     for (const fullKey of allKeys) {
-      const [locale, key] = fullKey.split(':')
+      const [locale, key] = (fullKey as string).split(':')
 
       const baseValue = baseTree.get(locale)?.get(key)
       const ourValue = ourTree.get(locale)?.get(key)
@@ -879,7 +1014,7 @@ class TranslationVersionControl extends EventEmitter {
     return conflicts
   }
 
-  pruneOldCommits() {
+  private pruneOldCommits(): void {
     if (this.commits.size <= this.maxCommits)
       return
 
@@ -914,14 +1049,14 @@ class TranslationVersionControl extends EventEmitter {
     })
   }
 
-  limitStashes() {
+  private limitStashes(): void {
     if (this.stashes.length > this.maxStashes) {
       // Remove oldest stashes
       this.stashes = this.stashes.slice(-this.maxStashes)
     }
   }
 
-  destroy() {
+  destroy(): void {
     // Clear timer
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer)
@@ -944,7 +1079,7 @@ class TranslationVersionControl extends EventEmitter {
   }
 
   // Status and info
-  status() {
+  status(): { branch: string; head: string | null; staged: number; conflicts: number; stashes: number; ahead: number; behind: number } {
     // Calculate ahead/behind for current branch
     let ahead = 0
     let behind = 0
@@ -954,11 +1089,11 @@ class TranslationVersionControl extends EventEmitter {
       const upstream = this.branches.get(branch.upstream)
       if (upstream) {
         // Count commits ahead
-        let current = branch.head
+        let current: string | null = branch.head
         while (current && current !== upstream.head) {
           ahead++
           const commit = this.commits.get(current)
-          current = commit?.parent || null
+          current = commit?.parent ?? null
         }
 
         // Count commits behind
@@ -966,7 +1101,7 @@ class TranslationVersionControl extends EventEmitter {
         while (current && current !== branch.head) {
           behind++
           const commit = this.commits.get(current)
-          current = commit?.parent || null
+          current = commit?.parent ?? null
         }
       }
     }
@@ -983,7 +1118,7 @@ class TranslationVersionControl extends EventEmitter {
   }
 
   // Export/Import
-  export() {
+  export(): string {
     const data = {
       commits: Array.from(this.commits.entries()),
       branches: Array.from(this.branches.entries()),
@@ -995,7 +1130,7 @@ class TranslationVersionControl extends EventEmitter {
     return JSON.stringify(data, null, 2)
   }
 
-  import(data) {
+  import(data: string): void {
     const parsed = JSON.parse(data)
 
     this.commits = new Map(parsed.commits)
@@ -1010,4 +1145,23 @@ class TranslationVersionControl extends EventEmitter {
   }
 }
 
-module.exports = { TranslationVersionControl }
+export { TranslationVersionControl }
+export type {
+  ChangeRecord,
+  DiffResult,
+  Commit,
+  Branch,
+  Tag,
+  Stash,
+  Remote,
+  MergeConflict,
+  VCConfig,
+  CommitOptions,
+  BranchOptions,
+  CheckoutOptions,
+  MergeOptions,
+  LogOptions,
+  TagOptions,
+  RebaseOptions,
+  BlameInfo,
+}

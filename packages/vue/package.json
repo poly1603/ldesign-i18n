@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-vue",
-  "type": "module",
   "version": "4.0.0",
   "description": "Vue 3 integration for @ldesign/i18n - Powerful i18n solution with composition API, components, and directives",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -15,6 +12,9 @@
     "composition-api",
     "reactive"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "sideEffects": [
     "*.css",
     "*.vue"
@@ -30,27 +30,48 @@
       "import": "./es/components/index.js",
       "require": "./lib/components/index.cjs"
     },
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
+    },
     "./composables": {
       "types": "./es/composables/index.d.ts",
       "import": "./es/composables/index.js",
       "require": "./lib/composables/index.cjs"
     },
+    "./composables/*": {
+      "types": "./es/composables/*.d.ts",
+      "import": "./es/composables/*.js",
+      "require": "./lib/composables/*.cjs"
+    },
     "./directives": {
       "types": "./es/directives/index.d.ts",
       "import": "./es/directives/index.js",
       "require": "./lib/directives/index.cjs"
+    },
+    "./directives/*": {
+      "types": "./es/directives/*.d.ts",
+      "import": "./es/directives/*.js",
+      "require": "./lib/directives/*.cjs"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -66,18 +87,13 @@
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "vue": "^3.3.0"
-  },
-  "peerDependenciesMeta": {
-    "vue": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
@@ -97,6 +113,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": false
+    }
   }
 }
-

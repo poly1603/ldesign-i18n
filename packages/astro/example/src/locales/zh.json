@@ -1,0 +1,8 @@
+{
+  "welcome": "欢迎使用 Astro i18n",
+  "description": "这是 @ldesign/i18n-astro 的演示",
+  "switchLanguage": "切换语言",
+  "counter": "计数器",
+  "increment": "增加",
+  "decrement": "减少"
+}

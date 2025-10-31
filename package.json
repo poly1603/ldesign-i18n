@@ -99,6 +99,7 @@
     "build": "ldesign-builder build",
     "build:watch": "ldesign-builder build --watch",
     "build:all": "pnpm exec tsx scripts/build-all-packages.ts",
+    "build:all:verified": "node --loader ts-node/esm scripts/build-all-verified.ts",
     "dev": "ldesign-builder build --watch",
     "test": "vitest",
     "test:run": "vitest run",

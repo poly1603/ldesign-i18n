@@ -71,6 +71,7 @@ export class HotReloadManager {
       const path = require('node:path')
 
       // Watch directory for changes
+      // @ts-ignore - eventType 参数保留
       const watcher = fs.watch(baseDir, { recursive: true }, (eventType: string, filename: string) => {
         if (this.isDestroyed || !filename)
           return

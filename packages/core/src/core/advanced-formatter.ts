@@ -442,7 +442,7 @@ export class AdvancedFormatter {
 
     // 布尔值格式化
     this.registerFormatter('boolean', {
-      format: (value: any, format: string, locale: Locale) => {
+      format: (value: any, _format: string, locale: Locale) => {
         const isTrue = Boolean(value)
         if (locale.startsWith('zh')) {
           return isTrue ? '是' : '否'
@@ -453,7 +453,7 @@ export class AdvancedFormatter {
 
     // 状态格式化
     this.registerFormatter('status', {
-      format: (value: any, format: string, locale: Locale) => {
+      format: (value: any, _format: string, locale: Locale) => {
         const statusMap: Record<string, Record<string, string>> = {
           en: {
             pending: 'Pending',
@@ -478,7 +478,7 @@ export class AdvancedFormatter {
 
     // 性别格式化
     this.registerFormatter('gender', {
-      format: (value: any, format: string, locale: Locale) => {
+      format: (value: any, _format: string, locale: Locale) => {
         const genderMap: Record<string, Record<string, string>> = {
           en: {
             male: 'Male',

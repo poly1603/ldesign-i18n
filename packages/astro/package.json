@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-astro",
-  "type": "module",
   "version": "1.0.0",
   "description": "Astro integration for @ldesign/i18n with component support",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -12,6 +9,9 @@
     "astro",
     "typescript"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
@@ -23,27 +23,43 @@
       "import": "./es/components/index.js",
       "require": "./lib/components/index.cjs"
     },
-    "./utils": {
-      "types": "./es/utils/index.d.ts",
-      "import": "./es/utils/index.js",
-      "require": "./lib/utils/index.cjs"
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
     },
     "./middleware": {
       "types": "./es/middleware/index.d.ts",
       "import": "./es/middleware/index.js",
       "require": "./lib/middleware/index.cjs"
+    },
+    "./middleware/*": {
+      "types": "./es/middleware/*.d.ts",
+      "import": "./es/middleware/*.js",
+      "require": "./lib/middleware/*.cjs"
+    },
+    "./utils": {
+      "types": "./es/utils/index.d.ts",
+      "import": "./es/utils/index.js",
+      "require": "./lib/utils/index.cjs"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -59,18 +75,13 @@
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "astro": "^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "astro": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "astro": "^4.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.0.0",
@@ -85,5 +96,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "astro": {
+      "optional": false
+    }
   }
 }

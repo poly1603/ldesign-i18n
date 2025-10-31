@@ -18,7 +18,6 @@ import type {
   MessageKey,
   MessageLoader,
   Messages,
-  MessageStorage,
   TranslateOptions,
   TranslationFunction,
 } from '../types'
@@ -191,12 +190,10 @@ export class OptimizedI18n implements I18nInstance {
   private messages: Map<Locale, Messages> = new Map()
   /** 消息加载器 */
   private loader?: MessageLoader
-  /** 消息存储器 */
-  private storage?: MessageStorage
   /** 语言检测器 */
   private detector?: LanguageDetector
   /** 翻译结果缓存 */
-  private cache: Cache<string, string>
+  private cache: Cache<string | number, string>
   /** 事件发射器 */
   private eventEmitter: EventEmitter = new EventEmitter()
   /** 插值引擎 */
@@ -261,8 +258,8 @@ export class OptimizedI18n implements I18nInstance {
 
     // 初始化缓存系统
     this.cache = config.cache === false
-      ? new LRUCache<string, string>(0)
-      : createCache(typeof config.cache === 'object' ? config.cache as any : { maxSize: 1000 })
+      ? new LRUCache<string | number, string>(0) as Cache<string | number, string>
+      : createCache(typeof config.cache === 'object' ? config.cache as any : { maxSize: 1000 }) as Cache<string | number, string>
 
     // 初始化选项对象工厂
     // 使用 Object.create(null) 创建纯对象,比 {} 更快
@@ -272,7 +269,7 @@ export class OptimizedI18n implements I18nInstance {
 
     // 设置加载器和检测器
     this.loader = config.loader
-    this.storage = config.storage
+    // this._storage = config.storage  // Reserved for future use
     this.detector = config.detector
 
     // 加载初始消息

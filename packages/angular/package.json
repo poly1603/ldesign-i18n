@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-angular",
-  "type": "module",
   "version": "4.0.0",
   "description": "Angular integration for @ldesign/i18n - Powerful i18n solution with services, pipes, and directives",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -14,43 +11,67 @@
     "rxjs",
     "reactive"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
-    "./services": {
-      "types": "./es/services/index.d.ts",
-      "import": "./es/services/index.js",
-      "require": "./lib/services/index.cjs"
+    "./components": {
+      "types": "./es/components/index.d.ts",
+      "import": "./es/components/index.js",
+      "require": "./lib/components/index.cjs"
     },
-    "./pipes": {
-      "types": "./es/pipes/index.d.ts",
-      "import": "./es/pipes/index.js",
-      "require": "./lib/pipes/index.cjs"
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
     },
     "./directives": {
       "types": "./es/directives/index.d.ts",
       "import": "./es/directives/index.js",
       "require": "./lib/directives/index.cjs"
     },
-    "./components": {
-      "types": "./es/components/index.d.ts",
-      "import": "./es/components/index.js",
-      "require": "./lib/components/index.cjs"
+    "./directives/*": {
+      "types": "./es/directives/*.d.ts",
+      "import": "./es/directives/*.js",
+      "require": "./lib/directives/*.cjs"
+    },
+    "./pipes": {
+      "types": "./es/pipes/index.d.ts",
+      "import": "./es/pipes/index.js",
+      "require": "./lib/pipes/index.cjs"
+    },
+    "./pipes/*": {
+      "types": "./es/pipes/*.d.ts",
+      "import": "./es/pipes/*.js",
+      "require": "./lib/pipes/*.cjs"
+    },
+    "./services": {
+      "types": "./es/services/index.d.ts",
+      "import": "./es/services/index.js",
+      "require": "./lib/services/index.cjs"
+    },
+    "./services/*": {
+      "types": "./es/services/*.d.ts",
+      "import": "./es/services/*.js",
+      "require": "./lib/services/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -64,22 +85,14 @@
     "type-check:watch": "tsc --noEmit --watch",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "@angular/core": "^16.0.0 || ^17.0.0 || ^18.0.0",
-    "rxjs": "^7.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@angular/core": {
-      "optional": false
-    },
-    "rxjs": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "@angular/core": "^16.0.0 || ^17.0.0 || ^18.0.0",
+    "rxjs": "^7.0.0"
   },
   "devDependencies": {
     "@angular/core": "^18.0.0",
@@ -95,6 +108,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "@angular/core": {
+      "optional": false
+    },
+    "rxjs": {
+      "optional": false
+    }
   }
 }
-

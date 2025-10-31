@@ -381,11 +381,6 @@ declare global {
  */
 export class WeakCache<K extends object, V = any> {
   private readonly cache = new WeakMap<K, { value: V, expires?: number }>()
-  private readonly expirationRegistry = typeof globalThis !== 'undefined' && typeof globalThis.FinalizationRegistry !== 'undefined'
-    ? new globalThis.FinalizationRegistry<number>((timerId: number) => {
-        clearTimeout(timerId)
-      })
-    : undefined
 
   private cleanupTimer?: ReturnType<typeof setTimeout>
   private readonly cleanupInterval = 60000 // 60秒清理一次

@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-svelte",
-  "type": "module",
   "version": "4.0.0",
   "description": "Svelte integration for @ldesign/i18n - Powerful i18n solution with stores, components, and actions",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -14,38 +11,67 @@
     "stores",
     "reactive"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
-    "./stores": {
-      "types": "./es/stores/index.d.ts",
-      "import": "./es/stores/index.js",
-      "require": "./lib/stores/index.cjs"
+    "./actions": {
+      "types": "./es/actions/index.d.ts",
+      "import": "./es/actions/index.js",
+      "require": "./lib/actions/index.cjs"
+    },
+    "./actions/*": {
+      "types": "./es/actions/*.d.ts",
+      "import": "./es/actions/*.js",
+      "require": "./lib/actions/*.cjs"
     },
     "./components": {
       "types": "./es/components/index.d.ts",
       "import": "./es/components/index.js",
       "require": "./lib/components/index.cjs"
     },
-    "./actions": {
-      "types": "./es/actions/index.d.ts",
-      "import": "./es/actions/index.js",
-      "require": "./lib/actions/index.cjs"
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
+    },
+    "./stores": {
+      "types": "./es/stores/index.d.ts",
+      "import": "./es/stores/index.js",
+      "require": "./lib/stores/index.cjs"
+    },
+    "./stores/*": {
+      "types": "./es/stores/*.d.ts",
+      "import": "./es/stores/*.js",
+      "require": "./lib/stores/*.cjs"
+    },
+    "./utils": {
+      "types": "./es/utils/index.d.ts",
+      "import": "./es/utils/index.js",
+      "require": "./lib/utils/index.cjs"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -59,18 +85,13 @@
     "type-check:watch": "tsc --noEmit --watch",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "svelte": "^3.0.0 || ^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "svelte": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "svelte": "^3.0.0 || ^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
     "@ldesign/builder": "workspace:*",
@@ -86,6 +107,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": false
+    }
   }
 }
-

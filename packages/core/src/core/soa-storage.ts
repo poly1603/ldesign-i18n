@@ -235,54 +235,6 @@ export class SOAMessageStore {
     return result
   }
 
-  /**
-   * Stop watching
-   */
-  stop(): void {
-    // Clear all reload timers
-    for (const timer of this.reloadTimers.values()) {
-      clearTimeout(timer)
-    }
-    this.reloadTimers.clear()
-
-    // Close all watchers
-    for (const watcher of this.watchers) {
-      try {
-        watcher.unwatch()
-      }
-      catch (error) {
-        console.error('[HotReload] Error unwatching:', error)
-      }
-    }
-    this.watchers = []
-  }
-
-  /**
-   * Destroy manager
-   */
-  destroy(): void {
-    this.isDestroyed = true
-    this.stop()
-    this.clear()
-    this.i18n = undefined
-  }
-
-  /**
-   * Debounce reload to prevent rapid successive reloads
-   */
-  private debounceReload(key: string, callback: () => void): void {
-    const existing = this.reloadTimers.get(key)
-    if (existing) {
-      clearTimeout(existing)
-    }
-
-    const timer = setTimeout(() => {
-      callback()
-      this.reloadTimers.delete(key)
-    }, this.config.debounceTime)
-
-    this.reloadTimers.set(key, timer)
-  }
 }
 
 /**
@@ -290,11 +242,4 @@ export class SOAMessageStore {
  */
 export function createSOAMessageStore(): SOAMessageStore {
   return new SOAMessageStore()
-}
-
-/**
- * Create hot reload manager
- */
-export function createHotReload(config?: HotReloadConfig): HotReloadManager {
-  return new HotReloadManager(config)
 }

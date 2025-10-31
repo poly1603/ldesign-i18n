@@ -19,7 +19,7 @@ interface ListenerWrapper<T extends (...args: any[]) => void> {
 export class WeakEventEmitter {
   private readonly events = new Map<string, Set<ListenerWrapper<any>>>()
   private readonly maxListeners: number
-  private listenerCount = 0
+  private _listenerCount = 0
   private cleanupTimer?: NodeJS.Timeout
   private readonly cleanupInterval: number
 
@@ -45,7 +45,7 @@ export class WeakEventEmitter {
     const listeners = this.events.get(event)!
 
     // Check listener limit
-    if (this.listenerCount >= this.maxListeners) {
+    if (this._listenerCount >= this.maxListeners) {
       console.warn(`[@ldesign/i18n] Max listeners (${this.maxListeners}) exceeded for event "${event}"`)
       return () => { }
     }
@@ -53,17 +53,17 @@ export class WeakEventEmitter {
     // Create wrapper
     const wrapper: ListenerWrapper<T> = {
       ref: options.weak && typeof WeakRef !== 'undefined' ? new WeakRef(listener) : listener,
-      weak: options.weak && typeof WeakRef !== 'undefined',
+      weak: !!(options.weak && typeof WeakRef !== 'undefined'),
       once: false,
     }
 
     listeners.add(wrapper)
-    this.listenerCount++
+    this._listenerCount++
 
     // Return unsubscribe function
     return () => {
       if (listeners.delete(wrapper)) {
-        this.listenerCount--
+        this._listenerCount--
 
         // Clean up event if no listeners
         if (listeners.size === 0) {
@@ -87,23 +87,23 @@ export class WeakEventEmitter {
 
     const listeners = this.events.get(event)!
 
-    if (this.listenerCount >= this.maxListeners) {
+    if (this._listenerCount >= this.maxListeners) {
       console.warn(`[@ldesign/i18n] Max listeners (${this.maxListeners}) exceeded`)
       return () => { }
     }
 
     const wrapper: ListenerWrapper<T> = {
       ref: options.weak && typeof WeakRef !== 'undefined' ? new WeakRef(listener) : listener,
-      weak: options.weak && typeof WeakRef !== 'undefined',
+      weak: !!(options.weak && typeof WeakRef !== 'undefined'),
       once: true,
     }
 
     listeners.add(wrapper)
-    this.listenerCount++
+    this._listenerCount++
 
     return () => {
       if (listeners.delete(wrapper)) {
-        this.listenerCount--
+        this._listenerCount--
         if (listeners.size === 0) {
           this.events.delete(event)
         }
@@ -126,7 +126,7 @@ export class WeakEventEmitter {
 
       if (fn === listener) {
         listeners.delete(wrapper)
-        this.listenerCount--
+        this._listenerCount--
 
         if (listeners.size === 0) {
           this.events.delete(event)
@@ -177,7 +177,7 @@ export class WeakEventEmitter {
     // Clean up removed listeners
     for (const wrapper of toRemove) {
       listeners.delete(wrapper)
-      this.listenerCount--
+      this._listenerCount--
     }
 
     // Clean up event if no listeners
@@ -193,12 +193,12 @@ export class WeakEventEmitter {
     if (event) {
       const listeners = this.events.get(event)
       if (listeners) {
-        this.listenerCount -= listeners.size
+        this._listenerCount -= listeners.size
         this.events.delete(event)
       }
     }
     else {
-      this.listenerCount = 0
+      this._listenerCount = 0
       this.events.clear()
     }
   }
@@ -250,7 +250,7 @@ export class WeakEventEmitter {
       }
     }
 
-    this.listenerCount -= removed
+    this._listenerCount -= removed
 
     if (removed > 0) {
       console.debug(`[@ldesign/i18n] Cleaned up ${removed} garbage collected listeners`)
@@ -264,7 +264,7 @@ export class WeakEventEmitter {
     if (event) {
       return this.events.get(event)?.size || 0
     }
-    return this.listenerCount
+    return this._listenerCount
   }
 
   /**

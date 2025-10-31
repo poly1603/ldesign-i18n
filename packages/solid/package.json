@@ -1,10 +1,7 @@
 {
   "name": "@ldesign/i18n-solid",
-  "type": "module",
   "version": "4.0.0",
   "description": "Solid.js integration for @ldesign/i18n - Powerful i18n solution with signals, components, and directives",
-  "author": "ldesign",
-  "license": "MIT",
   "keywords": [
     "i18n",
     "internationalization",
@@ -15,38 +12,72 @@
     "signals",
     "reactive"
   ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
-    "./primitives": {
-      "types": "./es/primitives/index.d.ts",
-      "import": "./es/primitives/index.js",
-      "require": "./lib/primitives/index.cjs"
-    },
     "./components": {
       "types": "./es/components/index.d.ts",
       "import": "./es/components/index.js",
       "require": "./lib/components/index.cjs"
     },
+    "./components/*": {
+      "types": "./es/components/*.d.ts",
+      "import": "./es/components/*.js",
+      "require": "./lib/components/*.cjs"
+    },
+    "./context": {
+      "types": "./es/context/index.d.ts",
+      "import": "./es/context/index.js",
+      "require": "./lib/context/index.cjs"
+    },
+    "./context/*": {
+      "types": "./es/context/*.d.ts",
+      "import": "./es/context/*.js",
+      "require": "./lib/context/*.cjs"
+    },
     "./directives": {
       "types": "./es/directives/index.d.ts",
       "import": "./es/directives/index.js",
       "require": "./lib/directives/index.cjs"
+    },
+    "./directives/*": {
+      "types": "./es/directives/*.d.ts",
+      "import": "./es/directives/*.js",
+      "require": "./lib/directives/*.cjs"
+    },
+    "./hooks/*": {
+      "types": "./es/hooks/*.d.ts",
+      "import": "./es/hooks/*.js",
+      "require": "./lib/hooks/*.cjs"
+    },
+    "./primitives": {
+      "types": "./es/primitives/index.d.ts",
+      "import": "./es/primitives/index.js",
+      "require": "./lib/primitives/index.cjs"
+    },
+    "./primitives/*": {
+      "types": "./es/primitives/*.d.ts",
+      "import": "./es/primitives/*.js",
+      "require": "./lib/primitives/*.cjs"
     }
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
   "files": [
-    "LICENSE",
     "README.md",
-    "dist",
+    "LICENSE",
+    "package.json",
     "es",
-    "lib",
-    "package.json"
+    "lib"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",
@@ -60,18 +91,13 @@
     "type-check:watch": "tsc --noEmit --watch",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
-  "peerDependencies": {
-    "solid-js": "^1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "solid-js": {
-      "optional": false
-    }
-  },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",
     "@ldesign/shared": "workspace:*",
     "tslib": "^2.6.2"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.0.0"
   },
   "devDependencies": {
     "@ldesign/builder": "workspace:*",
@@ -87,6 +113,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "solid-js": {
+      "optional": false
+    }
   }
 }
-

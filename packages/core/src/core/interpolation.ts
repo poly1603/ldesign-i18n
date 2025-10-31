@@ -59,8 +59,10 @@ export class InterpolationEngine {
   /** 数字格式化器缓存(Intl.NumberFormat 实例) */
   private readonly numberFormatters = new Map<string, Intl.NumberFormat>()
   /** 日期格式化器缓存(Intl.DateTimeFormat 实例) */
+  // @ts-ignore - 保留供将来扩展使用
   private readonly dateFormatters = new Map<string, Intl.DateTimeFormat>()
   /** 列表格式化器缓存(Intl.ListFormat 实例) */
+  // @ts-ignore - 保留供将来扩展使用
   private readonly listFormatters = new Map<string, any>() // 使用 any 以兼容不同浏览器
 
   /**
@@ -267,7 +269,7 @@ export class InterpolationEngine {
     // 重置正则 lastIndex 以便复用
     this.nestingRegex.lastIndex = 0
 
-    return message.replace(this.nestingRegex, (match, key) => {
+    return message.replace(this.nestingRegex, (_match, key) => {
       const trimmedKey = key.trim()
 
       // 检查参数中是否有翻译函数

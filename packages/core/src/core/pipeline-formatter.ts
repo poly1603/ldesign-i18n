@@ -180,7 +180,8 @@ export class PipelineFormatter {
       const pipe = this.pipes.get(name)
       if (pipe) {
         try {
-          result = pipe(result, ...args, locale)
+          const localeArg = locale ?? undefined
+          result = pipe(result, ...args, localeArg as any)
         }
         catch (error) {
           console.error(`[@ldesign/i18n] Error in pipe "${name}":`, error)

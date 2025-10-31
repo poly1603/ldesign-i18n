@@ -255,7 +255,7 @@ export function memoize<T extends (...args: any[]) => any>(
   const lruKeys: string[] = []
 
   function memoized(this: any, ...args: any[]) {
-    const key = resolver(...args)
+    const key = resolver.apply(this, args)
 
     const cached = cache.get(key)
     if (cached) {

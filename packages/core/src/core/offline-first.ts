@@ -401,7 +401,7 @@ export class OfflineManager {
    */
   private setupMessageChannel(): void {
     const messageHandler = (event: MessageEvent) => {
-      const { type, data } = event.data
+      const { type } = event.data
 
       switch (type) {
         case 'CACHE_UPDATED':
@@ -604,6 +604,7 @@ export class OfflineManager {
   /**
    * 处理同步项
    */
+  // @ts-ignore - item 参数保留供将来扩展
   private async processSyncItem(item: SyncQueueItem): Promise<void> {
     // 这里应该实现实际的同步逻辑
 
@@ -615,7 +616,7 @@ export class OfflineManager {
    * 清理过期缓存
    */
   async clearExpiredCache(): Promise<void> {
-    const now = Date.now()
+    // const now = Date.now() // 未使用,已注释
 
     // 清理IndexedDB
     if (this.db) {

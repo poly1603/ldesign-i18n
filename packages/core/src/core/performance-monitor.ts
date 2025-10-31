@@ -373,7 +373,7 @@ export class PerformanceMonitor {
         const navigationObserver = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
             if (entry.entryType === 'navigation') {
-              const nav = entry as PerformanceNavigationTiming
+              // const nav = entry as PerformanceNavigationTiming // 未使用,已注释
             }
           }
         })
@@ -579,6 +579,7 @@ export function createPerformanceMonitor(config?: MonitorConfig): PerformanceMon
 /**
  * 性能装饰器
  */
+// @ts-ignore - target 参数保留供装饰器使用
 export function measure(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value
 
