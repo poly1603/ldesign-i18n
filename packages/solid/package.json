@@ -88,8 +88,7 @@
     "test:coverage": "vitest run --coverage",
     "clean": "rimraf es lib dist coverage .tsbuildinfo",
     "type-check": "tsc --noEmit",
-    "type-check:watch": "tsc --noEmit --watch",
-    "prepublishOnly": "pnpm run clean && pnpm run build"
+    "type-check:watch": "tsc --noEmit --watch"
   },
   "dependencies": {
     "@ldesign/i18n-core": "workspace:*",

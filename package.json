@@ -112,8 +112,7 @@
     "lint:all": "pnpm exec tsx scripts/lint-all-packages.ts",
     "lint:all:fix": "pnpm exec tsx scripts/lint-all-packages.ts --fix",
     "benchmark": "node benchmark.js",
-    "benchmark:advanced": "node --expose-gc benchmark-advanced.js",
-    "prepublishOnly": "pnpm run clean && pnpm run build"
+    "benchmark:advanced": "node --expose-gc benchmark-advanced.js"
   },
   "peerDependencies": {
     "vue": "^3.3.0"

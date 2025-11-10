@@ -100,8 +100,7 @@
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "prepublishOnly": "pnpm run clean && pnpm run build"
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@ldesign/shared": "workspace:*",
