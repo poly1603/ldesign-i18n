@@ -9,8 +9,20 @@
 
 // ==================== 插件 ====================
 
+// Vue Plugin - 用于标准 Vue 应用
 export { createI18nPlugin, LDesignI18nPlugin } from './plugin'
 export type { I18nPluginOptions } from './plugin'
+
+// Engine Plugin - 用于 LDesign Engine
+export {
+  createI18nEnginePlugin,
+  createDefaultI18nEnginePlugin,
+  i18nPlugin,
+} from './plugins'
+
+export type {
+  I18nEnginePluginOptions,
+} from './plugins'
 
 // ==================== 组件 ====================
 

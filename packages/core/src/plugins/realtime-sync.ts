@@ -3,7 +3,7 @@
  * WebSocket-based real-time sync for collaborative translation editing
  */
 
-import { EventEmitter } from 'node:events'
+import { EventEmitter } from '../utils/event-emitter'
 
 interface SyncConfig {
   url: string

@@ -3,7 +3,7 @@
  * Advanced multi-layer caching with predictive loading and intelligent invalidation
  */
 
-import { EventEmitter } from 'node:events'
+import { EventEmitter } from '../utils/event-emitter'
 
 interface CacheEntry<T> {
   value: T

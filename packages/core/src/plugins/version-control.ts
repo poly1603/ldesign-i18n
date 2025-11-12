@@ -3,8 +3,8 @@
  * Git-like version control for translations with branching, merging, and history
  */
 
-import crypto from 'node:crypto'
-import { EventEmitter } from 'node:events'
+import crypto from '../utils/crypto'
+import { EventEmitter } from '../utils/event-emitter'
 
 interface ChangeRecord {
   type: 'add' | 'modify' | 'delete'
@@ -774,7 +774,7 @@ class TranslationVersionControl extends EventEmitter {
   }
 
   private generateHash(input: string): string {
-    return crypto.createHash('sha256').update(input).digest('hex').substring(0, 7)
+    return crypto.createHashSync(input).substring(0, 7)
   }
 
   private generateTreeHash(): string {

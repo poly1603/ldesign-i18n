@@ -27,8 +27,15 @@ export function createI18nPlugin(
 
   return {
     install(app: App) {
+      console.log('[createI18nPlugin] install() called')
+      console.log('[createI18nPlugin] I18N_SYMBOL:', I18N_SYMBOL)
+      console.log('[createI18nPlugin] Symbol description:', I18N_SYMBOL.description)
+      console.log('[createI18nPlugin] Symbol toString:', I18N_SYMBOL.toString())
+      console.log('[createI18nPlugin] i18n instance:', i18n)
+
       // Provide i18n instance
       app.provide(I18N_SYMBOL, i18n)
+      console.log('[createI18nPlugin] app.provide() completed with symbol:', I18N_SYMBOL)
 
       // Add global properties
       if (globalProperties) {
@@ -38,6 +45,7 @@ export function createI18nPlugin(
           get: () => i18n.locale,
           set: (locale: string) => { i18n.locale = locale },
         }
+        console.log('[createI18nPlugin] Global properties added')
       }
 
       // Register directives

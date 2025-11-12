@@ -144,6 +144,24 @@ export interface I18nConfig {
   detection?: boolean | DetectionConfig
   interpolation?: InterpolationConfig
 
+  // Extra behavior/config (extended)
+  /**
+   * 预加载语言列表（由上层适配器处理，core 仅做类型兼容）
+   */
+  preloadLocales?: string[]
+  /**
+   * 是否启用性能监控（由 core 内部轻量集成或外部插件实现）
+   */
+  performance?: boolean
+  /**
+   * 语言持久化配置（core 负责读写当前语言到存储）
+   */
+  persistence?: {
+    enabled?: boolean
+    key?: string
+    storage?: 'localStorage' | 'sessionStorage'
+  }
+
   // Components
   loader?: MessageLoader
   storage?: MessageStorage
@@ -205,15 +223,15 @@ export interface InterpolationConfig {
  */
 export type I18nEventType
   = | 'loaded'
-    | 'loading'
-    | 'loadError'
-    | 'localeChanged'
-    | 'namespaceLoaded'
-    | 'missingKey'
-    | 'fallback'
-    | 'initialized'
-    | 'pluginInstalled'
-    | 'pluginUninstalled'
+  | 'loading'
+  | 'loadError'
+  | 'localeChanged'
+  | 'namespaceLoaded'
+  | 'missingKey'
+  | 'fallback'
+  | 'initialized'
+  | 'pluginInstalled'
+  | 'pluginUninstalled'
 
 /**
  * Event data

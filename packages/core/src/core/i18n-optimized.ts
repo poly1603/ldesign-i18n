@@ -212,6 +212,8 @@ export class OptimizedI18n implements I18nInstance {
   private keySeparator: string
   /** 命名空间分隔符 */
   private namespaceSeparator: string
+  /** 语言持久化配置 */
+  private readonly localePersistence?: { enabled?: boolean; key?: string; storage?: 'localStorage' | 'sessionStorage' }
 
   // ============== 性能优化相关 ==============
 
@@ -246,6 +248,16 @@ export class OptimizedI18n implements I18nInstance {
     // 初始化语言设置
     this._locale = config.locale || this.detectLocale() || 'en'
     this._fallbackLocale = config.fallbackLocale || 'en'
+
+    // 初始化持久化配置并尝试恢复语言
+    this.localePersistence = config.persistence
+    const restored = this.readPersistedLocale()
+    if (restored) {
+      this._locale = restored
+      if (this.isDev && this.config.debug) {
+        console.info('[i18n] Restored persisted locale:', restored)
+      }
+    }
 
     // 初始化分隔符
     this.keySeparator = config.keySeparator ?? '.'
@@ -307,6 +319,24 @@ export class OptimizedI18n implements I18nInstance {
       }
     }
 
+    // 预加载其他语言包（如果配置了 preloadLocales 且存在 loader）
+    const preload = (this.config as any).preloadLocales as string[] | undefined
+    if (Array.isArray(preload) && this.loader) {
+      for (const lc of preload) {
+        if (!this.hasLocale(lc)) {
+          try {
+            const msgs = await this.loader.load(lc)
+            this.addMessages(lc, msgs)
+          }
+          catch (err) {
+            if (this.config.debug) {
+              console.warn(`[i18n] Failed to preload locale ${lc}:`, err)
+            }
+          }
+        }
+      }
+    }
+
     // 触发初始化完成事件
     this.emit('initialized', { type: 'initialized', locale: this._locale })
   }
@@ -333,6 +363,8 @@ export class OptimizedI18n implements I18nInstance {
     if (value !== this._locale) {
       const oldLocale = this._locale
       this._locale = value
+      // 持久化保存
+      this.writePersistedLocale(value)
       this.clearPerformanceCaches()
       this.emit('localeChanged', { type: 'localeChanged', locale: value, oldLocale })
     }
@@ -1043,6 +1075,37 @@ export class OptimizedI18n implements I18nInstance {
     catch (error) {
       console.warn('Failed to format relative time:', error)
       return String(value)
+    }
+  }
+
+  // ============== 持久化相关 ==============
+
+  /** 从存储读取持久化语言 */
+  private readPersistedLocale(): Locale | null {
+    try {
+      if (!this.localePersistence?.enabled || typeof window === 'undefined') return null
+      const key = this.localePersistence.key || 'ldesign-locale'
+      const storage = this.localePersistence.storage === 'sessionStorage'
+        ? window.sessionStorage
+        : window.localStorage
+      const saved = storage.getItem(key)
+      return saved || null
+    } catch {
+      return null
+    }
+  }
+
+  /** 将当前语言写入存储 */
+  private writePersistedLocale(locale: Locale): void {
+    try {
+      if (!this.localePersistence?.enabled || typeof window === 'undefined') return
+      const key = this.localePersistence.key || 'ldesign-locale'
+      const storage = this.localePersistence.storage === 'sessionStorage'
+        ? window.sessionStorage
+        : window.localStorage
+      storage.setItem(key, String(locale))
+    } catch {
+      // 忽略存储错误（隐私或容量受限时）
     }
   }
 
