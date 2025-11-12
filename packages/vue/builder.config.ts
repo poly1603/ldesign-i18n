@@ -6,10 +6,14 @@ export default defineConfig({
     esm: {
       enabled: true,
       dir: 'es',
+      preserveModules: true,
+      preserveModulesRoot: 'src',
     },
     cjs: {
       enabled: true,
       dir: 'lib',
+      preserveModules: true,
+      preserveModulesRoot: 'src',
     },
     umd: {
       enabled: false, // 禁用 UMD 构建

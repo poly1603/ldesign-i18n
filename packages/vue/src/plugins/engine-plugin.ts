@@ -44,6 +44,12 @@ export interface I18nEnginePluginOptions {
   cacheSize?: number
   /** 是否启用性能监控 */
   performance?: boolean
+  /** 语言持久化配置 */
+  persistence?: {
+    enabled?: boolean
+    key?: string
+    storage?: 'localStorage' | 'sessionStorage'
+  }
 }
 
 /**
