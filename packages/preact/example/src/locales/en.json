@@ -1,8 +1,0 @@
-{
-  "welcome": "Welcome to @ldesign/i18n",
-  "description": "A powerful internationalization solution",
-  "switchLanguage": "Switch to Chinese",
-  "counter": "Count: {{count}}",
-  "increment": "Increment",
-  "decrement": "Decrement"
-}

@@ -1,8 +1,0 @@
-{
-  "welcome": "欢迎使用 Nuxt.js i18n",
-  "description": "这是 @ldesign/i18n-nuxtjs 的演示",
-  "switchLanguage": "切换语言",
-  "counter": "计数器",
-  "increment": "增加",
-  "decrement": "减少"
-}

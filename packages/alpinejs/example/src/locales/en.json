@@ -1,8 +1,0 @@
-{
-  "welcome": "Welcome to alpinejs i18n",
-  "description": "This is a demo of @ldesign/i18n-alpinejs",
-  "switchLanguage": "Switch Language",
-  "counter": "Counter",
-  "increment": "Increment",
-  "decrement": "Decrement"
-}

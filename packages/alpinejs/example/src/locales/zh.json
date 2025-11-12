@@ -1,8 +1,0 @@
-{
-  "welcome": "欢迎使用 alpinejs i18n",
-  "description": "这是 @ldesign/i18n-alpinejs 的演示",
-  "switchLanguage": "切换语言",
-  "counter": "计数器",
-  "increment": "增加",
-  "decrement": "减少"
-}
