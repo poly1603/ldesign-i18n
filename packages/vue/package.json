@@ -69,7 +69,9 @@
       "types": "./es/utils/*.d.ts",
       "import": "./es/utils/*.js",
       "require": "./lib/utils/*.cjs"
-    }
+    },
+    "./es/plugin.css": "./es/plugin.css",
+    "./lib/plugin.css": "./lib/plugin.css"
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
