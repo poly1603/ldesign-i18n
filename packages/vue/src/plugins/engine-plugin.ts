@@ -13,43 +13,222 @@ import { createI18nPlugin } from '../plugin'
 import { I18N_SYMBOL } from '../constants'
 
 /**
- * I18n Engine 插件配置选项
+ * 语言检测策略
+ */
+export type LocaleDetectionStrategy = 'navigator' | 'cookie' | 'localStorage' | 'query' | 'path' | 'subdomain' | 'manual'
+
+/**
+ * 语言加载策略
+ */
+export type LocaleLoadStrategy = 'eager' | 'lazy' | 'on-demand'
+
+/**
+ * 复数规则类型
+ */
+export type PluralRuleType = 'cardinal' | 'ordinal'
+
+/**
+ * I18n 持久化配置
+ */
+export interface I18nPersistenceConfig {
+  /** 是否启用持久化 */
+  enabled?: boolean
+  /** 存储键名 */
+  key?: string
+  /** 存储类型 */
+  storage?: 'localStorage' | 'sessionStorage' | 'cookie'
+  /** Cookie 配置（当 storage 为 cookie 时） */
+  cookie?: {
+    domain?: string
+    path?: string
+    maxAge?: number
+    secure?: boolean
+    sameSite?: 'strict' | 'lax' | 'none'
+  }
+}
+
+/**
+ * I18n 性能配置
+ */
+export interface I18nPerformanceConfig {
+  /** 是否启用缓存 */
+  cache?: boolean
+  /** 缓存大小 */
+  cacheSize?: number
+  /** 缓存策略 */
+  cacheStrategy?: 'lru' | 'lfu' | 'fifo'
+  /** 是否启用性能监控 */
+  monitoring?: boolean
+  /** 是否启用批量翻译 */
+  batchTranslation?: boolean
+  /** 批量大小 */
+  batchSize?: number
+}
+
+/**
+ * I18n 回退配置
+ */
+export interface I18nFallbackConfig {
+  /** 回退语言 */
+  locale?: string
+  /** 回退链（多级回退） */
+  chain?: string[]
+  /** 是否显示缺失的翻译键 */
+  showMissingKeys?: boolean
+  /** 缺失翻译的占位符 */
+  missingKeyPlaceholder?: string | ((key: string) => string)
+  /** 是否在控制台警告缺失的翻译 */
+  warnOnMissing?: boolean
+}
+
+/**
+ * I18n 格式化配置
+ */
+export interface I18nFormattingConfig {
+  /** 日期格式化选项 */
+  dateTimeFormats?: Record<string, Intl.DateTimeFormatOptions>
+  /** 数字格式化选项 */
+  numberFormats?: Record<string, Intl.NumberFormatOptions>
+  /** 货币格式化选项 */
+  currencyFormats?: Record<string, { currency: string; style?: string }>
+  /** 自定义格式化器 */
+  customFormatters?: Record<string, (value: any, locale: string) => string>
+}
+
+/**
+ * I18n 插件配置
+ */
+export interface I18nPluginConfig {
+  /** 插件列表 */
+  plugins?: Array<{
+    name: string
+    install: (i18n: any) => void
+  }>
+}
+
+/**
+ * I18n Engine 插件完整配置选项
  */
 export interface I18nEnginePluginOptions {
+  // ========== 基础配置 ==========
   /** 插件名称 */
   name?: string
   /** 插件版本 */
   version?: string
-  /** 是否启用调试模式 */
-  debug?: boolean
-  /** 是否注册全局属性 */
-  globalProperties?: boolean
-  /** 是否注册指令 */
-  directives?: boolean
-  /** 是否注册组件 */
-  components?: boolean
-  /** 预加载的语言包 */
-  preloadLocales?: string[]
-
-  // I18n 核心配置
   /** 当前语言 */
   locale?: string
   /** 回退语言 */
   fallbackLocale?: string
   /** 语言包 */
   messages?: Record<string, Record<string, any>>
-  /** 是否启用缓存 */
+  /** 可用语言列表 */
+  availableLocales?: string[]
+
+  // ========== 语言检测配置 ==========
+  /** 语言检测策略 */
+  detectionStrategy?: LocaleDetectionStrategy | LocaleDetectionStrategy[]
+  /** 语言检测顺序 */
+  detectionOrder?: LocaleDetectionStrategy[]
+  /** 是否自动检测语言 */
+  autoDetect?: boolean
+
+  // ========== 语言加载配置 ==========
+  /** 语言加载策略 */
+  loadStrategy?: LocaleLoadStrategy
+  /** 预加载的语言包 */
+  preloadLocales?: string[]
+  /** 语言包加载器 */
+  loader?: (locale: string) => Promise<Record<string, any>>
+  /** 语言包路径模板 */
+  loadPath?: string
+
+  // ========== 回退配置 ==========
+  /** 回退配置 */
+  fallback?: I18nFallbackConfig
+
+  // ========== 格式化配置 ==========
+  /** 格式化配置 */
+  formatting?: I18nFormattingConfig
+
+  // ========== 持久化配置 ==========
+  /** 持久化配置 */
+  persistence?: I18nPersistenceConfig
+
+  // ========== 性能配置 ==========
+  /** 性能配置 */
+  performanceConfig?: I18nPerformanceConfig
+  /** 是否启用缓存（简化配置） */
   cache?: boolean
-  /** 缓存大小 */
+  /** 缓存大小（简化配置） */
   cacheSize?: number
-  /** 是否启用性能监控 */
+  /** 是否启用性能监控（简化配置） */
   performance?: boolean
-  /** 语言持久化配置 */
-  persistence?: {
-    enabled?: boolean
-    key?: string
-    storage?: 'localStorage' | 'sessionStorage'
+
+  // ========== 插件配置 ==========
+  /** 插件配置 */
+  pluginConfig?: I18nPluginConfig
+
+  // ========== Vue 集成配置 ==========
+  /** 是否注册全局属性 */
+  globalProperties?: boolean
+  /** 是否注册指令 */
+  directives?: boolean
+  /** 是否注册组件 */
+  components?: boolean
+
+  // ========== 调试配置 ==========
+  /** 是否启用调试模式 */
+  debug?: boolean
+  /** 是否启用性能监控（简化配置） */
+  performanceMonitoring?: boolean
+  /** 日志级别 */
+  logLevel?: 'error' | 'warn' | 'info' | 'debug'
+
+  // ========== 扩展配置 ==========
+  /** 自定义元数据 */
+  meta?: Record<string, any>
+  /** 自定义钩子 */
+  hooks?: {
+    onBeforeInstall?: () => void | Promise<void>
+    onAfterInstall?: () => void | Promise<void>
+    onLocaleChange?: (locale: string, oldLocale: string) => void
+    onMissingKey?: (key: string, locale: string) => void
   }
+}
+
+/**
+ * I18n 预设配置
+ */
+export const I18nPresets = {
+  /** 基础配置 */
+  basic: {
+    cache: true,
+    cacheSize: 100,
+    fallback: { showMissingKeys: false },
+  },
+  /** 高性能配置 */
+  performance: {
+    cache: true,
+    cacheSize: 500,
+    performanceConfig: {
+      monitoring: true,
+      batchTranslation: true,
+      batchSize: 50,
+    },
+  },
+  /** 开发配置 */
+  development: {
+    debug: true,
+    fallback: { showMissingKeys: true, warnOnMissing: true },
+    logLevel: 'debug' as const,
+  },
+  /** 生产配置 */
+  production: {
+    cache: true,
+    cacheSize: 200,
+    fallback: { showMissingKeys: false, warnOnMissing: false },
+    logLevel: 'error' as const,
+  },
 }
 
 /**
