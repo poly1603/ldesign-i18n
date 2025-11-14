@@ -21,69 +21,113 @@
   ],
   "exports": {
     ".": {
-      "types": "./es/index.d.ts",
-      "import": "./es/index.js",
-      "require": "./lib/index.cjs"
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js",
+      "require": "./cjs/index.cjs"
     },
     "./components": {
-      "types": "./es/components/index.d.ts",
-      "import": "./es/components/index.js",
-      "require": "./lib/components/index.cjs"
+      "types": "./esm/components/index.d.ts",
+      "import": "./esm/components/index.js",
+      "require": "./cjs/components/index.cjs"
     },
     "./components/*": {
-      "types": "./es/components/*.d.ts",
-      "import": "./es/components/*.js",
-      "require": "./lib/components/*.cjs"
+      "types": "./esm/components/*.d.ts",
+      "import": "./esm/components/*.js",
+      "require": "./cjs/components/*.cjs"
     },
     "./composables": {
-      "types": "./es/composables/index.d.ts",
-      "import": "./es/composables/index.js",
-      "require": "./lib/composables/index.cjs"
+      "types": "./esm/composables/index.d.ts",
+      "import": "./esm/composables/index.js",
+      "require": "./cjs/composables/index.cjs"
     },
     "./composables/*": {
-      "types": "./es/composables/*.d.ts",
-      "import": "./es/composables/*.js",
-      "require": "./lib/composables/*.cjs"
+      "types": "./esm/composables/*.d.ts",
+      "import": "./esm/composables/*.js",
+      "require": "./cjs/composables/*.cjs"
     },
     "./directives": {
-      "types": "./es/directives/index.d.ts",
-      "import": "./es/directives/index.js",
-      "require": "./lib/directives/index.cjs"
+      "types": "./esm/directives/index.d.ts",
+      "import": "./esm/directives/index.js",
+      "require": "./cjs/directives/index.cjs"
     },
     "./directives/*": {
-      "types": "./es/directives/*.d.ts",
-      "import": "./es/directives/*.js",
-      "require": "./lib/directives/*.cjs"
+      "types": "./esm/directives/*.d.ts",
+      "import": "./esm/directives/*.js",
+      "require": "./cjs/directives/*.cjs"
+    },
+    "./i18n-provider": {
+      "types": "./esm/i18n-provider/index.d.ts",
+      "import": "./esm/i18n-provider/index.js",
+      "require": "./cjs/i18n-provider/index.cjs"
+    },
+    "./i18n-provider/*": {
+      "types": "./esm/i18n-provider/*.d.ts",
+      "import": "./esm/i18n-provider/*.js",
+      "require": "./cjs/i18n-provider/*.cjs"
+    },
+    "./i18n-text": {
+      "types": "./esm/i18n-text/index.d.ts",
+      "import": "./esm/i18n-text/index.js",
+      "require": "./cjs/i18n-text/index.cjs"
+    },
+    "./i18n-text/*": {
+      "types": "./esm/i18n-text/*.d.ts",
+      "import": "./esm/i18n-text/*.js",
+      "require": "./cjs/i18n-text/*.cjs"
+    },
+    "./i18n-translate": {
+      "types": "./esm/i18n-translate/index.d.ts",
+      "import": "./esm/i18n-translate/index.js",
+      "require": "./cjs/i18n-translate/index.cjs"
+    },
+    "./i18n-translate/*": {
+      "types": "./esm/i18n-translate/*.d.ts",
+      "import": "./esm/i18n-translate/*.js",
+      "require": "./cjs/i18n-translate/*.cjs"
+    },
+    "./language-switcher": {
+      "types": "./esm/language-switcher/index.d.ts",
+      "import": "./esm/language-switcher/index.js",
+      "require": "./cjs/language-switcher/index.cjs"
+    },
+    "./language-switcher/*": {
+      "types": "./esm/language-switcher/*.d.ts",
+      "import": "./esm/language-switcher/*.js",
+      "require": "./cjs/language-switcher/*.cjs"
     },
     "./plugins": {
-      "types": "./es/plugins/index.d.ts",
-      "import": "./es/plugins/index.js",
-      "require": "./lib/plugins/index.cjs"
+      "types": "./esm/plugins/index.d.ts",
+      "import": "./esm/plugins/index.js",
+      "require": "./cjs/plugins/index.cjs"
     },
     "./plugins/*": {
-      "types": "./es/plugins/*.d.ts",
-      "import": "./es/plugins/*.js",
-      "require": "./lib/plugins/*.cjs"
+      "types": "./esm/plugins/*.d.ts",
+      "import": "./esm/plugins/*.js",
+      "require": "./cjs/plugins/*.cjs"
     },
     "./utils/*": {
-      "types": "./es/utils/*.d.ts",
-      "import": "./es/utils/*.js",
-      "require": "./lib/utils/*.cjs"
+      "types": "./esm/utils/*.d.ts",
+      "import": "./esm/utils/*.js",
+      "require": "./cjs/utils/*.cjs"
     },
-    "./es/plugin.css": "./es/plugin.css",
-    "./lib/plugin.css": "./lib/plugin.css"
+    "./cjs/index.css": "./cjs/index.css",
+    "./cjs/language-switcher/index.css": "./cjs/language-switcher/index.css",
+    "./cjs/plugin.css": "./cjs/plugin.css",
+    "./dist/index.css": "./dist/index.css",
+    "./dist/index.min.css": "./dist/index.min.css"
   },
-  "main": "./lib/index.cjs",
-  "module": "./es/index.js",
-  "types": "./es/index.d.ts",
+  "main": "./cjs/index.cjs",
+  "module": "./esm/index.js",
+  "types": "./esm/index.d.ts",
   "unpkg": "./dist/index.min.js",
   "jsdelivr": "./dist/index.min.js",
   "files": [
     "README.md",
     "LICENSE",
     "package.json",
-    "es",
-    "lib"
+    "esm",
+    "cjs",
+    "dist"
   ],
   "scripts": {
     "build": "ldesign-builder build -f esm,cjs",

@@ -24,14 +24,12 @@ export type {
   I18nEnginePluginOptions,
 } from './plugins'
 
-// ==================== 组件 ====================
+// ==================== 组件 (TSX) ====================
 
-export { default as I18nProvider } from './components/I18nProvider.vue'
-export { default as I18nText } from './components/I18nText.vue'
-export { default as I18nTranslate } from './components/I18nTranslate.vue'
-// LocaleSwitcher requires @ldesign/shared dependencies, export it separately if needed
-// export { default as LocaleSwitcher } from './components/LocaleSwitcher.vue'
-export * from './components'
+export { default as I18nProvider } from './i18n-provider'
+export { default as I18nText } from './i18n-text'
+export { default as I18nTranslate } from './i18n-translate'
+export { default as LanguageSwitcher } from './language-switcher'
 
 // ==================== 组合式 API ====================
 

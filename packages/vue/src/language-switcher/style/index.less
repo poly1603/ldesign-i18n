@@ -1,0 +1,29 @@
+/**
+ * LanguageSwitcher 组件样式
+ */
+
+.ld-lang-switcher {
+  display: inline-block;
+}
+
+.lang-select {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border, #d9d9d9);
+  border-radius: 6px;
+  background: var(--color-bg-container, #ffffff);
+  color: var(--color-text-primary, #333);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--color-primary-hover, #40a9ff);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary, #1890ff);
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  }
+}
+

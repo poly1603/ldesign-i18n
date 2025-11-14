@@ -33,6 +33,32 @@ export function createI18nPlugin(
       console.log('[createI18nPlugin] Symbol toString:', I18N_SYMBOL.toString())
       console.log('[createI18nPlugin] i18n instance:', i18n)
 
+      // ========== 样式注入 ==========
+      // 动态注入组件样式，确保在所有环境下（有/无 alias、dev/build）样式都能正常加载
+      if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+        const styleId = 'ldesign-i18n-vue-styles'
+        // 检查是否已经注入，避免重复
+        if (!document.getElementById(styleId)) {
+          try {
+            const link = document.createElement('link')
+            link.id = styleId
+            link.rel = 'stylesheet'
+            // 使用 import.meta.url 计算 CSS 文件的绝对路径
+            // 注意：i18n 的样式文件是 plugin.css 而不是 index.css
+            const cssUrl = new URL('./plugin.css', import.meta.url).href
+            link.href = cssUrl
+            document.head.appendChild(link)
+            console.log('[createI18nPlugin] Styles injected:', cssUrl)
+          }
+          catch (error) {
+            console.warn('[createI18nPlugin] Failed to inject styles:', error)
+          }
+        }
+        else {
+          console.log('[createI18nPlugin] Styles already injected, skipping')
+        }
+      }
+
       // Provide i18n instance
       app.provide(I18N_SYMBOL, i18n)
       console.log('[createI18nPlugin] app.provide() completed with symbol:', I18N_SYMBOL)

@@ -1,32 +1,63 @@
+/**
+ * @ldesign/i18n-vue Builder Configuration
+ *
+ * 使用 TDesign 风格的构建配置
+ * 生成 es/、esm/、cjs/、dist/ 四种产物
+ */
 import { defineConfig } from '@ldesign/builder'
 
 export default defineConfig({
-  input: 'src/index.ts',
+  // 输入配置 - 使用主入口文件
+  entry: 'src/index.ts',
+
+  // 输出配置 - TDesign 风格
   output: {
-    esm: {
-      enabled: true,
+    // ES 模块 - 使用 .mjs + 编译后的 CSS
+    es: {
       dir: 'es',
-      preserveModules: true,
-      preserveModulesRoot: 'src',
+      sourcemap: true,
     },
+
+    // ESM 模块 - 使用 .js + 保留 less 源文件
+    esm: {
+      dir: 'esm',
+      sourcemap: true,
+    },
+
+    // CJS 模块 - 忽略样式
     cjs: {
-      enabled: true,
-      dir: 'lib',
-      preserveModules: true,
-      preserveModulesRoot: 'src',
+      dir: 'cjs',
+      sourcemap: true,
     },
+
+    // UMD 模块 - 单个 CSS
     umd: {
-      enabled: false, // 禁用 UMD 构建
+      dir: 'dist',
+      name: 'LDesignI18n',
+      globals: {
+        vue: 'Vue',
+        '@ldesign/i18n-core': 'LDesignI18nCore',
+      },
     },
   },
-  // 生成类型声明文件
+
+  // 外部依赖
+  external: ['vue', '@ldesign/i18n-core', '@ldesign/shared', 'tslib'],
+
+  // 全局变量映射 (UMD 使用)
+  globals: {
+    vue: 'Vue',
+    '@ldesign/i18n-core': 'LDesignI18nCore',
+  },
+
+  // 库类型
+  libraryType: 'vue3',
+
+  // 打包器
+  bundler: 'rollup',
+
+  // 类型声明
   dts: {
     enabled: true,
   },
-  // 外部依赖
-  external: [
-    '@ldesign/i18n-core',
-    '@ldesign/shared',
-    'tslib',
-  ],
 })

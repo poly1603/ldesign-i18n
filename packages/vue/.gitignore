@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+cjs
+esm
 
 # Build outputs
 dist/
