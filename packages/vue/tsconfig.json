@@ -8,6 +8,7 @@
     "composite": true,
     "types": ["node", "vitest/globals"],
     "jsx": "preserve",
+    "jsxImportSource": "vue",
     "lib": ["ESNext", "DOM"]
   },
   "include": ["src/**/*"],

@@ -98,7 +98,7 @@ export function createI18nPlugin(
   }
 }
 
-export class LDesignI18nPlugin implements Plugin {
+export class LDesignI18nPlugin {
   private i18n: I18nInstance
   private options: I18nPluginOptions
 

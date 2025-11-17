@@ -7,10 +7,9 @@
  */
 
 import type { Plugin } from '@ldesign/engine-core/types'
-import type { I18nConfig, I18nInstance } from '@ldesign/i18n-core'
+import type { I18nInstance } from '@ldesign/i18n-core'
 import { OptimizedI18n } from '@ldesign/i18n-core'
 import { createI18nPlugin } from '../plugin'
-import { I18N_SYMBOL } from '../constants'
 
 /**
  * 语言检测策略

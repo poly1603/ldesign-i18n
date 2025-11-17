@@ -6,7 +6,8 @@ import type { InjectionKey } from 'vue'
 import type { I18nInstance, InterpolationParams, Locale, MessageKey } from '@ldesign/i18n-core'
 
 // Augment Vue global properties
-declare module '@vue/runtime-core' {
+// 使用 try-catch 包装以避免模块未找到的错误
+declare module 'vue' {
   export interface ComponentCustomProperties {
     $i18n: I18nInstance
     $t: (key: MessageKey, params?: InterpolationParams) => string

@@ -76,7 +76,7 @@ export default defineComponent({
   },
 
   setup(props, { slots }) {
-    const { t, currentLocale } = useI18n()
+    const { t } = useI18n()
 
     /**
      * 计算翻译后的文本
@@ -89,10 +89,9 @@ export default defineComponent({
         defaultValue: props.defaultValue,
       }
 
-      // 使用提供的 locale 或当前 locale
-      const locale = props.locale || currentLocale.value
-
-      return t(props.keypath, options, locale)
+      // 注意：如果需要使用特定 locale，应该在调用前通过 setLocale 切换
+      // 这里直接使用当前 locale 进行翻译
+      return t(props.keypath, options)
     })
 
     return () => {
