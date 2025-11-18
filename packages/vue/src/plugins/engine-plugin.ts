@@ -6,9 +6,10 @@
  * @module plugins/engine-plugin
  */
 
-import type { Plugin } from '@ldesign/engine-core/types'
+import type { Plugin, I18nPluginAPI } from '@ldesign/engine-core/types'
 import type { I18nInstance } from '@ldesign/i18n-core'
 import { OptimizedI18n } from '@ldesign/i18n-core'
+import { I18N_EVENTS } from '@ldesign/engine-core/constants/events'
 import { createI18nPlugin } from '../plugin'
 
 /**
@@ -348,7 +349,7 @@ export function createI18nEnginePlugin(
         i18n.on('localeChanged', ({ locale, oldLocale }) => {
           engine.logger?.info?.(`Locale changed: ${oldLocale} -> ${locale}`)
           engine.state?.set?.('i18n:locale', locale)
-          engine.events?.emit?.('i18n:localeChanged', { locale, oldLocale })
+          engine.events?.emit?.(I18N_EVENTS.LOCALE_CHANGED, { locale, oldLocale })
         })
 
         // 安装到 Vue 应用
@@ -416,8 +417,27 @@ export function createI18nEnginePlugin(
           }
         }
 
+        // 注册 i18n API 到 API 注册表
+        if ((engine as any).api) {
+          const i18nAPI: I18nPluginAPI = {
+            name: 'i18n',
+            version: version || '1.0.0',
+            getLocale: () => i18n.locale,
+            setLocale: (locale: string) => i18n.setLocale(locale),
+            t: (key: string, params?: Record<string, any>) => i18n.t(key, params),
+            getAvailableLocales: () => i18n.getAvailableLocales(),
+            addLocale: (locale: string, messages: Record<string, any>) => i18n.addLocale(locale, messages),
+            removeLocale: (locale: string) => i18n.removeLocale(locale),
+            has: (key: string, locale?: string) => i18n.has(key, locale),
+          };
+          (engine as any).api.register(i18nAPI)
+          if (debug) {
+            console.log('[Vue I18n Plugin] I18n API registered to API registry')
+          }
+        }
+
         // 发射 i18n 安装完成事件
-        engine.events?.emit?.('i18n:installed', { i18n, locale: i18n.locale })
+        engine.events?.emit?.(I18N_EVENTS.INSTALLED, { locale: i18n.locale })
 
         engine.logger?.info?.('Vue i18n plugin installed successfully')
       }
@@ -457,8 +477,13 @@ export function createI18nEnginePlugin(
           (engine as any).i18n = null
         }
 
+        // 注销 i18n API
+        if ((engine as any).api) {
+          (engine as any).api.unregister('i18n')
+        }
+
         // 发射 i18n 卸载事件
-        engine.events?.emit?.('i18n:uninstalled')
+        engine.events?.emit?.(I18N_EVENTS.UNINSTALLED)
 
         engine.logger?.info?.('Vue i18n plugin uninstalled successfully')
       }
