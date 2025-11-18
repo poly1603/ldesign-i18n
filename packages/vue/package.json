@@ -17,7 +17,9 @@
   "type": "module",
   "sideEffects": [
     "*.css",
-    "*.vue"
+    "*.vue",
+    "**/*.css",
+    "**/style/**"
   ],
   "exports": {
     ".": {
@@ -110,6 +112,7 @@
       "import": "./esm/utils/*.js",
       "require": "./cjs/utils/*.cjs"
     },
+    "./style": "./dist/index.css",
     "./cjs/index.css": "./cjs/index.css",
     "./cjs/language-switcher/index.css": "./cjs/language-switcher/index.css",
     "./cjs/plugin.css": "./cjs/plugin.css",
