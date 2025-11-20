@@ -27,6 +27,7 @@
       "import": "./esm/index.js",
       "require": "./cjs/index.cjs"
     },
+    "./style": "./cjs/index.css",
     "./components": {
       "types": "./esm/components/index.d.ts",
       "import": "./esm/components/index.js",
@@ -112,7 +113,6 @@
       "import": "./esm/utils/*.js",
       "require": "./cjs/utils/*.cjs"
     },
-    "./style": "./dist/index.css",
     "./cjs/index.css": "./cjs/index.css",
     "./cjs/language-switcher/index.css": "./cjs/language-switcher/index.css",
     "./cjs/plugin.css": "./cjs/plugin.css",
