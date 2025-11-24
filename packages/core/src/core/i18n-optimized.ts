@@ -1239,6 +1239,236 @@ export class OptimizedI18n implements I18nInstance {
     return LocaleMetadataManager.getMetadata(this.locale)
   }
 
+  // ============== Utility Methods ==============
+
+
+  /**
+   * 检查翻译键是否存在
+   *
+   * @param key - 翻译键
+   * @param locale - 语言(可选,默认当前语言)
+   * @param namespace - 命名空间(可选,默认当前命名空间)
+   * @returns 是否存在
+   *
+   * @example
+   * ```typescript
+   * if (i18n.hasKey('app.title')) {
+   *   console.log('翻译存在')
+   * }
+   * ```
+   */
+  hasKey(
+    key: MessageKey,
+    locale?: Locale,
+    namespace?: string,
+  ): boolean {
+    const targetLocale = locale || this.locale
+    const targetNamespace = namespace || this.namespace
+    const messages = this.messages.get(targetLocale)
+
+    if (!messages) {
+      return false
+    }
+
+    const namespaceMessages = messages.get(targetNamespace)
+    if (!namespaceMessages) {
+      return false
+    }
+
+    return getNestedValue(namespaceMessages, key) !== undefined
+  }
+
+  /**
+   * 获取所有已加载的语言
+   *
+   * @returns 语言数组
+   *
+   * @example
+   * ```typescript
+   * const locales = i18n.getLoadedLocales()
+   * console.log('已加载语言:', locales)
+   * ```
+   */
+  getLoadedLocales(): Locale[] {
+    return Array.from(this.messages.keys())
+  }
+
+  /**
+   * 获取所有已加载的命名空间
+   *
+   * @param locale - 语言(可选,默认当前语言)
+   * @returns 命名空间数组
+   *
+   * @example
+   * ```typescript
+   * const namespaces = i18n.getLoadedNamespaces()
+   * console.log('已加载命名空间:', namespaces)
+   * ```
+   */
+  getLoadedNamespaces(locale?: Locale): string[] {
+    const targetLocale = locale || this.locale
+    const messages = this.messages.get(targetLocale)
+
+    if (!messages) {
+      return []
+    }
+
+    return Array.from(messages.keys())
+  }
+
+  /**
+   * 获取统计信息
+   *
+   * @returns 统计信息对象
+   *
+   * @example
+   * ```typescript
+   * const stats = i18n.getStats()
+   * console.log('缓存命中率:', stats.cacheHitRate)
+   * ```
+   */
+  getStats(): {
+    currentLocale: Locale
+    currentNamespace: string
+    loadedLocales: number
+    totalNamespaces: number
+    cacheSize: number
+    cacheHitRate: number
+  } {
+    let totalNamespaces = 0
+    this.messages.forEach(namespaces => {
+      totalNamespaces += namespaces.size
+    })
+
+    const cacheStats = this.cache.getStats?.() || { size: 0, hits: 0, misses: 0 }
+    const totalRequests = cacheStats.hits + cacheStats.misses
+    const hitRate = totalRequests > 0 ? cacheStats.hits / totalRequests : 0
+
+    return {
+      currentLocale: this.locale,
+      currentNamespace: this.namespace,
+      loadedLocales: this.messages.size,
+      totalNamespaces,
+      cacheSize: cacheStats.size,
+      cacheHitRate: hitRate,
+    }
+  }
+
+  /**
+   * 获取翻译覆盖率
+   *
+   * 分析指定语言相对于基准语言的翻译完整度
+   *
+   * @param targetLocale - 目标语言
+   * @param baseLocale - 基准语言(默认为当前语言)
+   * @returns 覆盖率信息
+   *
+   * @example
+   * ```typescript
+   * const coverage = i18n.getCoverage('zh-CN', 'en-US')
+   * console.log('翻译覆盖率:', coverage.percentage, '%')
+   * console.log('缺失的键:', coverage.missingKeys)
+   * ```
+   */
+  getCoverage(
+    targetLocale: Locale,
+    baseLocale: Locale = this.locale,
+  ): {
+    percentage: number
+    totalKeys: number
+    translatedKeys: number
+    missingKeys: string[]
+  } {
+    const baseMessages = this.messages.get(baseLocale)
+    const targetMessages = this.messages.get(targetLocale)
+
+    if (!baseMessages) {
+      return {
+        percentage: 0,
+        totalKeys: 0,
+        translatedKeys: 0,
+        missingKeys: [],
+      }
+    }
+
+    const missingKeys: string[] = []
+    let totalKeys = 0
+    let translatedKeys = 0
+
+    // 递归检查所有键
+    const checkKeys = (baseObj: any, targetObj: any, prefix = '') => {
+      Object.keys(baseObj).forEach((key) => {
+        const fullKey = prefix ? `${prefix}.${key}` : key
+        const baseValue = baseObj[key]
+        const targetValue = targetObj?.[key]
+
+        if (isPlainObject(baseValue)) {
+          checkKeys(baseValue, targetValue, fullKey)
+        }
+        else {
+          totalKeys++
+          if (targetValue !== undefined) {
+            translatedKeys++
+          }
+          else {
+            missingKeys.push(fullKey)
+          }
+        }
+      })
+    }
+
+    baseMessages.forEach((baseNamespaceMessages, namespace) => {
+      const targetNamespaceMessages = targetMessages?.get(namespace)
+      checkKeys(baseNamespaceMessages, targetNamespaceMessages)
+    })
+
+    const percentage = totalKeys > 0 ? (translatedKeys / totalKeys) * 100 : 0
+
+    return {
+      percentage: Math.round(percentage * 100) / 100,
+      totalKeys,
+      translatedKeys,
+      missingKeys,
+    }
+  }
+
+  /**
+   * 导出翻译数据为 JSON
+   *
+   * @param locale - 语言(可选,默认当前语言)
+   * @param namespace - 命名空间(可选,默认所有命名空间)
+   * @param pretty - 是否格式化输出
+   * @returns JSON 字符串
+   *
+   * @example
+   * ```typescript
+   * const json = i18n.exportJSON('zh-CN', undefined, true)
+   * console.log(json)
+   * ```
+   */
+  exportJSON(locale?: Locale, namespace?: string, pretty = false): string {
+    const targetLocale = locale || this.locale
+    const messages = this.messages.get(targetLocale)
+
+    if (!messages) {
+      return pretty ? '{}' : '{}'
+    }
+
+    let data: any
+
+    if (namespace) {
+      data = messages.get(namespace) || {}
+    }
+    else {
+      data = {}
+      messages.forEach((namespaceMessages, ns) => {
+        data[ns] = namespaceMessages
+      })
+    }
+
+    return pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data)
+  }
+
   // ============== Lifecycle Methods ==============
 
   /**

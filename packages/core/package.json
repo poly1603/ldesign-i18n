@@ -21,6 +21,11 @@
       "import": "./es/index.js",
       "require": "./lib/index.cjs"
     },
+    "./cache/*": {
+      "types": "./es/cache/*.d.ts",
+      "import": "./es/cache/*.js",
+      "require": "./lib/cache/*.cjs"
+    },
     "./core": {
       "types": "./es/core/index.d.ts",
       "import": "./es/core/index.js",
