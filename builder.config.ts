@@ -1,7 +1,7 @@
 import { defineConfig } from '@ldesign/builder'
 
 export default defineConfig({
-  input: 'src/index.ts',
+  input: 'packages/core/src/index.ts',
 
   output: {
     format: ['esm', 'cjs', 'umd'],

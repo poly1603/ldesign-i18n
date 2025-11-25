@@ -17,6 +17,7 @@ export * from './i18n-optimized'
 // Core engines
 export * from './interpolation'
 
+export * from './preloader'
 export * from './lazy-loader'
 export * from './pipeline-formatter'
 export * from './pluralization'

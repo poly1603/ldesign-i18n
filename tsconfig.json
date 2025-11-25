@@ -8,7 +8,7 @@
     "useDefineForClassFields": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
-    "rootDir": "./src",
+    "rootDir": "./packages/core/src",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -34,8 +34,9 @@
     "importsNotUsedAsValues": "remove"
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.vue"
+    "packages/core/src/**/*.ts",
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.vue"
   ],
   "exclude": [
     "node_modules",
