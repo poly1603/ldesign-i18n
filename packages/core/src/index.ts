@@ -36,6 +36,17 @@ export { TemplateCompiler } from './core/template-compiler'
 export { PipelineFormatter } from './core/pipeline-formatter'
 export { AdvancedFormatter } from './core/advanced-formatter'
 
+// 新增优化组件
+export { MessageResolver } from './core/message-resolver'
+export type { CacheKeyGenerator } from './core/cache-key-generator'
+export {
+  HashCacheKeyGenerator,
+  StringCacheKeyGenerator,
+  CacheKeyGeneratorFactory,
+} from './core/cache-key-generator'
+export { TranslationProcessor } from './core/translation-processor'
+export { I18nBatchOperations } from './core/batch-operations'
+
 // ==================== 性能优化 ====================
 
 export { FastCacheKeyBuilder, ObjectFactory } from './core/i18n-optimized'
@@ -104,6 +115,11 @@ export * from './utils/locale-metadata'
 // 高级工具(按需导入)
 export type { PerformanceBudget } from './utils/performance-budget'
 
+// 新增工具类
+export { EnhancedEventEmitter } from './utils/enhanced-event-emitter'
+export { KeyFinder } from './utils/key-finder'
+export { KeyValidator } from './utils/key-validator-advanced'
+
 // ==================== 调试工具 ====================
 
 export type {
@@ -113,6 +129,20 @@ export type {
   TranslationUsage,
   UsageReport,
 } from './debug'
+
+// ==================== 错误处理 ====================
+
+export {
+  I18nError,
+  LoadError,
+  TranslationError,
+  ConfigError,
+  ValidationError,
+  TimeoutError,
+} from './errors'
+
+export { RetryHandler } from './errors/retry-handler'
+export { ErrorRecovery, ErrorLogger } from './errors/error-recovery'
 
 // ==================== 插件系统 ====================
 
@@ -153,6 +183,38 @@ export const LazyFeatures = {
    */
   async loadAdvancedFormatter() {
     const module = await import('./core/advanced-formatter')
+    return module
+  },
+
+  /**
+   * 加载批量操作工具
+   */
+  async loadBatchOperations() {
+    const module = await import('./core/batch-operations')
+    return module
+  },
+
+  /**
+   * 加载错误恢复工具
+   */
+  async loadErrorRecovery() {
+    const module = await import('./errors/error-recovery')
+    return module
+  },
+
+  /**
+   * 加载键查找工具
+   */
+  async loadKeyFinder() {
+    const module = await import('./utils/key-finder')
+    return module
+  },
+
+  /**
+   * 加载键验证工具
+   */
+  async loadKeyValidator() {
+    const module = await import('./utils/key-validator-advanced')
     return module
   },
 }

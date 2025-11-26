@@ -76,3 +76,12 @@ export * from './performance-budget'
 
 // Export smart fallback chain
 export * from './smart-fallback'
+
+// Export enhanced event emitter (with priority and logging)
+export * from './enhanced-event-emitter'
+
+// Export key finder (fuzzy search and wildcard)
+export * from './key-finder'
+
+// Export advanced key validator
+export * from './key-validator-advanced'

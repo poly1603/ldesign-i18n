@@ -37,6 +37,10 @@ import { DirectionManager, LocaleMetadataManager } from '../utils/locale-metadat
 import { createCache, LRUCache } from './cache'
 import { InterpolationEngine } from './interpolation'
 import { PluralizationEngine } from './pluralization'
+import { I18nBatchOperations } from './batch-operations'
+import { RetryHandler, ErrorRecovery, ErrorLogger } from '../errors'
+import { KeyFinder } from '../utils/key-finder'
+import { KeyValidator } from '../utils/key-validator-advanced'
 
 const VERSION = '2.0.0'
 
@@ -229,6 +233,19 @@ export class OptimizedI18n implements I18nInstance {
   private readonly isDev = typeof window !== 'undefined' && (window as any).__DEV__ === true
   /** 是否使用哈希键(生产环境为 true,开发环境为 false) */
   private readonly useHashKeys = typeof process === 'undefined' || process.env.NODE_ENV === 'production'
+
+  // ============== 新增工具类实例 ==============
+
+  /** 批量操作工具(延迟初始化) */
+  private _batchOperations?: I18nBatchOperations
+  /** 键查找工具(延迟初始化) */
+  private _keyFinder?: KeyFinder
+  /** 键验证工具(延迟初始化) */
+  private _keyValidator?: KeyValidator
+  /** 错误恢复工具(延迟初始化) */
+  private _errorRecovery?: ErrorRecovery
+  /** 错误日志工具(延迟初始化) */
+  private _errorLogger?: ErrorLogger
 
   /**
    * 创建优化的 I18n 实例
@@ -1263,19 +1280,18 @@ export class OptimizedI18n implements I18nInstance {
     namespace?: string,
   ): boolean {
     const targetLocale = locale || this.locale
-    const targetNamespace = namespace || this.namespace
-    const messages = this.messages.get(targetLocale)
+    const targetNamespace = namespace || this.defaultNamespace
+    
+    // Get messages for the target namespace
+    const messages = targetNamespace === this.defaultNamespace
+      ? this.messages.get(targetLocale)
+      : this.namespaces.get(targetNamespace)?.get(targetLocale)
 
     if (!messages) {
       return false
     }
 
-    const namespaceMessages = messages.get(targetNamespace)
-    if (!namespaceMessages) {
-      return false
-    }
-
-    return getNestedValue(namespaceMessages, key) !== undefined
+    return getNestedValue(messages, key, this.keySeparator) !== undefined
   }
 
   /**
@@ -1307,13 +1323,21 @@ export class OptimizedI18n implements I18nInstance {
    */
   getLoadedNamespaces(locale?: Locale): string[] {
     const targetLocale = locale || this.locale
-    const messages = this.messages.get(targetLocale)
-
-    if (!messages) {
-      return []
+    const namespaceList: string[] = []
+    
+    // Check default namespace
+    if (this.messages.has(targetLocale)) {
+      namespaceList.push(this.defaultNamespace)
     }
-
-    return Array.from(messages.keys())
+    
+    // Check other namespaces
+    this.namespaces.forEach((localeMap, namespace) => {
+      if (localeMap.has(targetLocale)) {
+        namespaceList.push(namespace)
+      }
+    })
+    
+    return namespaceList
   }
 
   /**
@@ -1335,22 +1359,27 @@ export class OptimizedI18n implements I18nInstance {
     cacheSize: number
     cacheHitRate: number
   } {
-    let totalNamespaces = 0
-    this.messages.forEach(namespaces => {
-      totalNamespaces += namespaces.size
+    // Count total namespaces across all locales
+    let totalNamespaces = this.messages.size // Default namespace for each locale
+    this.namespaces.forEach(localeMap => {
+      totalNamespaces += localeMap.size
     })
 
-    const cacheStats = this.cache.getStats?.() || { size: 0, hits: 0, misses: 0 }
-    const totalRequests = cacheStats.hits + cacheStats.misses
-    const hitRate = totalRequests > 0 ? cacheStats.hits / totalRequests : 0
+    // Try to get cache stats (may not be available on all cache implementations)
+    let cacheSize = 0
+    let cacheHitRate = 0
+    
+    if ('size' in this.cache) {
+      cacheSize = (this.cache as any).size || 0
+    }
 
     return {
       currentLocale: this.locale,
-      currentNamespace: this.namespace,
+      currentNamespace: this.defaultNamespace,
       loadedLocales: this.messages.size,
       totalNamespaces,
-      cacheSize: cacheStats.size,
-      cacheHitRate: hitRate,
+      cacheSize,
+      cacheHitRate,
     }
   }
 
@@ -1417,10 +1446,8 @@ export class OptimizedI18n implements I18nInstance {
       })
     }
 
-    baseMessages.forEach((baseNamespaceMessages, namespace) => {
-      const targetNamespaceMessages = targetMessages?.get(namespace)
-      checkKeys(baseNamespaceMessages, targetNamespaceMessages)
-    })
+    // Check messages (baseMessages and targetMessages are Messages objects, not Maps)
+    checkKeys(baseMessages, targetMessages)
 
     const percentage = totalKeys > 0 ? (translatedKeys / totalKeys) * 100 : 0
 
@@ -1457,13 +1484,13 @@ export class OptimizedI18n implements I18nInstance {
     let data: any
 
     if (namespace) {
-      data = messages.get(namespace) || {}
+      // Get specific namespace
+      const nsMessages = this.namespaces.get(namespace)?.get(targetLocale)
+      data = nsMessages || {}
     }
     else {
-      data = {}
-      messages.forEach((namespaceMessages, ns) => {
-        data[ns] = namespaceMessages
-      })
+      // Export all messages (messages is already a plain object)
+      data = messages
     }
 
     return pretty ? JSON.stringify(data, null, 2) : JSON.stringify(data)
@@ -1484,10 +1511,306 @@ export class OptimizedI18n implements I18nInstance {
     this.plugins.clear()
     this.eventEmitter.removeAllListeners()
 
+    // 清理工具类实例
+    this._batchOperations = undefined
+    this._keyFinder = undefined
+    this._keyValidator = undefined
+    this._errorRecovery = undefined
+    this._errorLogger = undefined
+
     // 清理缓存(如果缓存有 destroy 方法)
     if ('destroy' in this.cache && typeof this.cache.destroy === 'function') {
       this.cache.destroy()
     }
+  }
+
+  // ============== 新增工具类便捷访问方法 ==============
+
+  /**
+   * 获取批量操作工具
+   *
+   * 提供高效的批量操作功能，包括：
+   * - 批量删除语言
+   * - 批量加载命名空间
+   * - 批量设置/合并消息
+   * - 智能预加载
+   *
+   * @param options - 批量操作选项（可选）
+   * @returns 批量操作工具实例
+   *
+   * @example
+   * ```typescript
+   * const batchOps = i18n.batch({ concurrency: 3 })
+   * await batchOps.batchRemoveLocales(['de', 'fr'])
+   * await batchOps.preloadLocales(['zh-CN', 'en'])
+   * ```
+   */
+  batch(): I18nBatchOperations {
+    if (!this._batchOperations) {
+      this._batchOperations = new I18nBatchOperations(this)
+    }
+    return this._batchOperations
+  }
+
+  /**
+   * 获取键查找工具
+   *
+   * 提供强大的翻译键查找功能：
+   * - 模糊搜索（Levenshtein算法）
+   * - 通配符查询
+   * - 精确搜索
+   * - 前缀搜索
+   *
+   * @returns 键查找工具实例
+   *
+   * @example
+   * ```typescript
+   * const finder = i18n.keyFinder()
+   * const results = finder.fuzzySearch('welcom', { threshold: 2 })
+   * const matches = finder.wildcardSearch('user.*.name')
+   * ```
+   */
+  keyFinder(): KeyFinder {
+    if (!this._keyFinder) {
+      this._keyFinder = new KeyFinder()
+    }
+    return this._keyFinder
+  }
+
+  /**
+   * 获取键验证工具
+   *
+   * 提供专业的翻译键验证：
+   * - 10+ 内置验证规则
+   * - 命名约定检查
+   * - 详细验证报告
+   * - 修复建议
+   *
+   * @param options - 验证选项（可选）
+   * @returns 键验证工具实例
+   *
+   * @example
+   * ```typescript
+   * const validator = i18n.keyValidator({
+   *   namingConvention: 'camelCase',
+   *   maxDepth: 5
+   * })
+   * const result = validator.validateKey('user.profile.name')
+   * ```
+   */
+  keyValidator(options?: {
+    namingConvention?: 'camelCase' | 'snake_case' | 'kebab-case' | 'dot.notation'
+    maxKeyLength?: number
+    maxDepth?: number
+    allowEmptyValues?: boolean
+    checkDuplicates?: boolean
+    customRules?: Array<{
+      name: string
+      description: string
+      validate: (key: string, value: any, context: any) => any
+    }>
+  }): KeyValidator {
+    if (!this._keyValidator || options) {
+      this._keyValidator = new KeyValidator(options)
+    }
+    return this._keyValidator
+  }
+
+  /**
+   * 获取错误恢复工具
+   *
+   * 提供完整的错误恢复策略：
+   * - 缓存恢复
+   * - 降级语言
+   * - 默认值返回
+   * - 自动重试
+   *
+   * @param options - 错误恢复选项（可选）
+   * @returns 错误恢复工具实例
+   *
+   * @example
+   * ```typescript
+   * const recovery = i18n.errorRecovery({
+   *   enableCache: true,
+   *   fallbackChain: ['zh-CN', 'en']
+   * })
+   * const result = await recovery.recover('missing.key', error)
+   * ```
+   */
+  errorRecovery(options?: {
+    fallbackLocales?: string[]
+    defaultMessages?: Messages
+    useCache?: boolean
+    maxRetries?: number
+  }): ErrorRecovery {
+    if (!this._errorRecovery || options) {
+      this._errorRecovery = new ErrorRecovery(options)
+    }
+    return this._errorRecovery
+  }
+
+  /**
+   * 获取错误日志工具
+   *
+   * 提供错误收集和统计：
+   * - 错误记录
+   * - 类型统计
+   * - 日志过滤
+   * - 数据导出
+   *
+   * @param options - 错误日志选项（可选）
+   * @returns 错误日志工具实例
+   *
+   * @example
+   * ```typescript
+   * const logger = i18n.errorLogger({ maxLogs: 1000 })
+   * logger.log(new LoadError('Failed to load locale'))
+   * const stats = logger.getStats()
+   * ```
+   */
+  errorLogger(options?: {
+    maxLogs?: number
+    enableTimestamp?: boolean
+  }): ErrorLogger {
+    if (!this._errorLogger || options) {
+      this._errorLogger = new ErrorLogger(options)
+    }
+    return this._errorLogger
+  }
+
+  /**
+   * 创建重试处理器
+   *
+   * 提供智能重试机制：
+   * - 指数退避算法
+   * - 自定义重试条件
+   * - 超时控制
+   *
+   * @param options - 重试选项
+   * @returns 重试处理器实例
+   *
+   * @example
+   * ```typescript
+   * const retry = i18n.createRetryHandler({
+   *   maxRetries: 3,
+   *   baseDelay: 1000
+   * })
+   * const result = await retry.execute(async () => {
+   *   return await fetch('/api/translations')
+   * })
+   * ```
+   */
+  createRetryHandler(options?: {
+    maxRetries?: number
+    baseDelay?: number
+    maxDelay?: number
+    backoffMultiplier?: number
+    timeout?: number
+    shouldRetry?: (error: Error, attempt: number) => boolean
+  }): RetryHandler {
+    return new RetryHandler(options)
+  }
+
+  /**
+   * 模糊搜索翻译键（便捷方法）
+   *
+   * @param searchTerm - 搜索词
+   * @param options - 搜索选项
+   * @returns 匹配的键列表
+   *
+   * @example
+   * ```typescript
+   * const keys = i18n.searchKeys('welcom', { threshold: 2, maxResults: 5 })
+   * console.log(keys) // ['welcome', 'welcome.back', 'welcome.message']
+   * ```
+   */
+  searchKeys(
+    searchTerm: string,
+    options?: {
+      caseSensitive?: boolean
+      maxResults?: number
+      minScore?: number
+      searchValues?: boolean
+    }
+  ): Array<{ key: string; value: string; locale: Locale; score?: number }> {
+    const messages = this.getMessages(this.locale)
+    if (!messages) {
+      return []
+    }
+    return this.keyFinder().fuzzySearch(searchTerm, messages, this.locale, options)
+  }
+
+  /**
+   * 通配符搜索翻译键（便捷方法）
+   *
+   * @param pattern - 通配符模式（支持 * 和 ?）
+   * @param options - 搜索选项
+   * @returns 搜索结果列表
+   *
+   * @example
+   * ```typescript
+   * const results = i18n.searchKeysWildcard('user.*.name')
+   * results.forEach(r => console.log(`${r.key}: ${r.value}`))
+   * ```
+   */
+  searchKeysWildcard(
+    pattern: string,
+    options?: {
+      caseSensitive?: boolean
+      maxResults?: number
+    }
+  ): Array<{ key: string; value: string; locale: Locale }> {
+    const messages = this.getMessages(this.locale)
+    if (!messages) {
+      return []
+    }
+    return this.keyFinder().wildcardSearch(pattern, messages, this.locale, options)
+  }
+
+  /**
+   * 验证消息对象（便捷方法）
+   *
+   * @param messages - 要验证的消息对象（可选，默认当前语言）
+   * @param options - 验证选项
+   * @returns 验证报告
+   *
+   * @example
+   * ```typescript
+   * const report = i18n.validateMessages()
+   * if (!report.valid) {
+   *   console.log(`发现 ${report.errors} 个错误`)
+   *   report.issues.forEach(issue => {
+   *     console.log(`[${issue.type}] ${issue.key}: ${issue.message}`)
+   *   })
+   * }
+   * ```
+   */
+  validateMessages(
+    messages?: Messages,
+    options?: {
+      namingConvention?: 'camelCase' | 'snake_case' | 'kebab-case' | 'dot.notation'
+      maxKeyLength?: number
+      maxDepth?: number
+      allowEmptyValues?: boolean
+      checkDuplicates?: boolean
+    }
+  ): {
+    valid: boolean
+    totalIssues: number
+    errors: number
+    warnings: number
+    infos: number
+    issues: Array<{
+      type: 'error' | 'warning' | 'info'
+      rule: string
+      key: string
+      message: string
+      suggestion?: string
+    }>
+    totalKeys: number
+  } {
+    const msgs = messages || this.getMessages(this.locale) || {}
+    return this.keyValidator(options).validate(msgs, this.locale)
   }
 }
 

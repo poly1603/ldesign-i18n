@@ -14,7 +14,7 @@
  * @module cache/three-tier-cache
  */
 
-import type { Locale, MessageKey } from '../types'
+// import type { Locale } from '../types'
 import { LRUCache } from '../core/cache'
 
 /**

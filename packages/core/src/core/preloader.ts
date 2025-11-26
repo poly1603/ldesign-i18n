@@ -154,7 +154,7 @@ export class Preloader {
     })
   }
 
-  recordUsage(locale: Locale, namespace?: string, keys?: string[], responseTime = 0): void {
+  recordUsage(locale: Locale, namespace?: string, _keys?: string[], responseTime = 0): void {
     if (!this.config.trackUsage) return
 
     const key = this.getCacheKey(locale, namespace)
