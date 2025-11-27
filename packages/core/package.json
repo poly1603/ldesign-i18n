@@ -46,6 +46,16 @@
       "import": "./es/debug/*.js",
       "require": "./lib/debug/*.cjs"
     },
+    "./errors": {
+      "types": "./es/errors/index.d.ts",
+      "import": "./es/errors/index.js",
+      "require": "./lib/errors/index.cjs"
+    },
+    "./errors/*": {
+      "types": "./es/errors/*.d.ts",
+      "import": "./es/errors/*.js",
+      "require": "./lib/errors/*.cjs"
+    },
     "./plugins": {
       "types": "./es/plugins/index.d.ts",
       "import": "./es/plugins/index.js",

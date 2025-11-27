@@ -1,7 +1,7 @@
 /**
  * @ldesign/i18n-core
  * Framework-agnostic i18n core library
- * 
+ *
  * @version 4.0.0
  * @author LDesign Team
  * @license MIT
@@ -14,6 +14,67 @@ export { OptimizedI18n, OptimizedI18n as I18n } from './core/i18n-optimized'
 
 // 工厂函数
 export { createI18n } from './core'
+
+// ==================== 新增功能 ====================
+
+// 翻译键管理
+export {
+  TranslationKeyManager,
+  createKeyManager,
+  type KeyUsageInfo,
+  type CoverageReport,
+  type KeyAnalysisResult,
+} from './utils/translation-key-manager'
+
+// 智能预加载
+export {
+  SmartPreloader,
+  createSmartPreloader,
+  type PreloadStrategy,
+  type PreloadOptions,
+  type RouteConfig,
+} from './core/smart-preloader'
+
+// 内存池管理
+export {
+  ObjectPool,
+  StringBuilderPool,
+  MemoryPoolFactory,
+  memoryPools,
+  stringBuilderPool,
+  createTranslateOptionsPool,
+  createInterpolationParamsPool,
+  type Poolable,
+  type PoolOptions,
+} from './core/memory-pool'
+
+// 翻译历史记录
+export {
+  TranslationHistory,
+  createTranslationHistory,
+  type TranslationRecord,
+  type TranslationStats,
+  type HistoryOptions,
+} from './core/translation-history'
+
+// 翻译变更检测
+export {
+  TranslationWatcher,
+  createTranslationWatcher,
+  type TranslationChange,
+  type ChangeType,
+  type ChangeListener,
+  type WatcherOptions,
+} from './core/translation-watcher'
+
+// 智能缓存预测
+export {
+  CachePredictor,
+  createCachePredictor,
+  type UsagePattern,
+  type PredictionResult,
+  type PredictorOptions,
+} from './core/cache-predictor'
 
 // ==================== 缓存系统 ====================
 

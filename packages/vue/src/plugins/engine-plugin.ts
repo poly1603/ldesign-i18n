@@ -10,7 +10,7 @@ import type { Plugin, I18nPluginAPI } from '@ldesign/engine-core/types'
 import type { I18nInstance } from '@ldesign/i18n-core'
 import { OptimizedI18n } from '@ldesign/i18n-core'
 import { I18N_EVENTS } from '@ldesign/engine-core/constants/events'
-import { createI18nPlugin } from '../plugin'
+import { createI18nPlugin } from './plugin'
 
 /**
  * 语言检测策略

@@ -47,6 +47,16 @@
       "import": "./esm/composables/*.js",
       "require": "./cjs/composables/*.cjs"
     },
+    "./core": {
+      "types": "./esm/core/index.d.ts",
+      "import": "./esm/core/index.js",
+      "require": "./cjs/core/index.cjs"
+    },
+    "./core/*": {
+      "types": "./esm/core/*.d.ts",
+      "import": "./esm/core/*.js",
+      "require": "./cjs/core/*.cjs"
+    },
     "./directives": {
       "types": "./esm/directives/index.d.ts",
       "import": "./esm/directives/index.js",
@@ -56,46 +66,6 @@
       "types": "./esm/directives/*.d.ts",
       "import": "./esm/directives/*.js",
       "require": "./cjs/directives/*.cjs"
-    },
-    "./i18n-provider": {
-      "types": "./esm/i18n-provider/index.d.ts",
-      "import": "./esm/i18n-provider/index.js",
-      "require": "./cjs/i18n-provider/index.cjs"
-    },
-    "./i18n-provider/*": {
-      "types": "./esm/i18n-provider/*.d.ts",
-      "import": "./esm/i18n-provider/*.js",
-      "require": "./cjs/i18n-provider/*.cjs"
-    },
-    "./i18n-text": {
-      "types": "./esm/i18n-text/index.d.ts",
-      "import": "./esm/i18n-text/index.js",
-      "require": "./cjs/i18n-text/index.cjs"
-    },
-    "./i18n-text/*": {
-      "types": "./esm/i18n-text/*.d.ts",
-      "import": "./esm/i18n-text/*.js",
-      "require": "./cjs/i18n-text/*.cjs"
-    },
-    "./i18n-translate": {
-      "types": "./esm/i18n-translate/index.d.ts",
-      "import": "./esm/i18n-translate/index.js",
-      "require": "./cjs/i18n-translate/index.cjs"
-    },
-    "./i18n-translate/*": {
-      "types": "./esm/i18n-translate/*.d.ts",
-      "import": "./esm/i18n-translate/*.js",
-      "require": "./cjs/i18n-translate/*.cjs"
-    },
-    "./language-switcher": {
-      "types": "./esm/language-switcher/index.d.ts",
-      "import": "./esm/language-switcher/index.js",
-      "require": "./cjs/language-switcher/index.cjs"
-    },
-    "./language-switcher/*": {
-      "types": "./esm/language-switcher/*.d.ts",
-      "import": "./esm/language-switcher/*.js",
-      "require": "./cjs/language-switcher/*.cjs"
     },
     "./plugins": {
       "types": "./esm/plugins/index.d.ts",
@@ -107,16 +77,16 @@
       "import": "./esm/plugins/*.js",
       "require": "./cjs/plugins/*.cjs"
     },
+    "./utils": {
+      "types": "./esm/utils/index.d.ts",
+      "import": "./esm/utils/index.js",
+      "require": "./cjs/utils/index.cjs"
+    },
     "./utils/*": {
       "types": "./esm/utils/*.d.ts",
       "import": "./esm/utils/*.js",
       "require": "./cjs/utils/*.cjs"
-    },
-    "./cjs/index.css": "./cjs/index.css",
-    "./cjs/language-switcher/index.css": "./cjs/language-switcher/index.css",
-    "./cjs/plugin.css": "./cjs/plugin.css",
-    "./dist/index.css": "./dist/index.css",
-    "./dist/index.min.css": "./dist/index.min.css"
+    }
   },
   "main": "./cjs/index.cjs",
   "module": "./esm/index.js",
