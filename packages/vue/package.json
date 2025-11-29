@@ -15,78 +15,87 @@
   "author": "ldesign",
   "license": "MIT",
   "type": "module",
-  "sideEffects": [
-    "*.css",
-    "*.vue",
-    "**/*.css",
-    "**/style/**"
-  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./esm/index.d.ts",
       "import": "./esm/index.js",
-      "require": "./cjs/index.cjs"
+      "require": "./cjs/index.cjs",
+      "default": "./esm/index.js"
     },
     "./components": {
       "types": "./esm/components/index.d.ts",
       "import": "./esm/components/index.js",
-      "require": "./cjs/components/index.cjs"
+      "require": "./cjs/components/index.cjs",
+      "default": "./esm/components/index.js"
     },
     "./components/*": {
       "types": "./esm/components/*.d.ts",
       "import": "./esm/components/*.js",
-      "require": "./cjs/components/*.cjs"
+      "require": "./cjs/components/*.cjs",
+      "default": "./esm/components/*.js"
     },
     "./composables": {
       "types": "./esm/composables/index.d.ts",
       "import": "./esm/composables/index.js",
-      "require": "./cjs/composables/index.cjs"
+      "require": "./cjs/composables/index.cjs",
+      "default": "./esm/composables/index.js"
     },
     "./composables/*": {
       "types": "./esm/composables/*.d.ts",
       "import": "./esm/composables/*.js",
-      "require": "./cjs/composables/*.cjs"
+      "require": "./cjs/composables/*.cjs",
+      "default": "./esm/composables/*.js"
     },
     "./core": {
       "types": "./esm/core/index.d.ts",
       "import": "./esm/core/index.js",
-      "require": "./cjs/core/index.cjs"
+      "require": "./cjs/core/index.cjs",
+      "default": "./esm/core/index.js"
     },
     "./core/*": {
       "types": "./esm/core/*.d.ts",
       "import": "./esm/core/*.js",
-      "require": "./cjs/core/*.cjs"
+      "require": "./cjs/core/*.cjs",
+      "default": "./esm/core/*.js"
     },
     "./directives": {
       "types": "./esm/directives/index.d.ts",
       "import": "./esm/directives/index.js",
-      "require": "./cjs/directives/index.cjs"
+      "require": "./cjs/directives/index.cjs",
+      "default": "./esm/directives/index.js"
     },
     "./directives/*": {
       "types": "./esm/directives/*.d.ts",
       "import": "./esm/directives/*.js",
-      "require": "./cjs/directives/*.cjs"
+      "require": "./cjs/directives/*.cjs",
+      "default": "./esm/directives/*.js"
     },
     "./plugins": {
       "types": "./esm/plugins/index.d.ts",
       "import": "./esm/plugins/index.js",
-      "require": "./cjs/plugins/index.cjs"
+      "require": "./cjs/plugins/index.cjs",
+      "default": "./esm/plugins/index.js"
     },
     "./plugins/*": {
       "types": "./esm/plugins/*.d.ts",
       "import": "./esm/plugins/*.js",
-      "require": "./cjs/plugins/*.cjs"
+      "require": "./cjs/plugins/*.cjs",
+      "default": "./esm/plugins/*.js"
     },
     "./utils": {
       "types": "./esm/utils/index.d.ts",
       "import": "./esm/utils/index.js",
-      "require": "./cjs/utils/index.cjs"
+      "require": "./cjs/utils/index.cjs",
+      "default": "./esm/utils/index.js"
     },
     "./utils/*": {
       "types": "./esm/utils/*.d.ts",
       "import": "./esm/utils/*.js",
-      "require": "./cjs/utils/*.cjs"
-    }
+      "require": "./cjs/utils/*.cjs",
+      "default": "./esm/utils/*.js"
+    },
+    "./package.json": "./package.json"
   },
   "main": "./cjs/index.cjs",
   "module": "./esm/index.js",
@@ -96,7 +105,7 @@
   "files": [
     "README.md",
     "LICENSE",
-    "package.json",
+    "CHANGELOG.md",
     "esm",
     "cjs",
     "dist"
@@ -145,5 +154,7 @@
     "vue": {
       "optional": false
     }
-  }
+  },
+  "typings": "./esm/index.d.ts",
+  "browser": "./dist/index.js"
 }
