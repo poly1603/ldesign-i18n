@@ -1,0 +1,202 @@
+/**
+ * LanguageSwitcher 组件样式
+ * 卡片网格布局样式
+ */
+.ld-lang-switcher {
+  position: relative;
+  display: inline-block;
+}
+
+/* 语言按钮 - 仅显示图标 */
+.lang-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-10, 40px);
+  height: var(--size-10, 40px);
+  padding: 0;
+  border: 1px solid var(--color-border, #d9d9d9);
+  border-radius: var(--size-2, 8px);
+  background: var(--color-bg-container, #ffffff);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--color-text-secondary, #666);
+}
+
+.lang-button:hover {
+  border-color: var(--color-primary-default, #1890ff);
+  background: var(--color-bg-component-hover, #f5f5f5);
+  color: var(--color-primary-default, #1890ff);
+}
+
+/* 下拉面板 */
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + var(--size-2, 8px));
+  right: 0;
+  width: 400px;
+  max-width: 90vw;
+  background: var(--color-bg-container, #ffffff);
+  border: 1px solid var(--color-border, #d9d9d9);
+  border-radius: var(--size-3, 12px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* 下拉头部 */
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--size-4, 16px) var(--size-5, 20px);
+  border-bottom: 1px solid var(--color-border, #e8e8e8);
+  background: var(--color-bg-container, #ffffff);
+}
+
+.dropdown-title {
+  font-size: var(--size-font-md, 16px);
+  font-weight: 600;
+  color: var(--color-text-primary, #333);
+}
+
+/* 下拉内容 */
+.dropdown-content {
+  padding: var(--size-4, 16px);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* 语言网格 - 纵向单列布局 */
+.language-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2, 8px);
+}
+
+/* 语言卡片 */
+.language-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--size-3, 12px);
+  padding: var(--size-4, 16px);
+  border: 1px solid var(--color-border, #e8e8e8);
+  border-radius: var(--size-2, 8px);
+  background: var(--color-bg-container, #ffffff);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.language-card:hover {
+  border-color: var(--color-primary-default, #1890ff);
+  background: var(--color-bg-component-hover, #f5f5f5);
+}
+
+.language-card.active {
+  border-color: var(--color-primary-default, #1890ff);
+  background: var(--color-primary-lighter, #e6f7ff);
+  box-shadow: 0 0 0 2px var(--color-primary-default, #1890ff) inset;
+}
+
+/* 卡片语言代码 */
+.card-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: var(--size-font-lg, 18px);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-text-secondary, #666);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  background: var(--color-bg-component-hover, #f5f5f5);
+  border-radius: var(--size-1, 6px);
+  flex-shrink: 0;
+}
+
+.language-card.active .card-code {
+  color: var(--color-primary-default, #1890ff);
+  background: var(--color-primary-lighter, #e6f7ff);
+}
+
+/* 卡片名称 */
+.card-name {
+  flex: 1;
+  font-size: var(--size-font-base, 14px);
+  font-weight: 500;
+  color: var(--color-text-primary, #333);
+}
+
+.language-card.active .card-name {
+  color: var(--color-primary-default, #1890ff);
+  font-weight: 600;
+}
+
+/* Vue Transition 动画 - 打开和关闭 */
+.dropdown-enter-active {
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dropdown-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.92);
+}
+
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .lang-button {
+    background: var(--color-bg-container, #1f1f1f);
+    border-color: var(--color-border, #434343);
+    color: var(--color-text-primary, #e8e8e8);
+  }
+
+  .lang-button:hover {
+    background: var(--color-bg-component-hover, #2a2a2a);
+  }
+
+  .lang-dropdown {
+    background: var(--color-bg-container, #1f1f1f);
+    border-color: var(--color-border, #434343);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+
+  .dropdown-header {
+    border-bottom-color: var(--color-border, #434343);
+  }
+
+  .dropdown-title {
+    color: var(--color-text-primary, #e8e8e8);
+  }
+
+  .refresh-btn:hover {
+    background: var(--color-bg-component-hover, #2a2a2a);
+  }
+
+  .language-card {
+    background: var(--color-bg-container, #1f1f1f);
+    border-color: var(--color-border, #434343);
+  }
+
+  .language-card:hover {
+    background: var(--color-bg-component-hover, #2a2a2a);
+  }
+
+  .language-card.active {
+    background: var(--color-primary-bg, #111d2c);
+  }
+
+  .card-name {
+    color: var(--color-text-primary, #e8e8e8);
+  }
+}
