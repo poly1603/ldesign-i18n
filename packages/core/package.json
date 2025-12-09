@@ -15,92 +15,103 @@
   "author": "ldesign",
   "license": "MIT",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
-      "require": "./lib/index.cjs"
+      "require": "./lib/index.cjs",
+      "default": "./es/index.js"
     },
     "./cache/*": {
       "types": "./es/cache/*.d.ts",
       "import": "./es/cache/*.js",
-      "require": "./lib/cache/*.cjs"
+      "require": "./lib/cache/*.cjs",
+      "default": "./es/cache/*.js"
     },
     "./core": {
       "types": "./es/core/index.d.ts",
       "import": "./es/core/index.js",
-      "require": "./lib/core/index.cjs"
+      "require": "./lib/core/index.cjs",
+      "default": "./es/core/index.js"
     },
     "./core/*": {
       "types": "./es/core/*.d.ts",
       "import": "./es/core/*.js",
-      "require": "./lib/core/*.cjs"
+      "require": "./lib/core/*.cjs",
+      "default": "./es/core/*.js"
     },
     "./debug": {
       "types": "./es/debug/index.d.ts",
       "import": "./es/debug/index.js",
-      "require": "./lib/debug/index.cjs"
+      "require": "./lib/debug/index.cjs",
+      "default": "./es/debug/index.js"
     },
     "./debug/*": {
       "types": "./es/debug/*.d.ts",
       "import": "./es/debug/*.js",
-      "require": "./lib/debug/*.cjs"
+      "require": "./lib/debug/*.cjs",
+      "default": "./es/debug/*.js"
     },
     "./errors": {
       "types": "./es/errors/index.d.ts",
       "import": "./es/errors/index.js",
-      "require": "./lib/errors/index.cjs"
+      "require": "./lib/errors/index.cjs",
+      "default": "./es/errors/index.js"
     },
     "./errors/*": {
       "types": "./es/errors/*.d.ts",
       "import": "./es/errors/*.js",
-      "require": "./lib/errors/*.cjs"
+      "require": "./lib/errors/*.cjs",
+      "default": "./es/errors/*.js"
     },
     "./plugins": {
       "types": "./es/plugins/index.d.ts",
       "import": "./es/plugins/index.js",
-      "require": "./lib/plugins/index.cjs"
+      "require": "./lib/plugins/index.cjs",
+      "default": "./es/plugins/index.js"
     },
     "./plugins/*": {
       "types": "./es/plugins/*.d.ts",
       "import": "./es/plugins/*.js",
-      "require": "./lib/plugins/*.cjs"
+      "require": "./lib/plugins/*.cjs",
+      "default": "./es/plugins/*.js"
     },
     "./types": {
       "types": "./es/types/index.d.ts",
       "import": "./es/types/index.js",
-      "require": "./lib/types/index.cjs"
+      "require": "./lib/types/index.cjs",
+      "default": "./es/types/index.js"
     },
     "./types/*": {
       "types": "./es/types/*.d.ts",
       "import": "./es/types/*.js",
-      "require": "./lib/types/*.cjs"
+      "require": "./lib/types/*.cjs",
+      "default": "./es/types/*.js"
     },
     "./utils": {
       "types": "./es/utils/index.d.ts",
       "import": "./es/utils/index.js",
-      "require": "./lib/utils/index.cjs"
+      "require": "./lib/utils/index.cjs",
+      "default": "./es/utils/index.js"
     },
     "./utils/*": {
       "types": "./es/utils/*.d.ts",
       "import": "./es/utils/*.js",
-      "require": "./lib/utils/*.cjs"
+      "require": "./lib/utils/*.cjs",
+      "default": "./es/utils/*.js"
     },
-    "./__tests__/*": {
-      "types": "./es/__tests__/*.d.ts",
-      "import": "./es/__tests__/*.js",
-      "require": "./lib/__tests__/*.cjs"
-    }
+    "./package.json": "./package.json"
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
   "types": "./es/index.d.ts",
-  "unpkg": "./dist/index.min.js",
-  "jsdelivr": "./dist/index.min.js",
+  "unpkg": "./dist/index.js",
+  "jsdelivr": "./dist/index.js",
   "files": [
     "README.md",
     "LICENSE",
-    "package.json",
+    "CHANGELOG.md",
     "es",
     "lib"
   ],
@@ -134,5 +145,7 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "typings": "./es/index.d.ts",
+  "browser": "./dist/index.js"
 }

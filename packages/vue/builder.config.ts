@@ -1,63 +1,17 @@
 /**
- * @ldesign/i18n-vue Builder Configuration
- *
- * 使用 TDesign 风格的构建配置
- * 生成 es/、esm/、cjs/、dist/ 四种产物
+ * @ldesign/i18n-vue 构建配置
  */
 import { defineConfig } from '@ldesign/builder'
 
 export default defineConfig({
-  // 输入配置 - 使用主入口文件
-  entry: 'src/index.ts',
-
-  // 输出配置 - TDesign 风格
-  output: {
-    // ES 模块 - 使用 .mjs + 编译后的 CSS
-    es: {
-      dir: 'es',
-      sourcemap: true,
-    },
-
-    // ESM 模块 - 使用 .js + 保留 less 源文件
-    esm: {
-      dir: 'esm',
-      sourcemap: true,
-    },
-
-    // CJS 模块 - 忽略样式
-    cjs: {
-      dir: 'cjs',
-      sourcemap: true,
-    },
-
-    // UMD 模块 - 单个 CSS
-    umd: {
-      dir: 'dist',
-      name: 'LDesignI18n',
-      globals: {
-        vue: 'Vue',
-        '@ldesign/i18n-core': 'LDesignI18nCore',
-      },
-    },
-  },
-
-  // 外部依赖
-  external: ['vue', '@ldesign/i18n-core', '@ldesign/shared', 'tslib'],
-
-  // 全局变量映射 (UMD 使用)
-  globals: {
-    vue: 'Vue',
-    '@ldesign/i18n-core': 'LDesignI18nCore',
-  },
-
-  // 库类型
-  libraryType: 'vue3',
-
-  // 打包器
-  bundler: 'rollup',
-
-  // 类型声明
-  dts: {
-    enabled: true,
-  },
+  input: 'src/index.ts',
+  output: [
+    { format: 'esm', dir: 'es', preserveModules: true, preserveModulesRoot: 'src' },
+    { format: 'esm', dir: 'esm', preserveModules: true, preserveModulesRoot: 'src' },
+    { format: 'cjs', dir: 'lib', preserveModules: true, preserveModulesRoot: 'src' },
+    { format: 'umd', dir: 'dist', name: 'LDesignI18nVue' },
+  ],
+  external: ['vue', '@ldesign/i18n-core', '@ldesign/shared', '@ldesign/engine-core', 'tslib'],
+  dts: true,
+  clean: true,
 })

@@ -1,27 +1,17 @@
+/**
+ * @ldesign/i18n-core 构建配置
+ */
 import { defineConfig } from '@ldesign/builder'
 
 export default defineConfig({
   input: 'src/index.ts',
-  output: {
-    esm: {
-      enabled: true,
-      dir: 'es',
-    },
-    cjs: {
-      enabled: true,
-      dir: 'lib',
-    },
-    umd: {
-      enabled: false, // 禁用 UMD 构建
-    },
-  },
-  // 生成类型声明文件
-  dts: {
-    enabled: true,
-  },
-  // 外部依赖
-  external: [
-    '@ldesign/shared',
-    'tslib',
+  output: [
+    { format: 'esm', dir: 'es', preserveModules: true, preserveModulesRoot: 'src' },
+    { format: 'esm', dir: 'esm', preserveModules: true, preserveModulesRoot: 'src' },
+    { format: 'cjs', dir: 'lib', preserveModules: true, preserveModulesRoot: 'src' },
+    { format: 'umd', dir: 'dist', name: 'LDesignI18nCore' },
   ],
+  external: ['@ldesign/shared', 'tslib'],
+  dts: true,
+  clean: true,
 })

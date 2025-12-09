@@ -1,40 +1,20 @@
-# Dependencies
-node_modules/
-cjs
+﻿# Build outputs
+es
 esm
+lib
+dist
+cjs
 
-# Build outputs
-dist/
-es/
-lib/
-*.tsbuildinfo
-
-# Coverage
-coverage/
-.nyc_output/
+# Dependencies
+node_modules
 
 # IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
+.vscode
+.idea
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
-# Testing
-.vitest/
-
-# Temp
-*.tmp
-.cache/
-
+# Cache
+.rollup.cache
+*.tsbuildinfo

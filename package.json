@@ -19,16 +19,15 @@
   "author": "ldesign",
   "license": "MIT",
   "type": "module",
-  "sideEffects": [
-    "*.css",
-    "*.vue"
-  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./es/index.d.ts",
       "import": "./es/index.js",
-      "require": "./lib/index.cjs"
-    }
+      "require": "./lib/index.cjs",
+      "default": "./es/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "main": "./lib/index.cjs",
   "module": "./es/index.js",
@@ -38,7 +37,7 @@
   "files": [
     "README.md",
     "LICENSE",
-    "package.json",
+    "CHANGELOG.md",
     "es",
     "lib",
     "dist"
@@ -101,5 +100,7 @@
     "vue": {
       "optional": true
     }
-  }
+  },
+  "typings": "./es/index.d.ts",
+  "browser": "./dist/index.js"
 }
