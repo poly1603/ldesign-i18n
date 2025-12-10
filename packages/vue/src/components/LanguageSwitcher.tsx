@@ -1,7 +1,7 @@
 /**
  * LanguageSwitcher 组件
  *
- * 语言切换器,提供图标按钮和下拉菜单用于切换语言
+ * 语言切换器，参考 ThemeColorPicker 的设计风格
  *
  * @example
  * ```tsx
@@ -10,61 +10,103 @@
  */
 // @ts-nocheck - Vue JSX 类型定义与实际使用存在差异，禁用类型检查以避免误报
 import { computed, defineComponent, onMounted, onUnmounted, ref, Transition } from 'vue'
-import { Languages } from 'lucide-vue-next'
+import { Languages, Check } from 'lucide-vue-next'
 import { useI18n } from '../composables/useI18n'
 import './LanguageSwitcher.css'
 
+// 语言配置
+interface LocaleConfig {
+  code: string
+  label: string
+  nativeLabel: string
+  description?: string
+}
+
+// 默认语言配置
+const defaultLocaleConfigs: LocaleConfig[] = [
+  { code: 'zh-CN', label: '简体中文', nativeLabel: '简体中文', description: 'Simplified Chinese' },
+  { code: 'zh-TW', label: '繁體中文', nativeLabel: '繁體中文', description: 'Traditional Chinese' },
+  { code: 'en-US', label: 'English', nativeLabel: 'English', description: 'United States' },
+  { code: 'en', label: 'English', nativeLabel: 'English', description: 'International' },
+  { code: 'ja-JP', label: '日本語', nativeLabel: '日本語', description: 'Japanese' },
+  { code: 'ja', label: '日本語', nativeLabel: '日本語', description: 'Japanese' },
+  { code: 'ko-KR', label: '한국어', nativeLabel: '한국어', description: 'Korean' },
+  { code: 'ko', label: '한국어', nativeLabel: '한국어', description: 'Korean' },
+  { code: 'fr', label: 'Français', nativeLabel: 'Français', description: 'French' },
+  { code: 'de', label: 'Deutsch', nativeLabel: 'Deutsch', description: 'German' },
+  { code: 'es', label: 'Español', nativeLabel: 'Español', description: 'Spanish' },
+]
+
 export default defineComponent({
   name: 'LanguageSwitcher',
+  props: {
+    disabled: { type: Boolean, default: false },
+    size: { type: String as () => 'small' | 'medium' | 'large', default: 'medium' },
+    title: { type: String, default: '' },
+  },
 
-  setup() {
+  setup(props) {
     // 使用全局 i18n 实例
     const { locale, availableLocales, setLocale, t } = useI18n()
 
     // 下拉菜单状态
     const isOpen = ref(false)
+    const containerRef = ref<HTMLElement | null>(null)
 
     // 本地可选项
     const locales = computed(() => availableLocales.value)
 
-    /**
-     * 显示名称映射
-     * @param loc - 语言代码
-     * @returns 显示名称
-     */
-    function displayName(loc: string): string {
-      const map: Record<string, string> = {
-        'zh-CN': '简体中文',
-        'zh-TW': '繁體中文',
-        'en-US': 'English',
-        'en': 'English',
-        'ja-JP': '日本語',
-        'ja': '日本語',
-        'ko-KR': '한국어',
-        'ko': '한국어',
-        'fr': 'Français',
-        'de': 'Deutsch',
-        'es': 'Español',
+    // 获取语言配置
+    const getLocaleConfig = (code: string): LocaleConfig => {
+      const config = defaultLocaleConfigs.find(c => c.code === code)
+      if (config) return config
+      // 默认配置
+      return {
+        code,
+        label: code,
+        nativeLabel: code,
+        description: '',
       }
-      return map[loc] || loc
     }
 
-    /**
-     * 当前语言显示名称
-     */
-    const currentLocaleName = computed(() => displayName(locale.value))
+    // 当前语言代码（简短）
+    const currentLocaleCode = computed(() => {
+      return locale.value.split('-')[0].toUpperCase()
+    })
 
-    /**
-     * 切换下拉菜单
-     */
-    const toggleDropdown = (e: MouseEvent) => {
-      e.stopPropagation() // 阻止事件冒泡
-      isOpen.value = !isOpen.value
-    }
+    // 当前语言显示名称
+    const currentLocaleName = computed(() => {
+      return getLocaleConfig(locale.value).label
+    })
+
+    // 判断当前语言是中文
+    const isZh = computed(() => {
+      const lang = locale.value.toLowerCase()
+      return lang.startsWith('zh') || lang.includes('cn') || lang.includes('hans')
+    })
+
+    // 标题文本
+    const titleText = computed(() => {
+      return props.title || (isZh.value ? '选择语言' : 'Select Language')
+    })
+
+    // 触发器样式类
+    const triggerClass = computed(() => {
+      const classes = ['ldesign-lang-switcher__trigger']
+      if (props.size === 'small') classes.push('ldesign-lang-switcher__trigger--small')
+      if (props.size === 'large') classes.push('ldesign-lang-switcher__trigger--large')
+      return classes.join(' ')
+    })
+
+    // 容器样式类
+    const containerClass = computed(() => {
+      const classes = ['ldesign-lang-switcher']
+      if (props.disabled) classes.push('ldesign-lang-switcher--disabled')
+      return classes.join(' ')
+    })
 
     /**
      * 选择语言
-     * @param loc - 语言代码
      */
     const selectLocale = async (loc: string) => {
       await setLocale(loc)
@@ -75,17 +117,13 @@ export default defineComponent({
      * 点击外部关闭下拉菜单
      */
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (!target.closest('.ld-lang-switcher')) {
+      if (containerRef.value && !containerRef.value.contains(e.target as Node)) {
         isOpen.value = false
       }
     }
 
-    // 生命周期(延迟添加事件监听,避免与按钮点击冲突)
     onMounted(() => {
-      setTimeout(() => {
-        document.addEventListener('click', handleClickOutside)
-      }, 0)
+      document.addEventListener('click', handleClickOutside)
     })
 
     onUnmounted(() => {
@@ -93,34 +131,52 @@ export default defineComponent({
     })
 
     return () => (
-      <div class="ld-lang-switcher">
+      <div ref={containerRef} class={containerClass.value}>
         <button
-          class="lang-button"
+          type="button"
+          class={triggerClass.value}
+          onClick={() => (isOpen.value = !isOpen.value)}
+          disabled={props.disabled}
           title={currentLocaleName.value}
-          onClick={toggleDropdown}
         >
           <Languages size={18} strokeWidth={2} />
         </button>
 
-        <Transition name="dropdown">
+        <Transition name="ldesign-dropdown">
           {isOpen.value && (
-            <div class="lang-dropdown" onClick={(e: MouseEvent) => e.stopPropagation()}>
-              <div class="dropdown-header">
-                <span class="dropdown-title">语言</span>
+            <div class="ldesign-lang-switcher__dropdown">
+              <div class="ldesign-lang-switcher__arrow" />
+              <div class="ldesign-lang-switcher__header">
+                <h4 class="ldesign-lang-switcher__title">{titleText.value}</h4>
               </div>
-              <div class="dropdown-content">
-                <div class="language-grid">
-                  {locales.value.map(loc => (
+              <div class="ldesign-lang-switcher__list">
+                {locales.value.map(loc => {
+                  const config = getLocaleConfig(loc)
+                  const isActive = locale.value === loc
+                  return (
                     <div
                       key={loc}
-                      class={['language-card', { active: locale.value === loc }]}
+                      class={[
+                        'ldesign-lang-switcher__item',
+                        isActive && 'ldesign-lang-switcher__item--active',
+                      ].filter(Boolean).join(' ')}
                       onClick={() => selectLocale(loc)}
                     >
-                      <span class="card-code">{loc.split('-')[0].toUpperCase()}</span>
-                      <span class="card-name">{displayName(loc)}</span>
+                      <span class="ldesign-lang-switcher__item-icon">
+                        {loc.split('-')[0].toUpperCase()}
+                      </span>
+                      <div class="ldesign-lang-switcher__item-info">
+                        <span class="ldesign-lang-switcher__item-label">{config.label}</span>
+                        {config.description && (
+                          <span class="ldesign-lang-switcher__item-desc">{config.description}</span>
+                        )}
+                      </div>
+                      {isActive && (
+                        <Check size={16} class="ldesign-lang-switcher__check" strokeWidth={3} />
+                      )}
                     </div>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
             </div>
           )}

@@ -107,6 +107,60 @@ export interface I18nPluginConfig {
 }
 
 /**
+ * 语言选项配置
+ */
+export interface LocaleOption {
+  /** 语言代码 */
+  code: string
+  /** 多语言标签 */
+  i18n: {
+    zh: { label: string; description?: string }
+    en: { label: string; description?: string }
+  }
+  /** 图标（可选） */
+  icon?: string
+  /** 是否禁用 */
+  disabled?: boolean
+}
+
+/**
+ * 语言选择器配置
+ */
+export interface LocaleSwitcherConfig {
+  /** 禁用的语言代码 */
+  disabledLocales?: string[]
+  /** 自定义语言选项 */
+  customLocales?: LocaleOption[]
+  /** 是否只使用自定义语言 */
+  useOnlyCustom?: boolean
+  /** 样式配置 */
+  style?: {
+    width?: string
+    maxHeight?: string
+  }
+}
+
+/**
+ * I18n 插件上下文（用于 onReady 回调）
+ */
+export interface I18nPluginContext {
+  /** 设置当前语言 */
+  setLocale: (locale: string) => Promise<void>
+  /** 获取当前语言 */
+  getLocale: () => string
+  /** 翻译函数 */
+  t: (key: string, params?: Record<string, any>) => string
+  /** 获取可用语言列表 */
+  getAvailableLocales: () => string[]
+  /** 添加语言包 */
+  addLocale: (locale: string, messages: Record<string, any>) => void
+  /** 检查翻译键是否存在 */
+  has: (key: string, locale?: string) => boolean
+  /** i18n 实例 */
+  instance: I18nInstance
+}
+
+/**
  * I18n Engine 插件完整配置选项
  */
 export interface I18nEnginePluginOptions {
@@ -168,6 +222,10 @@ export interface I18nEnginePluginOptions {
   /** 插件配置 */
   pluginConfig?: I18nPluginConfig
 
+  // ========== 语言选择器配置 ==========
+  /** 语言选择器配置 */
+  localeSwitcher?: LocaleSwitcherConfig
+
   // ========== Vue 集成配置 ==========
   /** 是否注册全局属性 */
   globalProperties?: boolean
@@ -175,6 +233,8 @@ export interface I18nEnginePluginOptions {
   directives?: boolean
   /** 是否注册组件 */
   components?: boolean
+  /** 是否注册全局组件（别名） */
+  globalComponents?: boolean
 
   // ========== 调试配置 ==========
   /** 是否启用调试模式 */
@@ -184,10 +244,18 @@ export interface I18nEnginePluginOptions {
   /** 日志级别 */
   logLevel?: 'error' | 'warn' | 'info' | 'debug'
 
+  // ========== 事件回调 ==========
+  /** 语言切换回调 */
+  onLocaleChange?: (locale: string, oldLocale: string) => void | Promise<void>
+  /** 缺失翻译键回调 */
+  onMissingKey?: (key: string, locale: string) => void
+  /** 初始化完成回调 */
+  onReady?: (context: I18nPluginContext) => void | Promise<void>
+
   // ========== 扩展配置 ==========
   /** 自定义元数据 */
   meta?: Record<string, any>
-  /** 自定义钩子 */
+  /** 自定义钩子（向后兼容） */
   hooks?: {
     onBeforeInstall?: () => void | Promise<void>
     onAfterInstall?: () => void | Promise<void>
@@ -286,7 +354,14 @@ export function createI18nEnginePlugin(
     globalProperties = true,
     directives = true,
     components = true,
+    globalComponents = components,
     preloadLocales = [],
+    persistence,
+    localeSwitcher,
+    onLocaleChange,
+    onMissingKey,
+    onReady,
+    hooks,
     ...i18nConfig
   } = options
 
@@ -294,8 +369,67 @@ export function createI18nEnginePlugin(
     console.log('[Vue I18n Plugin] createI18nEnginePlugin called with options:', options)
   }
 
+  // ==================== 持久化配置 ====================
+  const STORAGE_KEY = persistence?.key || 'ldesign-i18n'
+  const storageType = persistence?.storage || 'localStorage'
+  const persistenceEnabled = persistence?.enabled !== false
+
+  // 从 Storage 读取保存的语言
+  const loadLocaleFromStorage = (): string | null => {
+    if (!persistenceEnabled) return null
+    try {
+      if (storageType === 'cookie') {
+        const match = document.cookie.match(new RegExp(`${STORAGE_KEY}=([^;]+)`))
+        return match ? match[1] : null
+      }
+      const storage = storageType === 'sessionStorage' ? sessionStorage : localStorage
+      const data = storage.getItem(STORAGE_KEY)
+      if (data) {
+        const parsed = JSON.parse(data)
+        return parsed.locale || null
+      }
+    } catch { /* ignore */ }
+    return null
+  }
+
+  // 保存语言到 Storage
+  const saveLocaleToStorage = (locale: string) => {
+    if (!persistenceEnabled) return
+    try {
+      if (storageType === 'cookie') {
+        const cookieConfig = persistence?.cookie || {}
+        let cookie = `${STORAGE_KEY}=${locale}`
+        if (cookieConfig.path) cookie += `; path=${cookieConfig.path}`
+        if (cookieConfig.domain) cookie += `; domain=${cookieConfig.domain}`
+        if (cookieConfig.maxAge) cookie += `; max-age=${cookieConfig.maxAge}`
+        if (cookieConfig.secure) cookie += '; secure'
+        if (cookieConfig.sameSite) cookie += `; samesite=${cookieConfig.sameSite}`
+        document.cookie = cookie
+      } else {
+        const storage = storageType === 'sessionStorage' ? sessionStorage : localStorage
+        const existing = storage.getItem(STORAGE_KEY)
+        const data = existing ? JSON.parse(existing) : {}
+        data.locale = locale
+        data.updatedAt = Date.now()
+        storage.setItem(STORAGE_KEY, JSON.stringify(data))
+      }
+    } catch (e) {
+      console.warn('[I18n Engine Plugin] Failed to save locale to storage:', e)
+    }
+  }
+
+  // ==================== 初始化状态 ====================
+  // 优先级: Storage > options > 'zh-CN'
+  const storedLocale = loadLocaleFromStorage()
+  let currentLocale = storedLocale || i18nConfig.locale || 'zh-CN'
+
+  if (debug) {
+    console.log('[I18n Engine Plugin] Initial locale:', { currentLocale, storedLocale, configLocale: i18nConfig.locale })
+  }
+
   // 标志，防止重复安装到 Vue 应用
   let vueInstalled = false
+  let pluginContext: I18nPluginContext | null = null
 
   return {
     name,
@@ -317,12 +451,21 @@ export function createI18nEnginePlugin(
 
         engine.logger?.info?.('Installing Vue i18n plugin...', {
           version,
-          locale: i18nConfig.locale,
+          locale: currentLocale,
           fallbackLocale: i18nConfig.fallbackLocale,
         })
 
-        // 创建 i18n 实例
-        const i18n = new OptimizedI18n(i18nConfig)
+        // 创建 i18n 实例，使用恢复的语言
+        // 只提取 OptimizedI18n 需要的配置
+        const i18nOptions = {
+          locale: currentLocale,
+          fallbackLocale: i18nConfig.fallbackLocale,
+          messages: i18nConfig.messages,
+          cache: i18nConfig.cache,
+          cacheSize: i18nConfig.cacheSize,
+          performance: i18nConfig.performance,
+        }
+        const i18n = new OptimizedI18n(i18nOptions as any)
 
         // 初始化 i18n
         await i18n.init()
@@ -331,8 +474,6 @@ export function createI18nEnginePlugin(
         if (preloadLocales.length > 0) {
           for (const locale of preloadLocales) {
             if (locale !== i18n.locale) {
-              // OptimizedI18n 使用 addLocale 而不是 loadLocale
-              // 如果消息已经在 messages 中提供，则跳过
               if (!i18nConfig.messages?.[locale]) {
                 engine.logger?.warn?.(`Locale ${locale} not found in messages, skipping preload`)
               }
@@ -340,10 +481,53 @@ export function createI18nEnginePlugin(
           }
         }
 
+        // 包装 setLocale 以触发回调和持久化
+        const originalSetLocale = i18n.setLocale.bind(i18n)
+        i18n.setLocale = async (newLocale: string) => {
+          const oldLocale = currentLocale
+          currentLocale = newLocale
+          await originalSetLocale(newLocale)
+
+          // 保存到 Storage
+          saveLocaleToStorage(newLocale)
+
+          // 触发回调
+          if (onLocaleChange && oldLocale !== newLocale) {
+            try {
+              await onLocaleChange(newLocale, oldLocale)
+            } catch (e) {
+              console.error('[I18n Engine Plugin] onLocaleChange error:', e)
+            }
+          }
+          // 向后兼容 hooks
+          if (hooks?.onLocaleChange && oldLocale !== newLocale) {
+            hooks.onLocaleChange(newLocale, oldLocale)
+          }
+        }
+
+        // 创建插件上下文
+        pluginContext = {
+          setLocale: (locale: string) => i18n.setLocale(locale),
+          getLocale: () => i18n.locale,
+          t: (key: string, params?: Record<string, any>) => i18n.t(key, params),
+          getAvailableLocales: () => i18n.getAvailableLocales(),
+          addLocale: (locale: string, messages: Record<string, any>) => i18n.addLocale(locale, messages),
+          has: (key: string, locale?: string) => {
+            try {
+              const result = i18n.t(key, {}, locale)
+              return result !== key
+            } catch {
+              return false
+            }
+          },
+          instance: i18n,
+        }
+
         // 保存 i18n 配置到状态
         engine.state?.set?.('i18n:locale', i18n.locale)
         engine.state?.set?.('i18n:fallbackLocale', i18n.fallbackLocale)
         engine.state?.set?.('i18n:availableLocales', i18n.getAvailableLocales())
+        engine.state?.set?.('i18n:config', options)
 
         // 监听语言切换事件
         i18n.on('localeChanged', ({ locale, oldLocale }) => {
@@ -419,7 +603,7 @@ export function createI18nEnginePlugin(
 
         // 注册 i18n API 到 API 注册表
         if ((engine as any).api) {
-          const i18nAPI: I18nPluginAPI = {
+          const i18nAPI = {
             name: 'i18n',
             version: version || '1.0.0',
             getLocale: () => i18n.locale,
@@ -428,7 +612,16 @@ export function createI18nEnginePlugin(
             getAvailableLocales: () => i18n.getAvailableLocales(),
             addLocale: (locale: string, messages: Record<string, any>) => i18n.addLocale(locale, messages),
             removeLocale: (locale: string) => i18n.removeLocale(locale),
-            has: (key: string, locale?: string) => i18n.has(key, locale),
+            has: (key: string, _locale?: string) => {
+              try {
+                const result = i18n.t(key)
+                return result !== key
+              } catch {
+                return false
+              }
+            },
+            getConfig: () => options,
+            context: pluginContext,
           };
           (engine as any).api.register(i18nAPI)
           if (debug) {
@@ -438,6 +631,18 @@ export function createI18nEnginePlugin(
 
         // 发射 i18n 安装完成事件
         engine.events?.emit?.(I18N_EVENTS.INSTALLED, { locale: i18n.locale })
+
+        // 触发 onReady 回调
+        if (onReady && pluginContext) {
+          try {
+            await onReady(pluginContext)
+            if (debug) {
+              console.log('[I18n Engine Plugin] onReady hook executed')
+            }
+          } catch (e) {
+            console.error('[I18n Engine Plugin] onReady error:', e)
+          }
+        }
 
         engine.logger?.info?.('Vue i18n plugin installed successfully')
       }

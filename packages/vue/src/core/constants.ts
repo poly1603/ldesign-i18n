@@ -9,6 +9,7 @@ import type { I18nInstance } from '@ldesign/i18n-core'
 export const I18N_SYMBOL = Symbol('i18n') as InjectionKey<I18nInstance>
 export const I18N_INJECTION_KEY = I18N_SYMBOL // Main injection key
 export const i18nSymbol = I18N_SYMBOL // Alias for compatibility
+export const I18N_CONFIG_SYMBOL = Symbol('i18n-config') // Plugin config injection key
 
 // Default options
 export const DEFAULT_LOCALE = 'en-US'
