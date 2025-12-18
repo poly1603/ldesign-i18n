@@ -43,6 +43,7 @@ export default defineComponent({
     disabled: { type: Boolean, default: false },
     size: { type: String as () => 'small' | 'medium' | 'large', default: 'medium' },
     title: { type: String, default: '' },
+    variant: { type: String as () => 'light' | 'primary', default: 'light' },
   },
 
   setup(props) {
@@ -98,6 +99,21 @@ export default defineComponent({
       return classes.join(' ')
     })
 
+    // Inline fallback style based on variant to match ThemeColorPicker
+    const triggerStyle = computed(() => {
+      if (props.variant === 'primary') {
+        return {
+          background: 'rgba(255, 255, 255, 0.12)',
+          borderColor: 'rgba(255, 255, 255, 0.18)',
+          color: 'var(--color-text-inverse, #ffffff)'
+        }
+      }
+      return {
+        background: 'var(--color-bg-hover, #f3f4f6)',
+        borderColor: 'var(--color-border, #e5e7eb)'
+      }
+    })
+
     // 容器样式类
     const containerClass = computed(() => {
       const classes = ['ldesign-lang-switcher']
@@ -131,10 +147,11 @@ export default defineComponent({
     })
 
     return () => (
-      <div ref={containerRef} class={containerClass.value}>
+      <div ref={containerRef} class={containerClass.value} data-variant={props.variant || 'light'}>
         <button
           type="button"
           class={triggerClass.value}
+          style={triggerStyle.value}
           onClick={() => (isOpen.value = !isOpen.value)}
           disabled={props.disabled}
           title={currentLocaleName.value}
