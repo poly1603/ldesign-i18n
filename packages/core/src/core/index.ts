@@ -24,6 +24,7 @@ export * from './pluralization'
 export * from './soa-storage'
 export * from './template-compiler'
 export * from './weak-event-emitter'
+export * from './translation-snapshot'
 
 /**
  * Create a new optimized i18n instance

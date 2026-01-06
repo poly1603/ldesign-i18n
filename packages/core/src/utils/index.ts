@@ -85,3 +85,6 @@ export * from './key-finder'
 
 // Export advanced key validator
 export * from './key-validator-advanced'
+
+// Export smart suggestions
+export * from './smart-suggestions'

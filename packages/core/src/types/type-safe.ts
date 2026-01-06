@@ -39,29 +39,47 @@ export type PathExists<T, P extends string> = PathValue<T, P> extends never ? fa
 export type TranslationKey<T> = NestedKeyOf<T> extends never ? string : NestedKeyOf<T>
 
 /**
+ * 插值参数类型
+ */
+export type InterpolationValue = string | number | boolean | Date | null | undefined
+
+/**
  * Type-safe translation function
  */
 export interface TypeSafeTranslationFunction<Messages> {
   <K extends TranslationKey<Messages>>(
     key: K,
-    params?: Record<string, any>
+    params?: Record<string, InterpolationValue>
   ): string
 
   // Fallback for dynamic keys
-  (key: string, params?: Record<string, any>): string
+  (key: string, params?: Record<string, InterpolationValue>): string
+}
+
+/**
+ * 翻译选项类型
+ */
+export interface TranslateOptionsBase {
+  locale?: string
+  fallbackLocale?: string | string[]
+  params?: Record<string, InterpolationValue>
+  defaultValue?: string
+  count?: number
+  context?: string
+  namespace?: string
 }
 
 /**
  * Type-safe i18n interface with message type parameter
  */
-export interface TypeSafeI18n<Messages = any> {
+export interface TypeSafeI18n<Messages = Record<string, unknown>> {
   t: TypeSafeTranslationFunction<Messages>
   te: <K extends TranslationKey<Messages>>(key: K) => boolean
-  tm: <K extends TranslationKey<Messages>>(key: K) => any
+  tm: <K extends TranslationKey<Messages>>(key: K) => Messages extends object ? PathValue<Messages, K & string> : unknown
 
   // Allow fallback for runtime usage
-  translate: (key: string, options?: any) => string
-  exists: (key: string, options?: any) => boolean
+  translate: (key: string, options?: TranslateOptionsBase) => string
+  exists: (key: string, options?: TranslateOptionsBase) => boolean
 }
 
 /**
@@ -74,7 +92,7 @@ export type CreateTypeSafeI18n<Messages> = TypeSafeI18n<Messages>
  */
 export type StrictTranslationFunction<Messages> = <K extends TranslationKey<Messages>>(
   key: K,
-  params?: Record<string, any>,
+  params?: Record<string, InterpolationValue>,
 ) => string
 
 /**
@@ -85,18 +103,18 @@ export type ExtractMessagesType<T> = T extends TypeSafeI18n<infer M> ? M : never
 /**
  * Type guard to check if key exists in messages
  */
-export function isValidTranslationKey<Messages>(
+export function isValidTranslationKey<Messages extends Record<string, unknown>>(
   messages: Messages,
   key: string,
 ): key is TranslationKey<Messages> {
   const parts = key.split('.')
-  let current: any = messages
+  let current: unknown = messages
 
   for (const part of parts) {
-    if (current === null || current === undefined || !(part in current)) {
+    if (current === null || current === undefined || typeof current !== 'object' || !(part in current)) {
       return false
     }
-    current = current[part]
+    current = (current as Record<string, unknown>)[part]
   }
 
   return true
@@ -105,23 +123,24 @@ export function isValidTranslationKey<Messages>(
 /**
  * Get all available keys from messages object
  */
-export function getAllTranslationKeys<Messages>(messages: Messages): TranslationKey<Messages>[] {
+export function getAllTranslationKeys<Messages extends Record<string, unknown>>(messages: Messages): TranslationKey<Messages>[] {
   const keys: string[] = []
 
-  function traverse(obj: any, prefix = ''): void {
+  function traverse(obj: Record<string, unknown>, prefix = ''): void {
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const path = prefix ? `${prefix}.${key}` : key
         keys.push(path)
 
-        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-          traverse(obj[key], path)
+        const value = obj[key]
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          traverse(value as Record<string, unknown>, path)
         }
       }
     }
   }
 
-  traverse(messages)
+  traverse(messages as Record<string, unknown>)
   return keys as TranslationKey<Messages>[]
 }
 
@@ -130,17 +149,28 @@ export function getAllTranslationKeys<Messages>(messages: Messages): Translation
  */
 export interface TypeSafeTranslateOptions<Messages, K extends TranslationKey<Messages>> {
   locale?: string
-  params?: PathValue<Messages, K> extends string ? Record<string, any> : never
+  params?: PathValue<Messages, K & string> extends string ? Record<string, InterpolationValue> : never
   defaultValue?: string
   count?: number
 }
 
 /**
+ * I18n 实例基础接口（用于类型安全包装器）
+ */
+export interface I18nInstanceBase {
+  t: (key: string, params?: Record<string, InterpolationValue>) => string
+  translate: (key: string, options?: TranslateOptionsBase) => string
+  exists: (key: string, options?: TranslateOptionsBase) => boolean
+  getMessages: (locale?: string) => Record<string, unknown> | null
+  locale: string
+}
+
+/**
  * Create a type-safe wrapper around an i18n instance
  */
-export function createTypeSafeWrapper<Messages>(i18n: any): TypeSafeI18n<Messages> {
+export function createTypeSafeWrapper<Messages extends Record<string, unknown>>(i18n: I18nInstanceBase): TypeSafeI18n<Messages> {
   return {
-    t: ((key: string, params?: Record<string, any>) => {
+    t: ((key: string, params?: Record<string, InterpolationValue>) => {
       return i18n.t(key, params)
     }) as TypeSafeTranslationFunction<Messages>,
 
@@ -151,11 +181,11 @@ export function createTypeSafeWrapper<Messages>(i18n: any): TypeSafeI18n<Message
     tm: (key: string) => {
       const parts = key.split('.')
       const messages = i18n.getMessages(i18n.locale)
-      let current: any = messages
+      let current: unknown = messages
 
       for (const part of parts) {
         if (current && typeof current === 'object' && part in current) {
-          current = current[part]
+          current = (current as Record<string, unknown>)[part]
         }
         else {
           return undefined
@@ -167,7 +197,7 @@ export function createTypeSafeWrapper<Messages>(i18n: any): TypeSafeI18n<Message
 
     translate: i18n.translate.bind(i18n),
     exists: i18n.exists.bind(i18n),
-  }
+  } as TypeSafeI18n<Messages>
 }
 
 /**

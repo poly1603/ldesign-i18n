@@ -7,8 +7,8 @@
 
 export type Locale = string
 export type MessageKey = string
-export type MessageValue = string | Record<string, any>
-export type InterpolationParams = Record<string, any>
+export type MessageValue = string | Record<string, unknown>
+export type InterpolationParams = Record<string, string | number | boolean | Date | null | undefined>
 export type PluralRule = (count: number, locale: Locale) => string
 
 /**
@@ -19,17 +19,22 @@ export interface Messages {
 }
 
 /**
+ * 语言包元数据类型
+ */
+export interface LanguageMetadata {
+  name?: string
+  direction?: 'ltr' | 'rtl'
+  fallback?: Locale
+  [key: string]: string | boolean | number | undefined
+}
+
+/**
  * Language package containing all translations for a locale
  */
 export interface LanguagePackage {
   locale: Locale
   messages: Messages
-  metadata?: {
-    name?: string
-    direction?: 'ltr' | 'rtl'
-    fallback?: Locale
-    [key: string]: any
-  }
+  metadata?: LanguageMetadata
 }
 
 /**
@@ -53,7 +58,7 @@ export interface InterpolationOptions {
   prefix?: string
   suffix?: string
   escapeValue?: boolean
-  formatter?: (value: any, format?: string, locale?: Locale) => string
+  formatter?: (value: unknown, format?: string, locale?: Locale) => string
 }
 
 // ============== Core Interfaces ==============
@@ -84,7 +89,7 @@ export interface MessageStorage {
 /**
  * Cache interface
  */
-export interface Cache<K = any, V = any> {
+export interface Cache<K = string | number, V = unknown> {
   get: (key: K) => V | undefined
   set: (key: K, value: V, ttl?: number) => void
   has: (key: K) => boolean
@@ -103,10 +108,15 @@ export interface LanguageDetector {
 }
 
 /**
+ * 格式化选项类型
+ */
+export type FormatterOptions = Record<string, string | number | boolean | undefined>
+
+/**
  * Formatter interface
  */
 export interface Formatter {
-  format: (value: any, format: string, locale: Locale, options?: any) => string
+  format: (value: unknown, format: string, locale: Locale, options?: FormatterOptions) => string
 }
 
 /**
@@ -189,6 +199,18 @@ export interface CacheConfig {
 }
 
 /**
+ * Cookie 配置选项
+ */
+export interface CookieOptions {
+  path?: string
+  domain?: string
+  maxAge?: number
+  expires?: Date
+  secure?: boolean
+  sameSite?: 'strict' | 'lax' | 'none'
+}
+
+/**
  * Detection configuration
  */
 export interface DetectionConfig {
@@ -200,7 +222,7 @@ export interface DetectionConfig {
   lookupFromPathIndex?: number
   lookupFromSubdomainIndex?: number
   caches?: string[]
-  cookieOptions?: any
+  cookieOptions?: CookieOptions
 }
 
 /**
@@ -213,7 +235,7 @@ export interface InterpolationConfig {
   nestingPrefix?: string
   nestingSuffix?: string
   formatSeparator?: string
-  formatter?: (value: any, format?: string, locale?: Locale) => string
+  formatter?: (value: unknown, format?: string, locale?: Locale) => string
 }
 
 // ============== Events ==============
@@ -244,7 +266,8 @@ export interface I18nEventData {
   fallback?: Locale
   error?: Error
   plugin?: string
-  [key: string]: any
+  oldLocale?: Locale
+  [key: string]: I18nEventType | Locale | string | Error | undefined
 }
 
 /**
@@ -317,7 +340,7 @@ export interface I18nInstance {
   hasNamespace: (namespace: string, locale?: Locale) => boolean
 
   // Formatting
-  format: (value: any, format: string, locale?: Locale, options?: any) => string
+  format: (value: unknown, format: string, locale?: Locale, options?: FormatterOptions) => string
   number: (value: number, options?: Intl.NumberFormatOptions) => string
   currency: (value: number, currency: string, options?: Intl.NumberFormatOptions) => string
   date: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string
@@ -360,13 +383,26 @@ export interface I18nContext {
 /**
  * Framework adapter interface
  */
-export interface FrameworkAdapter<T = any> {
+export interface FrameworkAdapter<TApp = unknown> {
   name: string
-  install: (app: T, i18n: I18nInstance) => void
-  uninstall?: (app: T) => void
+  install: (app: TApp, i18n: I18nInstance) => void
+  uninstall?: (app: TApp) => void
 }
 
 // ============== Engine Plugin ==============
+
+/**
+ * Engine 应用接口
+ */
+export interface EngineApp {
+  use: (plugin: EnginePlugin) => void | Promise<void>
+  [key: string]: unknown
+}
+
+/**
+ * Engine 插件 API 类型
+ */
+export type EnginePluginApi = Record<string, ((...args: unknown[]) => unknown) | unknown>
 
 /**
  * Engine plugin interface for @ldesign/engine integration
@@ -374,9 +410,9 @@ export interface FrameworkAdapter<T = any> {
 export interface EnginePlugin {
   name: string
   version?: string
-  install: (app: any) => void | Promise<void>
+  install: (app: EngineApp) => void | Promise<void>
   onReady?: () => void | Promise<void>
-  api?: Record<string, any>
+  api?: EnginePluginApi
 }
 
 // ============== Export utility types ==============

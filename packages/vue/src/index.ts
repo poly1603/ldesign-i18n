@@ -31,6 +31,10 @@ export * from './directives'
 
 export * from './utils'
 
+// ==================== DevTools ====================
+
+export * from './devtools'
+
 // ==================== 快速安装 ====================
 
 import type { App } from 'vue'
