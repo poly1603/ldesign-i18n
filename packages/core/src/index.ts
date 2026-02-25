@@ -310,3 +310,5 @@ export const BUILD_DATE = new Date().toISOString()
 
 export { OptimizedI18n as default } from './core/i18n-optimized'
 
+// Engine 插件
+export * from './engine'
