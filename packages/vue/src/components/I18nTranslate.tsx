@@ -82,13 +82,13 @@ export default defineComponent({
      * 计算翻译后的文本
      */
     const translatedText = computed(() => {
-      const options: TranslateOptions = {
-        params: props.values,
-        count: props.count,
-        context: props.context,
-        defaultValue: props.defaultValue,
-        locale: props.locale,
-      }
+      // 只包含已定义的值,避免 undefined 属性导致 normalizeOptions 误判
+      const options: TranslateOptions = {}
+      if (props.values) options.params = props.values
+      if (props.count !== undefined) options.count = props.count
+      if (props.context) options.context = props.context
+      if (props.defaultValue) options.defaultValue = props.defaultValue
+      if (props.locale) options.locale = props.locale
 
       return t(props.keypath, options)
     })

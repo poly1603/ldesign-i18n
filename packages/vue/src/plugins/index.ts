@@ -9,12 +9,10 @@ export * from './engine-plugin'
 export type {
   I18nEnginePluginOptions,
   I18nPluginContext,
+  I18nPersistenceConfig,
+  EngineLike,
   LocaleSwitcherConfig,
   LocaleOption,
-  I18nPersistenceConfig,
-  I18nFallbackConfig,
-  I18nFormattingConfig,
-  I18nPerformanceConfig,
   LocaleDetectionStrategy,
   LocaleLoadStrategy,
 } from './engine-plugin'

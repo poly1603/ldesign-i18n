@@ -1,0 +1,24 @@
+{
+  "name": "@ldesign/i18n-playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:vue": "vite --mode vue",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ldesign/engine-vue3": "workspace:*",
+    "@ldesign/i18n-core": "workspace:*",
+    "@ldesign/i18n-vue": "workspace:*",
+    "vue": "^3.5.18"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "@vitejs/plugin-vue-jsx": "^5.1.4",
+    "typescript": "^5.7.3",
+    "vite": "^5.0.12"
+  }
+}

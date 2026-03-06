@@ -20,3 +20,17 @@ export const COMPONENT_PREFIX = 'I18n'
 
 // Directive names
 export const DIRECTIVE_PREFIX = 'v-t'
+
+/**
+ * Global i18n instance holder.
+ * Used as a fallback by directives when Symbol-based injection fails (e.g. after HMR).
+ */
+let _globalI18nInstance: I18nInstance | undefined
+
+export function setGlobalI18nInstance(instance: I18nInstance) {
+  _globalI18nInstance = instance
+}
+
+export function getGlobalI18nInstance(): I18nInstance | undefined {
+  return _globalI18nInstance
+}

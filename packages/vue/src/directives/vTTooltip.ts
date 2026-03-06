@@ -5,6 +5,7 @@
 
 import type { Directive, DirectiveBinding } from 'vue'
 import type { I18nInstance } from '@ldesign/i18n-core'
+import { I18N_SYMBOL, getGlobalI18nInstance } from '../core/constants'
 
 interface TooltipBinding {
   key: string
@@ -103,88 +104,110 @@ function hideTooltip() {
   }
 }
 
+function resolveI18n(binding: DirectiveBinding): I18nInstance | undefined {
+  const instance = binding.instance
+  const ctx = instance?.$ ? instance.$.appContext : undefined
+  if (ctx) {
+    const gp = ctx.app?.config?.globalProperties?.$i18n as I18nInstance | undefined
+    if (gp) return gp
+    const provided = (ctx as any).provides?.[I18N_SYMBOL as any] as I18nInstance | undefined
+    if (provided) return provided
+  }
+  return getGlobalI18nInstance()
+}
+
+function parseConfig(binding: DirectiveBinding<string | TooltipBinding>): TooltipBinding {
+  if (typeof binding.value === 'string') {
+    return { key: binding.value }
+  }
+  return binding.value
+}
+
+function updateTooltipText(el: HTMLElement, binding: DirectiveBinding<string | TooltipBinding>, i18n: I18nInstance) {
+  const config = parseConfig(binding)
+  const translated = i18n.t(config.key, { params: config.params })
+  el.textContent = translated
+}
+
+function setupTooltip(el: HTMLElement, binding: DirectiveBinding<string | TooltipBinding>, i18n: I18nInstance) {
+  const config = parseConfig(binding)
+  const { key, params, showKey = true, showLocale = false, position = 'top', delay = 300 } = config
+
+  // Translate and set text
+  const translated = i18n.t(key, { params })
+  el.textContent = translated
+
+  // Build tooltip content
+  let tooltipContent = ''
+  if (showKey) {
+    tooltipContent += `Key: ${key}`
+  }
+  if (showLocale) {
+    tooltipContent += (tooltipContent ? '\n' : '') + `Locale: ${i18n.locale}`
+  }
+
+  if (!tooltipContent) return
+
+  let timer: NodeJS.Timeout | null = null
+
+  const handleMouseEnter = () => {
+    timer = setTimeout(() => {
+      showTooltip(el, tooltipContent, position)
+    }, delay)
+  }
+
+  const handleMouseLeave = () => {
+    if (timer) {
+      clearTimeout(timer)
+      timer = null
+    }
+    hideTooltip()
+  }
+
+  el.addEventListener('mouseenter', handleMouseEnter)
+  el.addEventListener('mouseleave', handleMouseLeave)
+
+  ;(el as any)._tooltipCleanup = () => {
+    el.removeEventListener('mouseenter', handleMouseEnter)
+    el.removeEventListener('mouseleave', handleMouseLeave)
+    if (timer) {
+      clearTimeout(timer)
+    }
+  }
+}
+
 export const vTTooltip: Directive = {
-  mounted(el: HTMLElement, binding: DirectiveBinding<string | TooltipBinding>, vnode) {
-    const i18n = vnode.appContext?.app.config.globalProperties.$i18n as I18nInstance
+  mounted(el: HTMLElement, binding: DirectiveBinding<string | TooltipBinding>) {
+    const i18n = resolveI18n(binding)
 
     if (!i18n) {
       console.warn('[v-t-tooltip] i18n instance not found')
       return
     }
 
-    let config: TooltipBinding
-    if (typeof binding.value === 'string') {
-      config = { key: binding.value }
-    } else {
-      config = binding.value
-    }
+    setupTooltip(el, binding, i18n)
 
-    const { key, params, showKey = true, showLocale = false, position = 'top', delay = 300 } = config
-
-    // 翻译并设置文本
-    const translated = i18n.t(key, { params })
-    el.textContent = translated
-
-    // 构建工具提示内容
-    let tooltipContent = ''
-    if (showKey) {
-      tooltipContent += `Key: ${key}`
-    }
-    if (showLocale) {
-      tooltipContent += (tooltipContent ? '\n' : '') + `Locale: ${i18n.locale}`
-    }
-
-    if (!tooltipContent) return
-
-    let timer: NodeJS.Timeout | null = null
-
-    const handleMouseEnter = () => {
-      timer = setTimeout(() => {
-        showTooltip(el, tooltipContent, position)
-      }, delay)
-    }
-
-    const handleMouseLeave = () => {
-      if (timer) {
-        clearTimeout(timer)
-        timer = null
-      }
-      hideTooltip()
-    }
-
-    el.addEventListener('mouseenter', handleMouseEnter)
-    el.addEventListener('mouseleave', handleMouseLeave)
-
-    // 保存清理函数
-    ;(el as any)._tooltipCleanup = () => {
-      el.removeEventListener('mouseenter', handleMouseEnter)
-      el.removeEventListener('mouseleave', handleMouseLeave)
-      if (timer) {
-        clearTimeout(timer)
-      }
-    }
+    // Subscribe to locale changes
+    const unsub = i18n.on('localeChanged', () => {
+      updateTooltipText(el, binding, i18n)
+    })
+    ;(el as any)._vt_unsub = unsub
   },
 
-  updated(el: HTMLElement, binding: DirectiveBinding<string | TooltipBinding>, vnode) {
-    const i18n = vnode.appContext?.app.config.globalProperties.$i18n as I18nInstance
-
+  updated(el: HTMLElement, binding: DirectiveBinding<string | TooltipBinding>) {
+    const i18n = resolveI18n(binding)
     if (!i18n) return
-
-    let config: TooltipBinding
-    if (typeof binding.value === 'string') {
-      config = { key: binding.value }
-    } else {
-      config = binding.value
-    }
-
-    const translated = i18n.t(config.key, { params: config.params })
-    el.textContent = translated
+    updateTooltipText(el, binding, i18n)
   },
 
   unmounted(el: HTMLElement) {
     if ((el as any)._tooltipCleanup) {
       (el as any)._tooltipCleanup()
       delete (el as any)._tooltipCleanup
+    }
+    if (typeof (el as any)._vt_unsub === 'function') {
+      (el as any)._vt_unsub()
+      delete (el as any)._vt_unsub
     }
   },
 }

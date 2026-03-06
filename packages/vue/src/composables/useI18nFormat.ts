@@ -48,6 +48,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     options?: Intl.NumberFormatOptions
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value // track locale changes
       const num = unref(value)
       return i18n.number(num, options)
     })
@@ -61,6 +62,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     decimals = 2
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const num = unref(value)
       return i18n.number(num, {
         style: 'percent',
@@ -75,6 +77,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
    */
   const formatCompact = (value: number | Ref<number>): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const num = unref(value)
       return i18n.number(num, {
         notation: 'compact',
@@ -92,6 +95,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     options?: Intl.NumberFormatOptions
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const num = unref(value)
       const curr = unref(currency)
       return i18n.currency(num, curr, options)
@@ -106,6 +110,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     options?: Intl.DateTimeFormatOptions
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const date = unref(value)
       return i18n.date(date, options || { dateStyle: 'medium' })
     })
@@ -118,6 +123,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     value: Date | number | string | Ref<Date | number | string>
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const date = unref(value)
       return i18n.date(date, { timeStyle: 'medium' })
     })
@@ -130,6 +136,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     value: Date | number | string | Ref<Date | number | string>
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const date = unref(value)
       return i18n.date(date, {
         dateStyle: 'medium',
@@ -145,6 +152,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     value: Date | number | string | Ref<Date | number | string>
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const date = unref(value)
       return i18n.relativeTime(date)
     })
@@ -158,6 +166,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     type: 'conjunction' | 'disjunction' | 'unit' = 'conjunction'
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const list = unref(items)
       try {
         return new Intl.ListFormat(locale.value, { type }).format(list)
@@ -175,6 +184,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
     decimals = 2
   ): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const size = unref(bytes)
       
       if (size === 0) return '0 Bytes'
@@ -195,6 +205,7 @@ export function useI18nFormat(): UseI18nFormatReturn {
    */
   const formatDuration = (ms: number | Ref<number>): ComputedRef<string> => {
     return computed(() => {
+      void locale.value
       const duration = unref(ms)
       
       const seconds = Math.floor(duration / 1000)

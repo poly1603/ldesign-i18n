@@ -230,7 +230,8 @@ export class OptimizedI18n implements I18nInstance {
   /** 热路径缓存容量(较小以提高缓存局部性) */
   private readonly HOT_PATH_CACHE_SIZE = 30
   /** 是否为开发环境 */
-  private readonly isDev = typeof window !== 'undefined' && (window as any).__DEV__ === true
+  private readonly isDev = (typeof window !== 'undefined' && (window as any).__DEV__ === true)
+    || (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development')
   /** 是否使用哈希键(生产环境为 true,开发环境为 false) */
   private readonly useHashKeys = typeof process === 'undefined' || process.env.NODE_ENV === 'production'
 
@@ -676,6 +677,10 @@ export class OptimizedI18n implements I18nInstance {
   ): string | number {
     // 生产环境: 使用高性能哈希
     if (this.useHashKeys) {
+      if (options.params) {
+        const paramsHash = HashCacheKey.hashParams(options.params as Record<string, any>)
+        return HashCacheKey.generateWithParams(locale, key, namespace, paramsHash)
+      }
       return HashCacheKey.generate(
         locale,
         key,
@@ -698,6 +703,17 @@ export class OptimizedI18n implements I18nInstance {
 
     if (options.context) {
       this.cacheKeyBuilder.add(`x${options.context}`)
+    }
+
+    // 包含 params 到缓存键,避免同键不同参数返回错误缓存
+    if (options.params) {
+      try {
+        this.cacheKeyBuilder.add(`p${JSON.stringify(options.params)}`)
+      }
+      catch {
+        // 非序列化参数: 跳过缓存
+        this.cacheKeyBuilder.add(`p${Date.now()}`)
+      }
     }
 
     return this.cacheKeyBuilder.build()
@@ -736,9 +752,31 @@ export class OptimizedI18n implements I18nInstance {
     if (type === 'object') {
       const obj = optionsOrParams as any
 
+      // 如果明确包含 params 属性,一定是 TranslateOptions
+      if (obj.params !== undefined) {
+        return obj as TranslateOptions
+      }
+
       // 快速检查是否为选项对象(通过特定属性判断)
-      if (obj.locale || obj.fallbackLocale || obj.defaultValue
-        || obj.count !== undefined || obj.context || obj.namespace) {
+      const hasOptionsKeys = obj.locale || obj.fallbackLocale || obj.defaultValue
+        || obj.count !== undefined || obj.context || obj.namespace
+
+      if (hasOptionsKeys) {
+        // 检查是否也包含非 TranslateOptions 的属性
+        // 如果存在未知属性,说明用户传的是参数对象(恰好包含与选项同名的属性)
+        const keys = Object.keys(obj)
+        const hasNonOptionsKeys = keys.some(k =>
+          k !== 'locale' && k !== 'fallbackLocale' && k !== 'defaultValue'
+          && k !== 'count' && k !== 'context' && k !== 'namespace' && k !== 'params',
+        )
+
+        if (hasNonOptionsKeys) {
+          // 混合键: 视为参数对象
+          const opts = this.optionsFactory.create()
+          opts.params = obj as InterpolationParams
+          return opts
+        }
+
         return obj as TranslateOptions
       }
 
@@ -1203,13 +1241,12 @@ export class OptimizedI18n implements I18nInstance {
     namespace: string,
     options: TranslateOptions,
   ): string {
-    // Only emit and warn in development
-    if (this.isDev) {
-      this.emit('missingKey', { type: 'missingKey', key, locale, namespace })
+    // Always emit missingKey event so subscribers (e.g. useI18nMissingKeys) can track it
+    this.emit('missingKey', { type: 'missingKey', key, locale, namespace })
 
-      if (this.config?.warnOnMissing !== false) {
-        warn(`Missing translation for key "${key}" in locale "${locale}"`)
-      }
+    // Console warning only in development
+    if (this.isDev && this.config?.warnOnMissing !== false) {
+      warn(`Missing translation for key "${key}" in locale "${locale}"`)
     }
 
     // Use custom handler if provided

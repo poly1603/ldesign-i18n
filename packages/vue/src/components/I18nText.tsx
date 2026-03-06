@@ -74,19 +74,22 @@ export default defineComponent({
      * 计算翻译后的文本
      */
     const translatedText = computed(() => {
-      const options = {
-        params: props.params,
-        locale: props.locale,
-        defaultValue: props.defaultValue,
-      }
-
       // 如果指定了复数形式,使用 tc 函数
       if (props.plural !== undefined) {
         return tc(props.keypath, props.plural, props.params)
       }
 
-      // 否则使用普通的 t 函数
-      return t(props.keypath, options)
+      // 构建选项对象,只包含已定义的值
+      if (props.locale || props.defaultValue) {
+        const options: Record<string, any> = {}
+        if (props.params) options.params = props.params
+        if (props.locale) options.locale = props.locale
+        if (props.defaultValue) options.defaultValue = props.defaultValue
+        return t(props.keypath, options)
+      }
+
+      // 简单情况: 直接传递 params
+      return t(props.keypath, props.params)
     })
 
     return () => {

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@ldesign/i18n-core": ["../packages/core/src/index.ts"],
+      "@ldesign/i18n-vue": ["../packages/vue/src/index.ts"],
+      "@ldesign/engine-vue3": ["../../engine/packages/vue3/src/index.ts"],
+      "@ldesign/engine-core": ["../../engine/packages/core/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
